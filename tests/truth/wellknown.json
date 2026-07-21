@@ -1,0 +1,216 @@
+{
+  "core_canonical_names": [
+    "access control assistance operators",
+    "account operators",
+    "administrator",
+    "administrators",
+    "anonymous",
+    "authenticated session",
+    "authenticated users",
+    "backup operators",
+    "basic efs",
+    "batch",
+    "ca exchange",
+    "cep encryption",
+    "cert publishers",
+    "cloneable domain controllers",
+    "code signing",
+    "computer",
+    "computers",
+    "console logon",
+    "creator group",
+    "creator group server",
+    "creator owner",
+    "creator owner server",
+    "cross-certification authority",
+    "deleted objects",
+    "device owners",
+    "dialup",
+    "directory e-mail replication",
+    "distributed com users",
+    "domain admins",
+    "domain computers",
+    "domain controller",
+    "domain controller authentication",
+    "domain controllers",
+    "domain guests",
+    "domain users",
+    "efs recovery agent",
+    "enrollment agent",
+    "enrollment agent (computer)",
+    "enterprise admins",
+    "enterprise domain controllers",
+    "enterprise key admins",
+    "event log readers",
+    "everyone",
+    "exchange enrollment agent (offline request)",
+    "exchange signature only",
+    "exchange user",
+    "foreign security principals",
+    "group policy creator owners",
+    "guest",
+    "guests",
+    "infrastructure",
+    "interactive",
+    "ipsec",
+    "ipsec (offline request)",
+    "iusr",
+    "kerberos authentication",
+    "key admins",
+    "key recovery agent",
+    "krbtgt",
+    "local",
+    "local account",
+    "local account and member of administrators group",
+    "local service",
+    "local system",
+    "lostandfound",
+    "managed service accounts",
+    "microsoft program data",
+    "network",
+    "network configuration operators",
+    "network service",
+    "nobody",
+    "ntds quotas",
+    "ocsp response signing",
+    "owner rights",
+    "performance log users",
+    "performance monitor users",
+    "power users",
+    "pre-windows 2000 compatible access",
+    "principal self",
+    "print operators",
+    "program data",
+    "protected users",
+    "proxy",
+    "ras and ias server",
+    "read-only domain controllers",
+    "remote desktop users",
+    "remote interactive logon",
+    "replicator",
+    "restricted code",
+    "root certification authority",
+    "router (offline request)",
+    "schema admins",
+    "server operators",
+    "service",
+    "smartcard logon",
+    "smartcard user",
+    "subordinate certification authority",
+    "system",
+    "system managed accounts group",
+    "terminal server user",
+    "this organization",
+    "trust list signing",
+    "user",
+    "user signature only",
+    "users",
+    "web server",
+    "windows authorization access group",
+    "workstation authentication"
+  ],
+  "sids": [
+    [
+      "S-1-5-32-544",
+      true
+    ],
+    [
+      "S-1-1-0",
+      true
+    ],
+    [
+      "S-1-5-18",
+      true
+    ],
+    [
+      "S-1-5-32-545",
+      true
+    ],
+    [
+      "S-1-5-32-546",
+      true
+    ],
+    [
+      "S-1-5-32-578",
+      false
+    ],
+    [
+      "S-1-5-21-1004336348-1177238915-682003330-512",
+      false
+    ]
+  ],
+  "names": [
+    [
+      "Domain Admins",
+      true
+    ],
+    [
+      "domain admins",
+      true
+    ],
+    [
+      "krbtgt",
+      true
+    ],
+    [
+      "Finance_Admins",
+      false
+    ],
+    [
+      "Hyper-V Administrators",
+      false
+    ],
+    [
+      "DnsAdmins",
+      false
+    ],
+    [
+      "S-1-1-0",
+      false
+    ],
+    [
+      "  KRBTGT  ",
+      true
+    ]
+  ],
+  "rids": [
+    [
+      512,
+      true
+    ],
+    [
+      500,
+      true
+    ],
+    [
+      1104,
+      false
+    ],
+    [
+      513,
+      true
+    ]
+  ],
+  "guids": [
+    [
+      "00000000-0000-0000-0000-000000000000",
+      true
+    ],
+    [
+      "31B2F340-016D-11D2-945F-00C04FB984F9",
+      true
+    ],
+    [
+      "6AC1786C-016F-11D2-945F-00C04FB984F9",
+      true
+    ],
+    [
+      "11111111-2222-3333-4444-555555555555",
+      false
+    ],
+    [
+      "  31b2f340-016d-11d2-945f-00c04fb984f9  ",
+      true
+    ]
+  ]
+}

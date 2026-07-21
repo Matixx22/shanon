@@ -1,0 +1,208 @@
+[
+  {
+    "input": "i",
+    "signature": [
+      "i"
+    ],
+    "canonical": "i"
+  },
+  {
+    "input": "I",
+    "signature": [
+      "i"
+    ],
+    "canonical": "i"
+  },
+  {
+    "input": "İ",
+    "signature": [
+      "i"
+    ],
+    "canonical": "i"
+  },
+  {
+    "input": "ı",
+    "signature": [
+      "i"
+    ],
+    "canonical": "i"
+  },
+  {
+    "input": "s",
+    "signature": [
+      "s"
+    ],
+    "canonical": "s"
+  },
+  {
+    "input": "S",
+    "signature": [
+      "s"
+    ],
+    "canonical": "s"
+  },
+  {
+    "input": "ſ",
+    "signature": [
+      "s"
+    ],
+    "canonical": "s"
+  },
+  {
+    "input": "k",
+    "signature": [
+      "k"
+    ],
+    "canonical": "k"
+  },
+  {
+    "input": "K",
+    "signature": [
+      "k"
+    ],
+    "canonical": "k"
+  },
+  {
+    "input": "K",
+    "signature": [
+      "k"
+    ],
+    "canonical": "k"
+  },
+  {
+    "input": "σ",
+    "signature": [
+      "σ"
+    ],
+    "canonical": "σ"
+  },
+  {
+    "input": "ς",
+    "signature": [
+      "σ"
+    ],
+    "canonical": "σ"
+  },
+  {
+    "input": "Σ",
+    "signature": [
+      "σ"
+    ],
+    "canonical": "σ"
+  },
+  {
+    "input": "ß",
+    "signature": [
+      "ss"
+    ],
+    "canonical": "ß"
+  },
+  {
+    "input": "ẞ",
+    "signature": [
+      "ss"
+    ],
+    "canonical": "ß"
+  },
+  {
+    "input": "ΐ",
+    "signature": [
+      "ΐ"
+    ],
+    "canonical": "ΐ"
+  },
+  {
+    "input": "ΰ",
+    "signature": [
+      "ΰ"
+    ],
+    "canonical": "ΰ"
+  },
+  {
+    "input": "ﬅ",
+    "signature": [
+      "st"
+    ],
+    "canonical": "ﬅ"
+  },
+  {
+    "input": "ﬆ",
+    "signature": [
+      "st"
+    ],
+    "canonical": "ﬅ"
+  },
+  {
+    "input": "ss",
+    "signature": [
+      "s",
+      "s"
+    ],
+    "canonical": "ss"
+  },
+  {
+    "input": "Finance_Admins",
+    "signature": [
+      "f",
+      "i",
+      "n",
+      "a",
+      "n",
+      "c",
+      "e",
+      "_",
+      "a",
+      "d",
+      "m",
+      "i",
+      "n",
+      "s"
+    ],
+    "canonical": "finance_admins"
+  },
+  {
+    "input": "Domain Admins",
+    "signature": [
+      "d",
+      "o",
+      "m",
+      "a",
+      "i",
+      "n",
+      " ",
+      "a",
+      "d",
+      "m",
+      "i",
+      "n",
+      "s"
+    ],
+    "canonical": "domain admins"
+  },
+  {
+    "input": "café",
+    "signature": [
+      "c",
+      "a",
+      "f",
+      "é"
+    ],
+    "canonical": "café"
+  },
+  {
+    "input": "corp.local",
+    "signature": [
+      "c",
+      "o",
+      "r",
+      "p",
+      ".",
+      "l",
+      "o",
+      "c",
+      "a",
+      "l"
+    ],
+    "canonical": "corp.local"
+  }
+]

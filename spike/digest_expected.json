@@ -1,0 +1,11 @@
+{
+  "salt": "0123456789abcdef0123456789abcdef",
+  "category": "oids",
+  "real": "1.3.6.1.4.1.311",
+  "semantic_real": "1.3.6.1.4.1.311",
+  "seed_layout": "0123456789abcdef0123456789abcdef|oids|1.3.6.1.4.1.311",
+  "blake2b_digest_size": 16,
+  "digest_hex": "e7fa55cd060eac94106bed418919daff",
+  "seed_int_dec": "308351481489413549362826449101562436351",
+  "oid_pseudonym": "2.25.308351481489413549362826449101562436351"
+}

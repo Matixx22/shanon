@@ -1,0 +1,11 @@
+# Rust build artifacts
+/target/
+
+# Never commit client data, collections, or mapping files.
+*.zip
+*.map.json
+scratch/
+sharphound-samples/
+
+# The parity replay seed carries only a fixed synthetic salt — safe to track.
+!tests/parity/seed.map.json

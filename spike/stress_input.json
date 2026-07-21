@@ -1,0 +1,1 @@
+{"ascii": "plain/value~with-\"quote\" and \\backslash", "ctrl": "tab\there\nnewline\rcr\u0000nul\u001fusdel\bbs\fff", "bmp": "café Grüße Ω Привет 日本語", "astral": "emoji 😀 and 💩", "nested": {"z": 1, "a": [true, false, null, 42, -7, 100000000000000000000]}}
