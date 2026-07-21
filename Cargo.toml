@@ -23,7 +23,7 @@ caseless = "0.2" # Unicode full case folding (CaseFolding.txt C+F mappings)
 # so `fancy-regex` is scoped to it (§R2). `regex` alone cannot express it.
 fancy-regex = "0.13"
 proptest = "1"   # path-grammar round-trip + cross-impl fuzz (P1)
-thiserror = "1"  # §3.4 error/exit-code contract (ShanonError enum)
+thiserror = "2"  # §3.4 error/exit-code contract (ShanonError enum)
 # §3.5 platform layer: openat-anchored traversal + renameat_with(NOREPLACE).
 rustix = { version = "0.38", features = ["fs"] }
 # Zip DEFLATE output must be byte-stable against the system zlib, so flate2 is
