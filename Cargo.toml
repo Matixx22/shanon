@@ -29,7 +29,7 @@ rustix = { version = "0.38", features = ["fs"] }
 # Zip DEFLATE output must be byte-stable against the system zlib, so flate2 is
 # pinned to the C `zlib` backend (miniz_oxide diverges). §4 parity.
 flate2 = { version = "1", default-features = false, features = ["zlib"] }
-getrandom = "0.2"  # OsRng salt for Registry::new_random (P2-deferred, wired P4)
+getrandom = "0.4"  # OsRng salt for Registry::new_random (P2-deferred, wired P4)
 # macOS atomic no-replace publish uses renamex_np(RENAME_EXCL); rustix's
 # renameat_with(RENAME_NOREPLACE) is Linux-only. Scoped to non-Linux in §3.5.
 libc = "0.2"
