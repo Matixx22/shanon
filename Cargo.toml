@@ -14,7 +14,7 @@ repository = "https://github.com/Matixx22/shanon"
 # arbitrary_precision -> number tokens kept verbatim (no ryu reformatting)
 serde_json = { version = "1", features = ["preserve_order", "arbitrary_precision"] }
 indexmap = "2"
-sha2 = "0.10"    # pipeline input hashing uses SHA-256
+sha2 = "0.11"    # pipeline input hashing uses SHA-256
 blake2 = "0.10"  # registry pseudonym seed uses BLAKE2b-128 (NOT sha256)
 regex = "1"      # component shape matchers (audited: no lookaround/backrefs)
 caseless = "0.2" # Unicode full case folding (CaseFolding.txt C+F mappings)
