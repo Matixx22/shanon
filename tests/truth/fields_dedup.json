@@ -1,0 +1,40 @@
+[
+  {
+    "input": [
+      "i",
+      "I",
+      "İ",
+      "ı",
+      "finance",
+      "FINANCE",
+      "Finance"
+    ],
+    "output": [
+      "i",
+      "finance"
+    ]
+  },
+  {
+    "input": [
+      "ß",
+      "ss",
+      "SS",
+      "ẞ"
+    ],
+    "output": [
+      "ß",
+      "ss"
+    ]
+  },
+  {
+    "input": [
+      "engagement_user_000001",
+      "ENGAGEMENT_USER_000001",
+      "engagement"
+    ],
+    "output": [
+      "engagement_user_000001",
+      "engagement"
+    ]
+  }
+]

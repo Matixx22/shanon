@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+members = ["crates/shanon-core", "crates/shanon-cli"]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.97"
+license = "MIT"
+repository = "https://github.com/Matixx22/shanon"
+
+[workspace.dependencies]
+# preserve_order  -> objects backed by IndexMap (stable insertion order)
+# arbitrary_precision -> number tokens kept verbatim (no ryu reformatting)
+serde_json = { version = "1", features = ["preserve_order", "arbitrary_precision"] }
+indexmap = "2"
+sha2 = "0.10"    # pipeline input hashing uses SHA-256
+blake2 = "0.10"  # registry pseudonym seed uses BLAKE2b-128 (NOT sha256)
+regex = "1"      # component shape matchers (audited: no lookaround/backrefs)
+caseless = "0.2" # Unicode full case folding (CaseFolding.txt C+F mappings)
+# fields' v1 sweep/find pattern uses lookbehind+lookahead word boundaries
+# (`(?<![A-Za-z0-9_])...(?![A-Za-z0-9_])`) — the ONE place lookaround is needed,
+# so `fancy-regex` is scoped to it (§R2). `regex` alone cannot express it.
+fancy-regex = "0.13"
+proptest = "1"   # path-grammar round-trip + cross-impl fuzz (P1)
+thiserror = "1"  # §3.4 error/exit-code contract (ShanonError enum)
+# §3.5 platform layer: openat-anchored traversal + renameat_with(NOREPLACE).
+rustix = { version = "0.38", features = ["fs"] }
+# Zip DEFLATE output must be byte-stable against the system zlib, so flate2 is
+# pinned to the C `zlib` backend (miniz_oxide diverges). §4 parity.
+flate2 = { version = "1", default-features = false, features = ["zlib"] }
+getrandom = "0.2"  # OsRng salt for Registry::new_random (P2-deferred, wired P4)
+# macOS atomic no-replace publish uses renamex_np(RENAME_EXCL); rustix's
+# renameat_with(RENAME_NOREPLACE) is Linux-only. Scoped to non-Linux in §3.5.
+libc = "0.2"
+clap = { version = "4", features = ["derive"] }

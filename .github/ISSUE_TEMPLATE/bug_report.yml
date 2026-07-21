@@ -1,0 +1,61 @@
+name: Bug report
+description: Report incorrect behavior (not a data leak — see below)
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **A real identifier surviving a run is a security bug, not a bug report.**
+        Do not open a public issue for it — follow [SECURITY.md](../blob/main/SECURITY.md)
+        and report privately via a GitHub security advisory.
+
+        For everything else, thanks for the report. **Only attach synthetic data.**
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you observe, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands. Include a minimal **synthetic** collection if relevant.
+      placeholder: |
+        1. shanon anonymize --input synthetic.zip --out ./anon
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output / exit code
+      description: Relevant stderr and the process exit code. Redact anything real.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: shanon version
+      description: "`shanon --version` or the commit SHA"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: This report contains no real client data or mapping files.
+          required: true
+        - label: This is not a surviving-identifier leak (which I would report privately).
+          required: true

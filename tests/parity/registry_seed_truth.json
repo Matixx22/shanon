@@ -1,0 +1,67 @@
+{
+  "salt": "0123456789abcdef0123456789abcdef",
+  "created": "2026-07-21T00:00:00+00:00",
+  "input_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "rows": [
+    {
+      "category": "domains",
+      "real": "corp.local",
+      "seed_int": "65134051362271718156961608379775495797",
+      "pseudonym": "southridge-geafzk36mbevs.local"
+    },
+    {
+      "category": "domains",
+      "real": "acme.example",
+      "seed_int": "295210282901352607813454421408302591664",
+      "pseudonym": "wingtip-3ylw5maaovys4.example"
+    },
+    {
+      "category": "accounts",
+      "real": "Alice",
+      "seed_int": "71576117231714762989064013213424865577",
+      "pseudonym": "ihayesgxmq6cq3derry"
+    },
+    {
+      "category": "accounts",
+      "real": "administrator",
+      "seed_int": "310651739550036636407781928741466048655",
+      "pseudonym": "sjohnso5g2vsr4ez3vte"
+    },
+    {
+      "category": "hosts",
+      "real": "DC01",
+      "seed_int": "332177910293973881370832335294431860683",
+      "pseudonym": "HOST-73-7HTSG4BESH7BG"
+    },
+    {
+      "category": "sids",
+      "real": "S-1-5-21-1111111111-2222222222-3333333333",
+      "seed_int": "296305157678534018644955664819875633891",
+      "pseudonym": "S-1-5-21-1708546787-1795253718-634612481"
+    },
+    {
+      "category": "guids",
+      "real": "12345678-1234-1234-1234-123456789abc",
+      "seed_int": "313877019414225573164786379305739010401",
+      "pseudonym": "ec2283da-9c61-ab5b-17c2-4a58e27ac161"
+    },
+    {
+      "category": "cert_templates",
+      "real": "WebServer",
+      "seed_int": "319548468765993842855432764182822072618",
+      "pseudonym": "Template-6btmxzks3tiyg"
+    },
+    {
+      "category": "oids",
+      "real": "1.2.3.4",
+      "seed_int": "251460502849143529337231328059982147713",
+      "pseudonym": "2.25.251460502849143529337231328059982147713"
+    },
+    {
+      "category": "opaque",
+      "real": "secretvalue",
+      "seed_int": "58741189599228849699012022444572175535",
+      "pseudonym": "[REDACTED:fqysiqaed6uhu]"
+    }
+  ]
+}

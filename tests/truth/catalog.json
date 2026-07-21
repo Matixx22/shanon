@@ -1,0 +1,6257 @@
+{
+  "catalog_version": 1,
+  "entry_count": 149,
+  "entries": {
+    "guid.null": {
+      "kind": "guid",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid",
+        "ObjectIdentifier"
+      ],
+      "exact_values": {
+        "ObjectIdentifier": [
+          "00000000-0000-0000-0000-000000000000"
+        ],
+        "Aces[].InheritedObjectTypeGuid": [
+          "00000000-0000-0000-0000-000000000000"
+        ],
+        "Aces[].RightGuid": [
+          "00000000-0000-0000-0000-000000000000"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "00000000-0000-0000-0000-000000000000"
+        ],
+        "Aces[].ObjectType": [
+          "00000000-0000-0000-0000-000000000000"
+        ],
+        "Aces[].InheritedObjectType": [
+          "00000000-0000-0000-0000-000000000000"
+        ]
+      },
+      "source": "RFC 4122 nil UUID"
+    },
+    "gpo.default-domain-policy": {
+      "kind": "guid",
+      "value": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "node_types": [
+        "GPO"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "ObjectIdentifier"
+      ],
+      "exact_values": {
+        "ObjectIdentifier": [
+          "31b2f340-016d-11d2-945f-00c04fb984f9"
+        ]
+      },
+      "source": "Microsoft [MS-GPOD] default Group Policy Objects"
+    },
+    "gpo-link.default-domain-policy": {
+      "kind": "guid",
+      "value": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "node_types": [
+        "Container",
+        "Domain",
+        "OU"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Links[].GUID"
+      ],
+      "exact_values": {
+        "Links[].GUID": [
+          "31b2f340-016d-11d2-945f-00c04fb984f9"
+        ]
+      },
+      "source": "Microsoft [MS-GPOD] default Group Policy Objects"
+    },
+    "gpo.default-domain-controllers-policy": {
+      "kind": "guid",
+      "value": "6ac1786c-016f-11d2-945f-00c04fb984f9",
+      "node_types": [
+        "GPO"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "ObjectIdentifier"
+      ],
+      "exact_values": {
+        "ObjectIdentifier": [
+          "6ac1786c-016f-11d2-945f-00c04fb984f9"
+        ]
+      },
+      "source": "Microsoft [MS-GPOD] default Group Policy Objects"
+    },
+    "gpo-link.default-domain-controllers-policy": {
+      "kind": "guid",
+      "value": "6ac1786c-016f-11d2-945f-00c04fb984f9",
+      "node_types": [
+        "Container",
+        "Domain",
+        "OU"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Links[].GUID"
+      ],
+      "exact_values": {
+        "Links[].GUID": [
+          "6ac1786c-016f-11d2-945f-00c04fb984f9"
+        ]
+      },
+      "source": "Microsoft [MS-GPOD] default Group Policy Objects"
+    },
+    "sid.0.0": {
+      "kind": "sid",
+      "value": "S-1-0-0",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-0-0"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-0-0"
+        ],
+        "Properties.objectsid": [
+          "s-1-0-0"
+        ],
+        "ObjectIdentifier": [
+          "s-1-0-0"
+        ],
+        "Properties.name": [
+          "nobody"
+        ],
+        "Properties.samaccountname": [
+          "nobody"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.1.0": {
+      "kind": "sid",
+      "value": "S-1-1-0",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-1-0"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-1-0"
+        ],
+        "Properties.objectsid": [
+          "s-1-1-0"
+        ],
+        "ObjectIdentifier": [
+          "s-1-1-0"
+        ],
+        "Properties.name": [
+          "everyone"
+        ],
+        "Properties.samaccountname": [
+          "everyone"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.2.0": {
+      "kind": "sid",
+      "value": "S-1-2-0",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-2-0"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-2-0"
+        ],
+        "Properties.objectsid": [
+          "s-1-2-0"
+        ],
+        "ObjectIdentifier": [
+          "s-1-2-0"
+        ],
+        "Properties.name": [
+          "local"
+        ],
+        "Properties.samaccountname": [
+          "local"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.2.1": {
+      "kind": "sid",
+      "value": "S-1-2-1",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-2-1"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-2-1"
+        ],
+        "Properties.objectsid": [
+          "s-1-2-1"
+        ],
+        "ObjectIdentifier": [
+          "s-1-2-1"
+        ],
+        "Properties.name": [
+          "console logon"
+        ],
+        "Properties.samaccountname": [
+          "console logon"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.3.0": {
+      "kind": "sid",
+      "value": "S-1-3-0",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-3-0"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-3-0"
+        ],
+        "Properties.objectsid": [
+          "s-1-3-0"
+        ],
+        "ObjectIdentifier": [
+          "s-1-3-0"
+        ],
+        "Properties.name": [
+          "creator owner"
+        ],
+        "Properties.samaccountname": [
+          "creator owner"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.3.1": {
+      "kind": "sid",
+      "value": "S-1-3-1",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-3-1"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-3-1"
+        ],
+        "Properties.objectsid": [
+          "s-1-3-1"
+        ],
+        "ObjectIdentifier": [
+          "s-1-3-1"
+        ],
+        "Properties.name": [
+          "creator group"
+        ],
+        "Properties.samaccountname": [
+          "creator group"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.3.2": {
+      "kind": "sid",
+      "value": "S-1-3-2",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-3-2"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-3-2"
+        ],
+        "Properties.objectsid": [
+          "s-1-3-2"
+        ],
+        "ObjectIdentifier": [
+          "s-1-3-2"
+        ],
+        "Properties.name": [
+          "creator owner server"
+        ],
+        "Properties.samaccountname": [
+          "creator owner server"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.3.3": {
+      "kind": "sid",
+      "value": "S-1-3-3",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-3-3"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-3-3"
+        ],
+        "Properties.objectsid": [
+          "s-1-3-3"
+        ],
+        "ObjectIdentifier": [
+          "s-1-3-3"
+        ],
+        "Properties.name": [
+          "creator group server"
+        ],
+        "Properties.samaccountname": [
+          "creator group server"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.3.4": {
+      "kind": "sid",
+      "value": "S-1-3-4",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-3-4"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-3-4"
+        ],
+        "Properties.objectsid": [
+          "s-1-3-4"
+        ],
+        "ObjectIdentifier": [
+          "s-1-3-4"
+        ],
+        "Properties.name": [
+          "owner rights"
+        ],
+        "Properties.samaccountname": [
+          "owner rights"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.1": {
+      "kind": "sid",
+      "value": "S-1-5-1",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-1"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-1"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-1"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-1"
+        ],
+        "Properties.name": [
+          "dialup"
+        ],
+        "Properties.samaccountname": [
+          "dialup"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.10": {
+      "kind": "sid",
+      "value": "S-1-5-10",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-10"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-10"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-10"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-10"
+        ],
+        "Properties.name": [
+          "principal self"
+        ],
+        "Properties.samaccountname": [
+          "principal self"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.11": {
+      "kind": "sid",
+      "value": "S-1-5-11",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-11"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-11"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-11"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-11"
+        ],
+        "Properties.name": [
+          "authenticated users"
+        ],
+        "Properties.samaccountname": [
+          "authenticated users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.113": {
+      "kind": "sid",
+      "value": "S-1-5-113",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-113"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-113"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-113"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-113"
+        ],
+        "Properties.name": [
+          "local account"
+        ],
+        "Properties.samaccountname": [
+          "local account"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.114": {
+      "kind": "sid",
+      "value": "S-1-5-114",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-114"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-114"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-114"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-114"
+        ],
+        "Properties.name": [
+          "local account and member of administrators group"
+        ],
+        "Properties.samaccountname": [
+          "local account and member of administrators group"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.12": {
+      "kind": "sid",
+      "value": "S-1-5-12",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-12"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-12"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-12"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-12"
+        ],
+        "Properties.name": [
+          "restricted code"
+        ],
+        "Properties.samaccountname": [
+          "restricted code"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.13": {
+      "kind": "sid",
+      "value": "S-1-5-13",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-13"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-13"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-13"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-13"
+        ],
+        "Properties.name": [
+          "terminal server user"
+        ],
+        "Properties.samaccountname": [
+          "terminal server user"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.14": {
+      "kind": "sid",
+      "value": "S-1-5-14",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-14"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-14"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-14"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-14"
+        ],
+        "Properties.name": [
+          "remote interactive logon"
+        ],
+        "Properties.samaccountname": [
+          "remote interactive logon"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.15": {
+      "kind": "sid",
+      "value": "S-1-5-15",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-15"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-15"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-15"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-15"
+        ],
+        "Properties.name": [
+          "this organization"
+        ],
+        "Properties.samaccountname": [
+          "this organization"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.17": {
+      "kind": "sid",
+      "value": "S-1-5-17",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-17"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-17"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-17"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-17"
+        ],
+        "Properties.name": [
+          "iusr"
+        ],
+        "Properties.samaccountname": [
+          "iusr"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.18": {
+      "kind": "sid",
+      "value": "S-1-5-18",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-18"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-18"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-18"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-18"
+        ],
+        "Properties.name": [
+          "local system"
+        ],
+        "Properties.samaccountname": [
+          "local system"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.19": {
+      "kind": "sid",
+      "value": "S-1-5-19",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-19"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-19"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-19"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-19"
+        ],
+        "Properties.name": [
+          "local service"
+        ],
+        "Properties.samaccountname": [
+          "local service"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.2": {
+      "kind": "sid",
+      "value": "S-1-5-2",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-2"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-2"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-2"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-2"
+        ],
+        "Properties.name": [
+          "network"
+        ],
+        "Properties.samaccountname": [
+          "network"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.20": {
+      "kind": "sid",
+      "value": "S-1-5-20",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-20"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-20"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-20"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-20"
+        ],
+        "Properties.name": [
+          "network service"
+        ],
+        "Properties.samaccountname": [
+          "network service"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.3": {
+      "kind": "sid",
+      "value": "S-1-5-3",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-3"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-3"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-3"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-3"
+        ],
+        "Properties.name": [
+          "batch"
+        ],
+        "Properties.samaccountname": [
+          "batch"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.544": {
+      "kind": "sid",
+      "value": "S-1-5-32-544",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-544"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-544"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-544"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-544"
+        ],
+        "Properties.name": [
+          "administrators"
+        ],
+        "Properties.samaccountname": [
+          "administrators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.545": {
+      "kind": "sid",
+      "value": "S-1-5-32-545",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-545"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-545"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-545"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-545"
+        ],
+        "Properties.name": [
+          "users"
+        ],
+        "Properties.samaccountname": [
+          "users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.546": {
+      "kind": "sid",
+      "value": "S-1-5-32-546",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-546"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-546"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-546"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-546"
+        ],
+        "Properties.name": [
+          "guests"
+        ],
+        "Properties.samaccountname": [
+          "guests"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.547": {
+      "kind": "sid",
+      "value": "S-1-5-32-547",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-547"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-547"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-547"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-547"
+        ],
+        "Properties.name": [
+          "power users"
+        ],
+        "Properties.samaccountname": [
+          "power users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.548": {
+      "kind": "sid",
+      "value": "S-1-5-32-548",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-548"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-548"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-548"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-548"
+        ],
+        "Properties.name": [
+          "account operators"
+        ],
+        "Properties.samaccountname": [
+          "account operators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.549": {
+      "kind": "sid",
+      "value": "S-1-5-32-549",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-549"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-549"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-549"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-549"
+        ],
+        "Properties.name": [
+          "server operators"
+        ],
+        "Properties.samaccountname": [
+          "server operators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.550": {
+      "kind": "sid",
+      "value": "S-1-5-32-550",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-550"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-550"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-550"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-550"
+        ],
+        "Properties.name": [
+          "print operators"
+        ],
+        "Properties.samaccountname": [
+          "print operators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.551": {
+      "kind": "sid",
+      "value": "S-1-5-32-551",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-551"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-551"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-551"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-551"
+        ],
+        "Properties.name": [
+          "backup operators"
+        ],
+        "Properties.samaccountname": [
+          "backup operators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.552": {
+      "kind": "sid",
+      "value": "S-1-5-32-552",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-552"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-552"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-552"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-552"
+        ],
+        "Properties.name": [
+          "replicator"
+        ],
+        "Properties.samaccountname": [
+          "replicator"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.553": {
+      "kind": "sid",
+      "value": "S-1-5-32-553",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-553"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-553"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-553"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-553"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.554": {
+      "kind": "sid",
+      "value": "S-1-5-32-554",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-554"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-554"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-554"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-554"
+        ],
+        "Properties.name": [
+          "pre-windows 2000 compatible access"
+        ],
+        "Properties.samaccountname": [
+          "pre-windows 2000 compatible access"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.555": {
+      "kind": "sid",
+      "value": "S-1-5-32-555",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-555"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-555"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-555"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-555"
+        ],
+        "Properties.name": [
+          "remote desktop users"
+        ],
+        "Properties.samaccountname": [
+          "remote desktop users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.556": {
+      "kind": "sid",
+      "value": "S-1-5-32-556",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-556"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-556"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-556"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-556"
+        ],
+        "Properties.name": [
+          "network configuration operators"
+        ],
+        "Properties.samaccountname": [
+          "network configuration operators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.557": {
+      "kind": "sid",
+      "value": "S-1-5-32-557",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-557"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-557"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-557"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-557"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.558": {
+      "kind": "sid",
+      "value": "S-1-5-32-558",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-558"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-558"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-558"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-558"
+        ],
+        "Properties.name": [
+          "performance monitor users"
+        ],
+        "Properties.samaccountname": [
+          "performance monitor users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.559": {
+      "kind": "sid",
+      "value": "S-1-5-32-559",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-559"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-559"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-559"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-559"
+        ],
+        "Properties.name": [
+          "performance log users"
+        ],
+        "Properties.samaccountname": [
+          "performance log users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.560": {
+      "kind": "sid",
+      "value": "S-1-5-32-560",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-560"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-560"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-560"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-560"
+        ],
+        "Properties.name": [
+          "windows authorization access group"
+        ],
+        "Properties.samaccountname": [
+          "windows authorization access group"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.561": {
+      "kind": "sid",
+      "value": "S-1-5-32-561",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-561"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-561"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-561"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-561"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.562": {
+      "kind": "sid",
+      "value": "S-1-5-32-562",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-562"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-562"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-562"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-562"
+        ],
+        "Properties.name": [
+          "distributed com users"
+        ],
+        "Properties.samaccountname": [
+          "distributed com users"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.568": {
+      "kind": "sid",
+      "value": "S-1-5-32-568",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-568"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-568"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-568"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-568"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.569": {
+      "kind": "sid",
+      "value": "S-1-5-32-569",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-569"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-569"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-569"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-569"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.573": {
+      "kind": "sid",
+      "value": "S-1-5-32-573",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-573"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-573"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-573"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-573"
+        ],
+        "Properties.name": [
+          "event log readers"
+        ],
+        "Properties.samaccountname": [
+          "event log readers"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.574": {
+      "kind": "sid",
+      "value": "S-1-5-32-574",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-574"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-574"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-574"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-574"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.575": {
+      "kind": "sid",
+      "value": "S-1-5-32-575",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-575"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-575"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-575"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-575"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.576": {
+      "kind": "sid",
+      "value": "S-1-5-32-576",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-576"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-576"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-576"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-576"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.577": {
+      "kind": "sid",
+      "value": "S-1-5-32-577",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-577"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-577"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-577"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-577"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.578": {
+      "kind": "sid",
+      "value": "S-1-5-32-578",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-578"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-578"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-578"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-578"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.579": {
+      "kind": "sid",
+      "value": "S-1-5-32-579",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-579"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-579"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-579"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-579"
+        ],
+        "Properties.name": [
+          "access control assistance operators"
+        ],
+        "Properties.samaccountname": [
+          "access control assistance operators"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.580": {
+      "kind": "sid",
+      "value": "S-1-5-32-580",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-580"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-580"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-580"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-580"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.581": {
+      "kind": "sid",
+      "value": "S-1-5-32-581",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-581"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-581"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-581"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-581"
+        ],
+        "Properties.name": [
+          "system managed accounts group"
+        ],
+        "Properties.samaccountname": [
+          "system managed accounts group"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.582": {
+      "kind": "sid",
+      "value": "S-1-5-32-582",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-582"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-582"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-582"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-582"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.583": {
+      "kind": "sid",
+      "value": "S-1-5-32-583",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-583"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-583"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-583"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-583"
+        ],
+        "Properties.name": [
+          "device owners"
+        ],
+        "Properties.samaccountname": [
+          "device owners"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.584": {
+      "kind": "sid",
+      "value": "S-1-5-32-584",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-584"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-584"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-584"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-584"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.32.585": {
+      "kind": "sid",
+      "value": "S-1-5-32-585",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "microsoft_feature_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.objectsid"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-32-585"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-32-585"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-32-585"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-32-585"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.4": {
+      "kind": "sid",
+      "value": "S-1-5-4",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-4"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-4"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-4"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-4"
+        ],
+        "Properties.name": [
+          "interactive"
+        ],
+        "Properties.samaccountname": [
+          "interactive"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.6": {
+      "kind": "sid",
+      "value": "S-1-5-6",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-6"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-6"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-6"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-6"
+        ],
+        "Properties.name": [
+          "service"
+        ],
+        "Properties.samaccountname": [
+          "service"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.7": {
+      "kind": "sid",
+      "value": "S-1-5-7",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-7"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-7"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-7"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-7"
+        ],
+        "Properties.name": [
+          "anonymous"
+        ],
+        "Properties.samaccountname": [
+          "anonymous"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.8": {
+      "kind": "sid",
+      "value": "S-1-5-8",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-8"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-8"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-8"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-8"
+        ],
+        "Properties.name": [
+          "proxy"
+        ],
+        "Properties.samaccountname": [
+          "proxy"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "sid.5.9": {
+      "kind": "sid",
+      "value": "S-1-5-9",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "s-1-5-9"
+        ],
+        "Aces[].PrincipalSID": [
+          "s-1-5-9"
+        ],
+        "Properties.objectsid": [
+          "s-1-5-9"
+        ],
+        "ObjectIdentifier": [
+          "s-1-5-9"
+        ],
+        "Properties.name": [
+          "enterprise domain controllers"
+        ],
+        "Properties.samaccountname": [
+          "enterprise domain controllers"
+        ]
+      },
+      "source": "Microsoft well-known security identifiers"
+    },
+    "rid.administrator": {
+      "kind": "rid",
+      "value": "500",
+      "node_types": [
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "500"
+        ],
+        "Aces[].PrincipalSID": [
+          "500"
+        ],
+        "Properties.objectsid": [
+          "500"
+        ],
+        "ObjectIdentifier": [
+          "500"
+        ],
+        "Properties.name": [
+          "administrator"
+        ],
+        "Properties.samaccountname": [
+          "administrator"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.guest": {
+      "kind": "rid",
+      "value": "501",
+      "node_types": [
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "501"
+        ],
+        "Aces[].PrincipalSID": [
+          "501"
+        ],
+        "Properties.objectsid": [
+          "501"
+        ],
+        "ObjectIdentifier": [
+          "501"
+        ],
+        "Properties.name": [
+          "guest"
+        ],
+        "Properties.samaccountname": [
+          "guest"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.krbtgt": {
+      "kind": "rid",
+      "value": "502",
+      "node_types": [
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "502"
+        ],
+        "Aces[].PrincipalSID": [
+          "502"
+        ],
+        "Properties.objectsid": [
+          "502"
+        ],
+        "ObjectIdentifier": [
+          "502"
+        ],
+        "Properties.name": [
+          "krbtgt"
+        ],
+        "Properties.samaccountname": [
+          "krbtgt"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.domain-admins": {
+      "kind": "rid",
+      "value": "512",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "512"
+        ],
+        "Aces[].PrincipalSID": [
+          "512"
+        ],
+        "Properties.objectsid": [
+          "512"
+        ],
+        "ObjectIdentifier": [
+          "512"
+        ],
+        "Properties.name": [
+          "domain admins"
+        ],
+        "Properties.samaccountname": [
+          "domain admins"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.domain-users": {
+      "kind": "rid",
+      "value": "513",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "513"
+        ],
+        "Aces[].PrincipalSID": [
+          "513"
+        ],
+        "Properties.objectsid": [
+          "513"
+        ],
+        "ObjectIdentifier": [
+          "513"
+        ],
+        "Properties.name": [
+          "domain users"
+        ],
+        "Properties.samaccountname": [
+          "domain users"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.domain-guests": {
+      "kind": "rid",
+      "value": "514",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "514"
+        ],
+        "Aces[].PrincipalSID": [
+          "514"
+        ],
+        "Properties.objectsid": [
+          "514"
+        ],
+        "ObjectIdentifier": [
+          "514"
+        ],
+        "Properties.name": [
+          "domain guests"
+        ],
+        "Properties.samaccountname": [
+          "domain guests"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.domain-computers": {
+      "kind": "rid",
+      "value": "515",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "515"
+        ],
+        "Aces[].PrincipalSID": [
+          "515"
+        ],
+        "Properties.objectsid": [
+          "515"
+        ],
+        "ObjectIdentifier": [
+          "515"
+        ],
+        "Properties.name": [
+          "domain computers"
+        ],
+        "Properties.samaccountname": [
+          "domain computers"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.domain-controllers": {
+      "kind": "rid",
+      "value": "516",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "516"
+        ],
+        "Aces[].PrincipalSID": [
+          "516"
+        ],
+        "Properties.objectsid": [
+          "516"
+        ],
+        "ObjectIdentifier": [
+          "516"
+        ],
+        "Properties.name": [
+          "domain controllers"
+        ],
+        "Properties.samaccountname": [
+          "domain controllers"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.cert-publishers": {
+      "kind": "rid",
+      "value": "517",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "517"
+        ],
+        "Aces[].PrincipalSID": [
+          "517"
+        ],
+        "Properties.objectsid": [
+          "517"
+        ],
+        "ObjectIdentifier": [
+          "517"
+        ],
+        "Properties.name": [
+          "cert publishers"
+        ],
+        "Properties.samaccountname": [
+          "cert publishers"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.schema-admins": {
+      "kind": "rid",
+      "value": "518",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "518"
+        ],
+        "Aces[].PrincipalSID": [
+          "518"
+        ],
+        "Properties.objectsid": [
+          "518"
+        ],
+        "ObjectIdentifier": [
+          "518"
+        ],
+        "Properties.name": [
+          "schema admins"
+        ],
+        "Properties.samaccountname": [
+          "schema admins"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.enterprise-admins": {
+      "kind": "rid",
+      "value": "519",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "519"
+        ],
+        "Aces[].PrincipalSID": [
+          "519"
+        ],
+        "Properties.objectsid": [
+          "519"
+        ],
+        "ObjectIdentifier": [
+          "519"
+        ],
+        "Properties.name": [
+          "enterprise admins"
+        ],
+        "Properties.samaccountname": [
+          "enterprise admins"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.group-policy-creator-owners": {
+      "kind": "rid",
+      "value": "520",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "520"
+        ],
+        "Aces[].PrincipalSID": [
+          "520"
+        ],
+        "Properties.objectsid": [
+          "520"
+        ],
+        "ObjectIdentifier": [
+          "520"
+        ],
+        "Properties.name": [
+          "group policy creator owners"
+        ],
+        "Properties.samaccountname": [
+          "group policy creator owners"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.read-only-domain-controllers": {
+      "kind": "rid",
+      "value": "521",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "521"
+        ],
+        "Aces[].PrincipalSID": [
+          "521"
+        ],
+        "Properties.objectsid": [
+          "521"
+        ],
+        "ObjectIdentifier": [
+          "521"
+        ],
+        "Properties.name": [
+          "read-only domain controllers"
+        ],
+        "Properties.samaccountname": [
+          "read-only domain controllers"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.cloneable-domain-controllers": {
+      "kind": "rid",
+      "value": "522",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "522"
+        ],
+        "Aces[].PrincipalSID": [
+          "522"
+        ],
+        "Properties.objectsid": [
+          "522"
+        ],
+        "ObjectIdentifier": [
+          "522"
+        ],
+        "Properties.name": [
+          "cloneable domain controllers"
+        ],
+        "Properties.samaccountname": [
+          "cloneable domain controllers"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.protected-users": {
+      "kind": "rid",
+      "value": "525",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "525"
+        ],
+        "Aces[].PrincipalSID": [
+          "525"
+        ],
+        "Properties.objectsid": [
+          "525"
+        ],
+        "ObjectIdentifier": [
+          "525"
+        ],
+        "Properties.name": [
+          "protected users"
+        ],
+        "Properties.samaccountname": [
+          "protected users"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.key-admins": {
+      "kind": "rid",
+      "value": "526",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "526"
+        ],
+        "Aces[].PrincipalSID": [
+          "526"
+        ],
+        "Properties.objectsid": [
+          "526"
+        ],
+        "ObjectIdentifier": [
+          "526"
+        ],
+        "Properties.name": [
+          "key admins"
+        ],
+        "Properties.samaccountname": [
+          "key admins"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "rid.enterprise-key-admins": {
+      "kind": "rid",
+      "value": "527",
+      "node_types": [
+        "Group"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].PrincipalSID",
+        "Members[].ObjectIdentifier",
+        "ObjectIdentifier",
+        "Properties.name",
+        "Properties.objectsid",
+        "Properties.samaccountname"
+      ],
+      "exact_values": {
+        "Members[].ObjectIdentifier": [
+          "527"
+        ],
+        "Aces[].PrincipalSID": [
+          "527"
+        ],
+        "Properties.objectsid": [
+          "527"
+        ],
+        "ObjectIdentifier": [
+          "527"
+        ],
+        "Properties.name": [
+          "enterprise key admins"
+        ],
+        "Properties.samaccountname": [
+          "enterprise key admins"
+        ]
+      },
+      "source": "Microsoft default domain security principals"
+    },
+    "wkguid.computers": {
+      "kind": "wkguid",
+      "value": "aa312825768811d1aded00c04fd8d5cd",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "aa312825768811d1aded00c04fd8d5cd"
+        ],
+        "Properties.name": [
+          "computers"
+        ],
+        "Properties.samaccountname": [
+          "computers"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.deleted-objects": {
+      "kind": "wkguid",
+      "value": "18e2ea80684f11d2b9aa00c04f79f805",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "18e2ea80684f11d2b9aa00c04f79f805"
+        ],
+        "Properties.name": [
+          "deleted objects"
+        ],
+        "Properties.samaccountname": [
+          "deleted objects"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.domain-controllers": {
+      "kind": "wkguid",
+      "value": "a361b2ffffd211d1aa4b00c04fd7d83a",
+      "node_types": [
+        "OU"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "a361b2ffffd211d1aa4b00c04fd7d83a"
+        ],
+        "Properties.name": [
+          "domain controllers"
+        ],
+        "Properties.samaccountname": [
+          "domain controllers"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.foreign-security-principals": {
+      "kind": "wkguid",
+      "value": "22b70c67d56e4efb91e9300fca3dc1aa",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "22b70c67d56e4efb91e9300fca3dc1aa"
+        ],
+        "Properties.name": [
+          "foreign security principals"
+        ],
+        "Properties.samaccountname": [
+          "foreign security principals"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.infrastructure": {
+      "kind": "wkguid",
+      "value": "2fbac1870ade11d297c400c04fd8d5cd",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "2fbac1870ade11d297c400c04fd8d5cd"
+        ],
+        "Properties.name": [
+          "infrastructure"
+        ],
+        "Properties.samaccountname": [
+          "infrastructure"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.lost-and-found": {
+      "kind": "wkguid",
+      "value": "ab8153b7768811d1aded00c04fd8d5cd",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "ab8153b7768811d1aded00c04fd8d5cd"
+        ],
+        "Properties.name": [
+          "lostandfound"
+        ],
+        "Properties.samaccountname": [
+          "lostandfound"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.microsoft-program-data": {
+      "kind": "wkguid",
+      "value": "f4be92a4c777485e878e9421d53087db",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "f4be92a4c777485e878e9421d53087db"
+        ],
+        "Properties.name": [
+          "microsoft program data"
+        ],
+        "Properties.samaccountname": [
+          "microsoft program data"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.ntds-quotas": {
+      "kind": "wkguid",
+      "value": "6227f0af1fc2410d8e3bb10615bb5b0f",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "6227f0af1fc2410d8e3bb10615bb5b0f"
+        ],
+        "Properties.name": [
+          "ntds quotas"
+        ],
+        "Properties.samaccountname": [
+          "ntds quotas"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.program-data": {
+      "kind": "wkguid",
+      "value": "09460c08ae1e4a4ea0f64aee7daa1e5a",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "09460c08ae1e4a4ea0f64aee7daa1e5a"
+        ],
+        "Properties.name": [
+          "program data"
+        ],
+        "Properties.samaccountname": [
+          "program data"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.system": {
+      "kind": "wkguid",
+      "value": "ab1d30f3768811d1aded00c04fd8d5cd",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "ab1d30f3768811d1aded00c04fd8d5cd"
+        ],
+        "Properties.name": [
+          "system"
+        ],
+        "Properties.samaccountname": [
+          "system"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.users": {
+      "kind": "wkguid",
+      "value": "a9d1ca15768811d1aded00c04fd8d5cd",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "a9d1ca15768811d1aded00c04fd8d5cd"
+        ],
+        "Properties.name": [
+          "users"
+        ],
+        "Properties.samaccountname": [
+          "users"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "wkguid.managed-service-accounts": {
+      "kind": "wkguid",
+      "value": "1eb93889e40c45df9f0c64d23bbb6237",
+      "node_types": [
+        "Container"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.samaccountname",
+        "Properties.wkguid"
+      ],
+      "exact_values": {
+        "Properties.wkguid": [
+          "1eb93889e40c45df9f0c64d23bbb6237"
+        ],
+        "Properties.name": [
+          "managed service accounts"
+        ],
+        "Properties.samaccountname": [
+          "managed service accounts"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] well-known objects"
+    },
+    "template.builtin-01": {
+      "kind": "template",
+      "value": "administrator",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "administrator"
+        ],
+        "Properties.name": [
+          "administrator"
+        ],
+        "Properties.templates[]": [
+          "administrator"
+        ],
+        "Properties.templatename": [
+          "administrator"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-02": {
+      "kind": "template",
+      "value": "authenticated session",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "authenticated session"
+        ],
+        "Properties.name": [
+          "authenticated session"
+        ],
+        "Properties.templates[]": [
+          "authenticated session"
+        ],
+        "Properties.templatename": [
+          "authenticated session"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-03": {
+      "kind": "template",
+      "value": "basic efs",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "basic efs"
+        ],
+        "Properties.name": [
+          "basic efs"
+        ],
+        "Properties.templates[]": [
+          "basic efs"
+        ],
+        "Properties.templatename": [
+          "basic efs"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-04": {
+      "kind": "template",
+      "value": "ca exchange",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "ca exchange"
+        ],
+        "Properties.name": [
+          "ca exchange"
+        ],
+        "Properties.templates[]": [
+          "ca exchange"
+        ],
+        "Properties.templatename": [
+          "ca exchange"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-05": {
+      "kind": "template",
+      "value": "cep encryption",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "cep encryption"
+        ],
+        "Properties.name": [
+          "cep encryption"
+        ],
+        "Properties.templates[]": [
+          "cep encryption"
+        ],
+        "Properties.templatename": [
+          "cep encryption"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-06": {
+      "kind": "template",
+      "value": "code signing",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "code signing"
+        ],
+        "Properties.name": [
+          "code signing"
+        ],
+        "Properties.templates[]": [
+          "code signing"
+        ],
+        "Properties.templatename": [
+          "code signing"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-07": {
+      "kind": "template",
+      "value": "computer",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "computer"
+        ],
+        "Properties.name": [
+          "computer"
+        ],
+        "Properties.templates[]": [
+          "computer"
+        ],
+        "Properties.templatename": [
+          "computer"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-08": {
+      "kind": "template",
+      "value": "cross-certification authority",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "cross-certification authority"
+        ],
+        "Properties.name": [
+          "cross-certification authority"
+        ],
+        "Properties.templates[]": [
+          "cross-certification authority"
+        ],
+        "Properties.templatename": [
+          "cross-certification authority"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-09": {
+      "kind": "template",
+      "value": "directory e-mail replication",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "directory e-mail replication"
+        ],
+        "Properties.name": [
+          "directory e-mail replication"
+        ],
+        "Properties.templates[]": [
+          "directory e-mail replication"
+        ],
+        "Properties.templatename": [
+          "directory e-mail replication"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-10": {
+      "kind": "template",
+      "value": "domain controller",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "domain controller"
+        ],
+        "Properties.name": [
+          "domain controller"
+        ],
+        "Properties.templates[]": [
+          "domain controller"
+        ],
+        "Properties.templatename": [
+          "domain controller"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-11": {
+      "kind": "template",
+      "value": "domain controller authentication",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "domain controller authentication"
+        ],
+        "Properties.name": [
+          "domain controller authentication"
+        ],
+        "Properties.templates[]": [
+          "domain controller authentication"
+        ],
+        "Properties.templatename": [
+          "domain controller authentication"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-12": {
+      "kind": "template",
+      "value": "efs recovery agent",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "efs recovery agent"
+        ],
+        "Properties.name": [
+          "efs recovery agent"
+        ],
+        "Properties.templates[]": [
+          "efs recovery agent"
+        ],
+        "Properties.templatename": [
+          "efs recovery agent"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-13": {
+      "kind": "template",
+      "value": "enrollment agent",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "enrollment agent"
+        ],
+        "Properties.name": [
+          "enrollment agent"
+        ],
+        "Properties.templates[]": [
+          "enrollment agent"
+        ],
+        "Properties.templatename": [
+          "enrollment agent"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-14": {
+      "kind": "template",
+      "value": "enrollment agent (computer)",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "enrollment agent (computer)"
+        ],
+        "Properties.name": [
+          "enrollment agent (computer)"
+        ],
+        "Properties.templates[]": [
+          "enrollment agent (computer)"
+        ],
+        "Properties.templatename": [
+          "enrollment agent (computer)"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-15": {
+      "kind": "template",
+      "value": "exchange enrollment agent (offline request)",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "exchange enrollment agent (offline request)"
+        ],
+        "Properties.name": [
+          "exchange enrollment agent (offline request)"
+        ],
+        "Properties.templates[]": [
+          "exchange enrollment agent (offline request)"
+        ],
+        "Properties.templatename": [
+          "exchange enrollment agent (offline request)"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-16": {
+      "kind": "template",
+      "value": "exchange signature only",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "exchange signature only"
+        ],
+        "Properties.name": [
+          "exchange signature only"
+        ],
+        "Properties.templates[]": [
+          "exchange signature only"
+        ],
+        "Properties.templatename": [
+          "exchange signature only"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-17": {
+      "kind": "template",
+      "value": "exchange user",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "exchange user"
+        ],
+        "Properties.name": [
+          "exchange user"
+        ],
+        "Properties.templates[]": [
+          "exchange user"
+        ],
+        "Properties.templatename": [
+          "exchange user"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-18": {
+      "kind": "template",
+      "value": "ipsec",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "ipsec"
+        ],
+        "Properties.name": [
+          "ipsec"
+        ],
+        "Properties.templates[]": [
+          "ipsec"
+        ],
+        "Properties.templatename": [
+          "ipsec"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-19": {
+      "kind": "template",
+      "value": "ipsec (offline request)",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "ipsec (offline request)"
+        ],
+        "Properties.name": [
+          "ipsec (offline request)"
+        ],
+        "Properties.templates[]": [
+          "ipsec (offline request)"
+        ],
+        "Properties.templatename": [
+          "ipsec (offline request)"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-20": {
+      "kind": "template",
+      "value": "kerberos authentication",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "kerberos authentication"
+        ],
+        "Properties.name": [
+          "kerberos authentication"
+        ],
+        "Properties.templates[]": [
+          "kerberos authentication"
+        ],
+        "Properties.templatename": [
+          "kerberos authentication"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-21": {
+      "kind": "template",
+      "value": "key recovery agent",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "key recovery agent"
+        ],
+        "Properties.name": [
+          "key recovery agent"
+        ],
+        "Properties.templates[]": [
+          "key recovery agent"
+        ],
+        "Properties.templatename": [
+          "key recovery agent"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-22": {
+      "kind": "template",
+      "value": "ocsp response signing",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "ocsp response signing"
+        ],
+        "Properties.name": [
+          "ocsp response signing"
+        ],
+        "Properties.templates[]": [
+          "ocsp response signing"
+        ],
+        "Properties.templatename": [
+          "ocsp response signing"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-23": {
+      "kind": "template",
+      "value": "ras and ias server",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "ras and ias server"
+        ],
+        "Properties.name": [
+          "ras and ias server"
+        ],
+        "Properties.templates[]": [
+          "ras and ias server"
+        ],
+        "Properties.templatename": [
+          "ras and ias server"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-24": {
+      "kind": "template",
+      "value": "root certification authority",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "root certification authority"
+        ],
+        "Properties.name": [
+          "root certification authority"
+        ],
+        "Properties.templates[]": [
+          "root certification authority"
+        ],
+        "Properties.templatename": [
+          "root certification authority"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-25": {
+      "kind": "template",
+      "value": "router (offline request)",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "router (offline request)"
+        ],
+        "Properties.name": [
+          "router (offline request)"
+        ],
+        "Properties.templates[]": [
+          "router (offline request)"
+        ],
+        "Properties.templatename": [
+          "router (offline request)"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-26": {
+      "kind": "template",
+      "value": "smartcard logon",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "smartcard logon"
+        ],
+        "Properties.name": [
+          "smartcard logon"
+        ],
+        "Properties.templates[]": [
+          "smartcard logon"
+        ],
+        "Properties.templatename": [
+          "smartcard logon"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-27": {
+      "kind": "template",
+      "value": "smartcard user",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "smartcard user"
+        ],
+        "Properties.name": [
+          "smartcard user"
+        ],
+        "Properties.templates[]": [
+          "smartcard user"
+        ],
+        "Properties.templatename": [
+          "smartcard user"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-28": {
+      "kind": "template",
+      "value": "subordinate certification authority",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "subordinate certification authority"
+        ],
+        "Properties.name": [
+          "subordinate certification authority"
+        ],
+        "Properties.templates[]": [
+          "subordinate certification authority"
+        ],
+        "Properties.templatename": [
+          "subordinate certification authority"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-29": {
+      "kind": "template",
+      "value": "trust list signing",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "trust list signing"
+        ],
+        "Properties.name": [
+          "trust list signing"
+        ],
+        "Properties.templates[]": [
+          "trust list signing"
+        ],
+        "Properties.templatename": [
+          "trust list signing"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-30": {
+      "kind": "template",
+      "value": "user",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "user"
+        ],
+        "Properties.name": [
+          "user"
+        ],
+        "Properties.templates[]": [
+          "user"
+        ],
+        "Properties.templatename": [
+          "user"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-31": {
+      "kind": "template",
+      "value": "user signature only",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "user signature only"
+        ],
+        "Properties.name": [
+          "user signature only"
+        ],
+        "Properties.templates[]": [
+          "user signature only"
+        ],
+        "Properties.templatename": [
+          "user signature only"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-32": {
+      "kind": "template",
+      "value": "web server",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "web server"
+        ],
+        "Properties.name": [
+          "web server"
+        ],
+        "Properties.templates[]": [
+          "web server"
+        ],
+        "Properties.templatename": [
+          "web server"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "template.builtin-33": {
+      "kind": "template",
+      "value": "workstation authentication",
+      "node_types": [
+        "CertTemplate"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.name",
+        "Properties.templatename",
+        "Properties.templates[]",
+        "Properties.unresolvedpublishedtemplates[]"
+      ],
+      "exact_values": {
+        "Properties.unresolvedpublishedtemplates[]": [
+          "workstation authentication"
+        ],
+        "Properties.name": [
+          "workstation authentication"
+        ],
+        "Properties.templates[]": [
+          "workstation authentication"
+        ],
+        "Properties.templatename": [
+          "workstation authentication"
+        ]
+      },
+      "source": "Microsoft built-in certificate template internal names"
+    },
+    "oid.standard-01": {
+      "kind": "oid",
+      "value": "2.5.29.37.0",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "2.5.29.37.0"
+        ],
+        "Properties.applicationpolicies[]": [
+          "2.5.29.37.0"
+        ],
+        "Properties.certificatepolicy[]": [
+          "2.5.29.37.0"
+        ],
+        "Properties.certificatepolicies[]": [
+          "2.5.29.37.0"
+        ],
+        "Properties.ekus[]": [
+          "2.5.29.37.0"
+        ],
+        "Properties.oid": [
+          "2.5.29.37.0"
+        ],
+        "Properties.effectiveekus[]": [
+          "2.5.29.37.0"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "2.5.29.37.0"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-02": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.1",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.5.7.3.1"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-03": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.2",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.5.7.3.2"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-04": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.3",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.5.7.3.3"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-05": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.4",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.5.7.3.4"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-06": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.8",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.5.7.3.8"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-07": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.9",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.5.7.3.9"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-08": {
+      "kind": "oid",
+      "value": "1.3.6.1.5.2.3.5",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.5.2.3.5"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.5.2.3.5"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-09": {
+      "kind": "oid",
+      "value": "1.3.6.1.4.1.311.20.2.1",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.4.1.311.20.2.1"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-10": {
+      "kind": "oid",
+      "value": "1.3.6.1.4.1.311.20.2.2",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.4.1.311.20.2.2"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-11": {
+      "kind": "oid",
+      "value": "1.3.6.1.4.1.311.10.3.4",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.4.1.311.10.3.4"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "oid.standard-12": {
+      "kind": "oid",
+      "value": "1.3.6.1.4.1.311.10.3.4.1",
+      "node_types": [
+        "CertTemplate",
+        "IssuancePolicy"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Properties.applicationpolicies[]",
+        "Properties.certificateapplicationpolicy[]",
+        "Properties.certificatepolicies[]",
+        "Properties.certificatepolicy[]",
+        "Properties.effectiveekus[]",
+        "Properties.ekus[]",
+        "Properties.issuancepolicies[]",
+        "Properties.oid"
+      ],
+      "exact_values": {
+        "Properties.issuancepolicies[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.applicationpolicies[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.certificatepolicy[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.certificatepolicies[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.ekus[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.oid": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.effectiveekus[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ],
+        "Properties.certificateapplicationpolicy[]": [
+          "1.3.6.1.4.1.311.10.3.4.1"
+        ]
+      },
+      "source": "IETF and Microsoft standard certificate OIDs"
+    },
+    "access-right.predefined-01": {
+      "kind": "guid",
+      "value": "00299570-246d-11d0-a768-00aa006e0529",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "00299570-246d-11d0-a768-00aa006e0529"
+        ],
+        "Aces[].RightGuid": [
+          "00299570-246d-11d0-a768-00aa006e0529"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "00299570-246d-11d0-a768-00aa006e0529"
+        ],
+        "Aces[].ObjectType": [
+          "00299570-246d-11d0-a768-00aa006e0529"
+        ],
+        "Aces[].InheritedObjectType": [
+          "00299570-246d-11d0-a768-00aa006e0529"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    },
+    "access-right.predefined-02": {
+      "kind": "guid",
+      "value": "ab721a53-1e2f-11d0-9819-00aa0040529",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "ab721a53-1e2f-11d0-9819-00aa0040529"
+        ],
+        "Aces[].RightGuid": [
+          "ab721a53-1e2f-11d0-9819-00aa0040529"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "ab721a53-1e2f-11d0-9819-00aa0040529"
+        ],
+        "Aces[].ObjectType": [
+          "ab721a53-1e2f-11d0-9819-00aa0040529"
+        ],
+        "Aces[].InheritedObjectType": [
+          "ab721a53-1e2f-11d0-9819-00aa0040529"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    },
+    "access-right.predefined-03": {
+      "kind": "guid",
+      "value": "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].RightGuid": [
+          "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].ObjectType": [
+          "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].InheritedObjectType": [
+          "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    },
+    "access-right.predefined-04": {
+      "kind": "guid",
+      "value": "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].RightGuid": [
+          "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].ObjectType": [
+          "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
+        ],
+        "Aces[].InheritedObjectType": [
+          "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    },
+    "access-right.predefined-05": {
+      "kind": "guid",
+      "value": "89e95b76-444d-4c62-991a-0facbeda640c",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "89e95b76-444d-4c62-991a-0facbeda640c"
+        ],
+        "Aces[].RightGuid": [
+          "89e95b76-444d-4c62-991a-0facbeda640c"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "89e95b76-444d-4c62-991a-0facbeda640c"
+        ],
+        "Aces[].ObjectType": [
+          "89e95b76-444d-4c62-991a-0facbeda640c"
+        ],
+        "Aces[].InheritedObjectType": [
+          "89e95b76-444d-4c62-991a-0facbeda640c"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    },
+    "access-right.predefined-06": {
+      "kind": "guid",
+      "value": "0e10c968-78fb-11d2-90d4-00c04f79dc55",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "0e10c968-78fb-11d2-90d4-00c04f79dc55"
+        ],
+        "Aces[].RightGuid": [
+          "0e10c968-78fb-11d2-90d4-00c04f79dc55"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "0e10c968-78fb-11d2-90d4-00c04f79dc55"
+        ],
+        "Aces[].ObjectType": [
+          "0e10c968-78fb-11d2-90d4-00c04f79dc55"
+        ],
+        "Aces[].InheritedObjectType": [
+          "0e10c968-78fb-11d2-90d4-00c04f79dc55"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    },
+    "access-right.predefined-07": {
+      "kind": "guid",
+      "value": "a05b8cc2-17bc-4802-a710-e7c15ab866a2",
+      "node_types": [
+        "ADLocalGroup",
+        "AIACA",
+        "Base",
+        "CertTemplate",
+        "Computer",
+        "Container",
+        "Domain",
+        "EnterpriseCA",
+        "GPO",
+        "Group",
+        "IssuancePolicy",
+        "NTAuthStore",
+        "OU",
+        "RootCA",
+        "User"
+      ],
+      "privacy": "core_global_default",
+      "preserve_paths": [
+        "Aces[].InheritedObjectType",
+        "Aces[].InheritedObjectTypeGuid",
+        "Aces[].ObjectType",
+        "Aces[].ObjectTypeGuid",
+        "Aces[].RightGuid"
+      ],
+      "exact_values": {
+        "Aces[].InheritedObjectTypeGuid": [
+          "a05b8cc2-17bc-4802-a710-e7c15ab866a2"
+        ],
+        "Aces[].RightGuid": [
+          "a05b8cc2-17bc-4802-a710-e7c15ab866a2"
+        ],
+        "Aces[].ObjectTypeGuid": [
+          "a05b8cc2-17bc-4802-a710-e7c15ab866a2"
+        ],
+        "Aces[].ObjectType": [
+          "a05b8cc2-17bc-4802-a710-e7c15ab866a2"
+        ],
+        "Aces[].InheritedObjectType": [
+          "a05b8cc2-17bc-4802-a710-e7c15ab866a2"
+        ]
+      },
+      "source": "Microsoft [MS-ADTS] predefined control access rights"
+    }
+  },
+  "classify_sid": [
+    [
+      "S-1-1-0",
+      "core_global_default"
+    ],
+    [
+      "S-1-5-18",
+      "core_global_default"
+    ],
+    [
+      "S-1-5-32-544",
+      "core_global_default"
+    ],
+    [
+      "S-1-5-32-568",
+      "microsoft_feature_default"
+    ],
+    [
+      "S-1-5-32-574",
+      "microsoft_feature_default"
+    ],
+    [
+      "S-1-5-32-578",
+      "microsoft_feature_default"
+    ],
+    [
+      "S-1-5-32-582",
+      "microsoft_feature_default"
+    ],
+    [
+      "S-1-5-32-585",
+      "microsoft_feature_default"
+    ],
+    [
+      "S-1-5-21-1-2-3-512",
+      "custom"
+    ],
+    [
+      "S-1-5-21-1004336348-1177238915-682003330-500",
+      "custom"
+    ],
+    [
+      "s-1-5-32-544",
+      "core_global_default"
+    ],
+    [
+      "S-1-5-99-1",
+      "unknown"
+    ],
+    [
+      "not-a-sid",
+      "unknown"
+    ]
+  ],
+  "match_catalog": [
+    {
+      "node_type": "GPO",
+      "kind": "guid",
+      "value": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "match": {
+        "rule_id": "gpo.default-domain-policy",
+        "privacy": "core_global_default",
+        "normalized_value": "31b2f340-016d-11d2-945f-00c04fb984f9"
+      }
+    },
+    {
+      "node_type": "User",
+      "kind": "guid",
+      "value": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "match": null
+    },
+    {
+      "node_type": "Container",
+      "kind": "guid",
+      "value": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "match": {
+        "rule_id": "gpo-link.default-domain-policy",
+        "privacy": "core_global_default",
+        "normalized_value": "31b2f340-016d-11d2-945f-00c04fb984f9"
+      }
+    },
+    {
+      "node_type": "CertTemplate",
+      "kind": "template",
+      "value": "User",
+      "match": {
+        "rule_id": "template.builtin-30",
+        "privacy": "core_global_default",
+        "normalized_value": "user"
+      }
+    },
+    {
+      "node_type": "Group",
+      "kind": "template",
+      "value": "User",
+      "match": null
+    },
+    {
+      "node_type": "Group",
+      "kind": "name",
+      "value": "Hyper-V Administrators",
+      "match": null
+    },
+    {
+      "node_type": "Group",
+      "kind": "name",
+      "value": "Vault Administrators",
+      "match": null
+    },
+    {
+      "node_type": "IssuancePolicy",
+      "kind": "oid",
+      "value": "1.3.6.1.4.1.311.999.1",
+      "match": null
+    },
+    {
+      "node_type": "CertTemplate",
+      "kind": "oid",
+      "value": "1.3.6.1.5.5.7.3.1",
+      "match": {
+        "rule_id": "oid.standard-02",
+        "privacy": "core_global_default",
+        "normalized_value": "1.3.6.1.5.5.7.3.1"
+      }
+    },
+    {
+      "node_type": "Group",
+      "kind": "sid",
+      "value": "S-1-5-32-544",
+      "match": {
+        "rule_id": "sid.5.32.544",
+        "privacy": "core_global_default",
+        "normalized_value": "S-1-5-32-544"
+      }
+    },
+    {
+      "node_type": "User",
+      "kind": "sid",
+      "value": "S-1-5-32-544",
+      "match": {
+        "rule_id": "sid.5.32.544",
+        "privacy": "core_global_default",
+        "normalized_value": "S-1-5-32-544"
+      }
+    },
+    {
+      "node_type": "User",
+      "kind": "rid",
+      "value": "500",
+      "match": {
+        "rule_id": "rid.administrator",
+        "privacy": "core_global_default",
+        "normalized_value": "500"
+      }
+    },
+    {
+      "node_type": "Group",
+      "kind": "rid",
+      "value": "512",
+      "match": {
+        "rule_id": "rid.domain-admins",
+        "privacy": "core_global_default",
+        "normalized_value": "512"
+      }
+    },
+    {
+      "node_type": "Container",
+      "kind": "wkguid",
+      "value": "aa312825768811d1aded00c04fd8d5cd",
+      "match": {
+        "rule_id": "wkguid.computers",
+        "privacy": "core_global_default",
+        "normalized_value": "aa312825768811d1aded00c04fd8d5cd"
+      }
+    },
+    {
+      "node_type": "Base",
+      "kind": "guid",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "match": {
+        "rule_id": "guid.null",
+        "privacy": "core_global_default",
+        "normalized_value": "00000000-0000-0000-0000-000000000000"
+      }
+    }
+  ],
+  "is_core_constant": [
+    {
+      "node_type": "GPO",
+      "kind": "guid",
+      "identifier": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "path": "ObjectIdentifier",
+      "value": null,
+      "result": true
+    },
+    {
+      "node_type": "GPO",
+      "kind": "guid",
+      "identifier": "31b2f340-016d-11d2-945f-00c04fb984f9",
+      "path": "Properties.name",
+      "value": null,
+      "result": false
+    },
+    {
+      "node_type": "Group",
+      "kind": "sid",
+      "identifier": "S-1-5-32-544",
+      "path": "ObjectIdentifier",
+      "value": null,
+      "result": true
+    },
+    {
+      "node_type": "Group",
+      "kind": "sid",
+      "identifier": "S-1-5-32-544",
+      "path": "ObjectIdentifier",
+      "value": "S-1-5-32-545",
+      "result": false
+    },
+    {
+      "node_type": "Group",
+      "kind": "sid",
+      "identifier": "S-1-5-32-544",
+      "path": "Properties.name",
+      "value": "Administrators",
+      "result": true
+    },
+    {
+      "node_type": "Group",
+      "kind": "sid",
+      "identifier": "S-1-5-32-544",
+      "path": "Properties.name",
+      "value": "administrators",
+      "result": true
+    },
+    {
+      "node_type": "Group",
+      "kind": "sid",
+      "identifier": "S-1-5-32-544",
+      "path": "Novel.Path",
+      "value": "S-1-5-32-544",
+      "result": false
+    },
+    {
+      "node_type": "CertTemplate",
+      "kind": "template",
+      "identifier": "User",
+      "path": "Properties.templatename",
+      "value": null,
+      "result": true
+    },
+    {
+      "node_type": "Base",
+      "kind": "sid",
+      "identifier": "S-1-5-32-568",
+      "path": "ObjectIdentifier",
+      "value": null,
+      "result": false
+    }
+  ]
+}

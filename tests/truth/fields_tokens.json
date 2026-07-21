@@ -1,0 +1,76 @@
+[
+  {
+    "tokens": {
+      "acme": "REDACT_acme"
+    },
+    "pattern_source": "(?<![A-Za-z0-9_])(?:acme)(?![A-Za-z0-9_])",
+    "texts": [
+      {
+        "text": "the acme server",
+        "found": [
+          "acme"
+        ],
+        "swept": "the REDACT_acme server"
+      },
+      {
+        "text": "acmefoundation stuff",
+        "found": [],
+        "swept": "acmefoundation stuff"
+      },
+      {
+        "text": "ACME here",
+        "found": [
+          "ACME"
+        ],
+        "swept": "REDACT_acme here"
+      }
+    ]
+  },
+  {
+    "tokens": {
+      "engagement_user_000001": "u1",
+      "engagement_user_000002": "u2",
+      "engagement": "e0"
+    },
+    "pattern_source": "(?<![A-Za-z0-9_])(?:engagement(?:_user_00000(?:1|2)|))(?![A-Za-z0-9_])",
+    "texts": [
+      {
+        "text": "engagement_user_000002 / engagement / preengagement",
+        "found": [
+          "engagement",
+          "engagement_user_000002"
+        ],
+        "swept": "u2 / e0 / preengagement"
+      },
+      {
+        "text": "ENGAGEMENT_USER_000001!",
+        "found": [
+          "ENGAGEMENT_USER_000001"
+        ],
+        "swept": "u1!"
+      }
+    ]
+  },
+  {
+    "tokens": {
+      "Finance_Admins": "grpA",
+      "Global Finance": "grpB"
+    },
+    "pattern_source": "(?<![A-Za-z0-9_])(?:(?:finance_admins|global\\ finance))(?![A-Za-z0-9_])",
+    "texts": [
+      {
+        "text": "Finance_Admins and Global Finance",
+        "found": [
+          "Finance_Admins",
+          "Global Finance"
+        ],
+        "swept": "grpA and grpB"
+      },
+      {
+        "text": "financial",
+        "found": [],
+        "swept": "financial"
+      }
+    ]
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "categories": {
+    "accounts": {
+      "Alice": "ihayesgxmq6cq3derry",
+      "administrator": "sjohnso5g2vsr4ez3vte"
+    },
+    "cert_templates": {
+      "WebServer": "Template-6btmxzks3tiyg"
+    },
+    "domains": {
+      "acme.example": "wingtip-3ylw5maaovys4.example",
+      "corp.local": "southridge-geafzk36mbevs.local"
+    },
+    "guids": {
+      "12345678-1234-1234-1234-123456789abc": "ec2283da-9c61-ab5b-17c2-4a58e27ac161"
+    },
+    "hosts": {
+      "DC01": "HOST-73-7HTSG4BESH7BG"
+    },
+    "oids": {
+      "1.2.3.4": "2.25.251460502849143529337231328059982147713"
+    },
+    "opaque": {
+      "secretvalue": "[REDACTED:fqysiqaed6uhu]"
+    },
+    "sids": {
+      "S-1-5-21-1111111111-2222222222-3333333333": "S-1-5-21-1708546787-1795253718-634612481"
+    }
+  },
+  "created": "2026-07-21T00:00:00+00:00",
+  "format_version": 2,
+  "input_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "legacy_reverse_aliases": {},
+  "salt": "0123456789abcdef0123456789abcdef"
+}

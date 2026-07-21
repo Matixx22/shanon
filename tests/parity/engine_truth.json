@@ -1,0 +1,220 @@
+{
+  "salt": "00000000000000000000000000000000",
+  "documents": [
+    {
+      "member": "users.json",
+      "input": {
+        "meta": {
+          "type": "users",
+          "count": 1,
+          "version": 6
+        },
+        "data": [
+          {
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1105",
+            "Properties": {
+              "name": "ALICE@CORP.LOCAL",
+              "domain": "CORP.LOCAL",
+              "samaccountname": "alice",
+              "userprincipalname": "alice@corp.local",
+              "email": "alice@corp.local",
+              "description": "backup operator zqhidden",
+              "admincount": true,
+              "functionallevel": 2012
+            },
+            "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+            "Aces": [
+              {
+                "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+                "PrincipalType": "Group",
+                "RightName": "GenericAll"
+              }
+            ],
+            "customField": {
+              "nestedSecret": "zqleak01"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"meta\": {\"type\": \"users\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"S-1-5-21-3723053582-1902173673-2667344224-1924045998\", \"Properties\": {\"name\": \"ogarfiemvvnsxi26c6se@alpine-3bq5ihjfteg2u.LOCAL\", \"domain\": \"alpine-3bq5ihjfteg2u.LOCAL\", \"samaccountname\": \"ogarfiemvvnsxi26c6se\", \"userprincipalname\": \"ogarfiemvvnsxi26c6se@alpine-3bq5ihjfteg2u.local\", \"email\": \"ogarfiemvvnsxi26c6se@alpine-3bq5ihjfteg2u.local\", \"description\": \"[REDACTED:3gzkvqpdkajxq]\", \"admincount\": true, \"functionallevel\": -1}, \"PrimaryGroupSID\": \"S-1-5-21-3723053582-1902173673-2667344224-3017704494\", \"Aces\": [{\"PrincipalSID\": \"S-1-5-21-3723053582-1902173673-2667344224-512\", \"PrincipalType\": \"Group\", \"RightName\": \"GenericAll\"}], \"[REDACTED:sucvrj63snphq]\": {\"[REDACTED:ltxncejivao72]\": \"[REDACTED:vd5pjhe5nmqpe]\"}}]}"
+    },
+    {
+      "member": "computers.json",
+      "input": {
+        "meta": {
+          "type": "computers",
+          "count": 1,
+          "version": 6
+        },
+        "data": [
+          {
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1601",
+            "Properties": {
+              "name": "DC01.CORP.LOCAL",
+              "dnshostname": "dc01.corp.local",
+              "samaccountname": "DC01$",
+              "operatingsystem": "Windows Server 2019",
+              "serviceprincipalnames": [
+                "HOST/dc01.corp.local",
+                "MSSQLSvc/dc01.corp.local:1433"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"meta\": {\"type\": \"computers\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"S-1-5-21-3723053582-1902173673-2667344224-1195298833\", \"Properties\": {\"name\": \"HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.LOCAL\", \"dnshostname\": \"HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local\", \"samaccountname\": \"mgrantfnkhav76co2p4$\", \"operatingsystem\": \"[REDACTED:h6grkipcxsry2]\", \"serviceprincipalnames\": [\"HOST/HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local\", \"MSSQLSvc/HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local:1433\"]}}]}"
+    },
+    {
+      "member": "domains.json",
+      "input": {
+        "meta": {
+          "type": "domains",
+          "count": 1,
+          "version": 6
+        },
+        "data": [
+          {
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333",
+            "Properties": {
+              "name": "CORP.LOCAL",
+              "domain": "CORP.LOCAL",
+              "distinguishedname": "DC=CORP,DC=LOCAL",
+              "functionallevel": "2016"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"meta\": {\"type\": \"domains\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"S-1-5-21-3723053582-1902173673-2667344224\", \"Properties\": {\"name\": \"alpine-3bq5ihjfteg2u.LOCAL\", \"domain\": \"alpine-3bq5ihjfteg2u.LOCAL\", \"distinguishedname\": \"DC=alpine-3bq5ihjfteg2u,DC=LOCAL\", \"functionallevel\": \"[REDACTED:4mrelxaryuw34]\"}}]}"
+    },
+    {
+      "member": "certtemplates.json",
+      "input": {
+        "meta": {
+          "type": "certtemplates",
+          "count": 1,
+          "version": 6
+        },
+        "data": [
+          {
+            "ObjectIdentifier": "11111111-2222-3333-4444-555555555555",
+            "Properties": {
+              "name": "WebServer@CORP.LOCAL",
+              "templatename": "WebServer",
+              "oid": "1.3.6.1.4.1.311.21.8.1.2.3",
+              "domain": "CORP.LOCAL"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"meta\": {\"type\": \"certtemplates\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"8af37d86-3b86-9e93-ce29-6d8ebeaed77e\", \"Properties\": {\"name\": \"Template-tlxvhv4g3ozik@alpine-3bq5ihjfteg2u.LOCAL\", \"templatename\": \"Template-tlxvhv4g3ozik\", \"oid\": \"2.25.118632217057225609909480523942620717418\", \"domain\": \"alpine-3bq5ihjfteg2u.LOCAL\"}}]}"
+    },
+    {
+      "member": "ous.json",
+      "input": {
+        "meta": {
+          "type": "ous",
+          "count": 1,
+          "version": 6
+        },
+        "data": [
+          {
+            "ObjectIdentifier": "66666666-7777-8888-9999-000000000000",
+            "Properties": {
+              "name": "SERVERS@CORP.LOCAL",
+              "distinguishedname": "OU=Servers,OU=Tier0,DC=CORP,DC=LOCAL",
+              "domain": "CORP.LOCAL"
+            },
+            "Links": [
+              {
+                "GUID": "12345678-1234-1234-1234-123456789abc",
+                "IsEnforced": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "{\"meta\": {\"type\": \"ous\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"9e31a4b1-2182-a57e-83dd-58b87baa840a\", \"Properties\": {\"name\": \"tlincol2fu5wcjzccb4o@alpine-3bq5ihjfteg2u.LOCAL\", \"distinguishedname\": \"OU=tlincol2fu5wcjzccb4o,OU=uadamsime3f5zjppcoi,DC=alpine-3bq5ihjfteg2u,DC=LOCAL\", \"domain\": \"alpine-3bq5ihjfteg2u.LOCAL\"}, \"Links\": [{\"GUID\": \"18707d0c-e1d9-dded-d3f8-b87f639832c1\", \"IsEnforced\": false}]}]}"
+    },
+    {
+      "member": "groups.json",
+      "input": {
+        "meta": {
+          "type": "groups",
+          "count": 2,
+          "version": 6
+        },
+        "data": [
+          {
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-512",
+            "Properties": {
+              "name": "DOMAIN ADMINS@CORP.LOCAL",
+              "domain": "CORP.LOCAL"
+            }
+          },
+          {
+            "ObjectIdentifier": "S-1-5-32-544",
+            "Properties": {
+              "name": "ADMINISTRATORS@BUILTIN",
+              "domain": "BUILTIN"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"meta\": {\"type\": \"groups\", \"count\": 2, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"S-1-5-21-3723053582-1902173673-2667344224-512\", \"Properties\": {\"name\": \"DOMAIN ADMINS@alpine-3bq5ihjfteg2u.LOCAL\", \"domain\": \"alpine-3bq5ihjfteg2u.LOCAL\"}}, {\"ObjectIdentifier\": \"S-1-5-32-544\", \"Properties\": {\"name\": \"ADMINISTRATORS@wide-w4lc7rqbhydys\", \"domain\": \"wide-w4lc7rqbhydys\"}}]}"
+    }
+  ],
+  "audit_summary": {
+    "object_classifications": {
+      "core_global_default": 2,
+      "custom": 5
+    },
+    "privacy_classes": {
+      "core_global_default": 6,
+      "custom": 40
+    },
+    "operations": {
+      "map_custom_identifier": 8,
+      "map_identity": 19,
+      "map_reference": 2,
+      "parse_dn": 2,
+      "parse_spn": 2,
+      "preserve_constant": 1,
+      "preserve_schema_value": 8,
+      "replace_opaque": 4
+    },
+    "rule_ids": {
+      "common.properties-name": 4,
+      "dn.distinguished-name": 2,
+      "fallback.unknown-string": 1,
+      "identifier.guid.links[].guid": 1,
+      "identifier.object": 7,
+      "identifier.oid.properties.oid": 1,
+      "identity.computer-name": 1,
+      "identity.dns-host-name": 1,
+      "identity.domain": 6,
+      "identity.domain-name": 1,
+      "identity.email": 1,
+      "identity.sam-account-name": 2,
+      "identity.template-name": 1,
+      "identity.user-principal-name": 1,
+      "opaque.functional-level": 1,
+      "opaque.path-url.properties.description": 1,
+      "opaque.path-url.properties.operatingsystem": 1,
+      "reference.sid.aces[].principalsid": 1,
+      "reference.sid.primarygroupsid": 1,
+      "schema.ace-right-name": 1,
+      "schema.meta-type": 6,
+      "schema.object-type.aces[].principaltype": 1,
+      "spn.service-principal-name": 2,
+      "template.internal-name": 1
+    },
+    "audit_codes": {
+      "unknown-key-path": 2,
+      "unknown-string-path": 1
+    },
+    "unknown_paths": {
+      "data[][\"[redacted:sucvrj63snphq]\"]": 1,
+      "data[][\"[redacted:sucvrj63snphq]\"][\"[redacted:ltxncejivao72]\"]": 2
+    }
+  }
+}

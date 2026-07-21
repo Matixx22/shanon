@@ -1,0 +1,632 @@
+[
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-32-544",
+      true
+    ],
+    "output": "S-1-5-32-544"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-32-578",
+      false
+    ],
+    "output": "M<sids|S-1-5-32-578>"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "ESC1.LOCAL-S-1-5-32-544",
+      true
+    ],
+    "output": "M<domains|esc1>.LOCAL-S-1-5-32-544"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-21-11-22-33-1104",
+      true
+    ],
+    "output": "M<sids|S-1-5-21-11-22-33>-1104"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-21-11-22-33-1104",
+      false
+    ],
+    "output": "M<sids|S-1-5-21-11-22-33>-SA<S-1-5-21-11-22-33-1104>"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-21-11-22-33-512",
+      true
+    ],
+    "output": "M<sids|S-1-5-21-11-22-33>-512"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-21-11-22-33-1201-544",
+      true
+    ],
+    "output": "M<sids|S-1-5-21-11-22-33>-SA<S-1-5-21-11-22-33-1201>-544"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "s-1-5-21-1-2-3-4",
+      false
+    ],
+    "output": "M<sids|S-1-5-21-1-2-3>-SA<S-1-5-21-1-2-3-4>"
+  },
+  {
+    "fn": "transform_sid",
+    "args": [
+      "S-1-5-18",
+      false
+    ],
+    "output": "M<sids|S-1-5-18>"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "acme.local"
+    ],
+    "output": "M<domains|acme>.local"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "CORP.LOCAL"
+    ],
+    "output": "M<domains|corp>.LOCAL"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "DOMAIN.LAN"
+    ],
+    "output": "M<domains|domain>.M<domains|lan>"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "a.b.c.local"
+    ],
+    "output": "M<domains|a>.M<domains|b>.M<domains|c>.local"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "single"
+    ],
+    "output": "M<domains|single>"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "corp.local."
+    ],
+    "output": "M<domains|corp>.M<domains|local>."
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      ".leading"
+    ],
+    "output": ".M<domains|leading>"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "corp.com"
+    ],
+    "output": "M<domains|corp>.com"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "corp.net"
+    ],
+    "output": "M<domains|corp>.net"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "corp.org"
+    ],
+    "output": "M<domains|corp>.org"
+  },
+  {
+    "fn": "transform_domain",
+    "args": [
+      "x.y.z"
+    ],
+    "output": "M<domains|x>.M<domains|y>.M<domains|z>"
+  },
+  {
+    "fn": "transform_name_token",
+    "args": [
+      "Finance_Admins",
+      false
+    ],
+    "output": "M<accounts|Finance_Admins>"
+  },
+  {
+    "fn": "transform_name_token",
+    "args": [
+      "Domain Admins",
+      true
+    ],
+    "output": "Domain Admins"
+  },
+  {
+    "fn": "transform_name_token",
+    "args": [
+      "11111111-2222-3333-4444-555555555555",
+      false
+    ],
+    "output": "M<guids|11111111-2222-3333-4444-555555555555>"
+  },
+  {
+    "fn": "transform_name_token",
+    "args": [
+      "{11111111-2222-3333-4444-555555555555}",
+      false
+    ],
+    "output": "{M<guids|11111111-2222-3333-4444-555555555555>}"
+  },
+  {
+    "fn": "transform_name_token",
+    "args": [
+      "S-1-5-21-11-22-33-1104",
+      false
+    ],
+    "output": "M<sids|S-1-5-21-11-22-33>-SA<S-1-5-21-11-22-33-1104>"
+  },
+  {
+    "fn": "transform_name_token",
+    "args": [
+      "plain",
+      false
+    ],
+    "output": "M<accounts|plain>"
+  },
+  {
+    "fn": "transform_guid",
+    "args": [
+      "11111111-2222-3333-4444-555555555555",
+      false
+    ],
+    "output": "M<guids|11111111-2222-3333-4444-555555555555>"
+  },
+  {
+    "fn": "transform_guid",
+    "args": [
+      "{31B2F340-016D-11D2-945F-00C04FB984F9}",
+      false
+    ],
+    "output": "{M<guids|31b2f340-016d-11d2-945f-00c04fb984f9>}"
+  },
+  {
+    "fn": "transform_guid",
+    "args": [
+      "31B2F340-016D-11D2-945F-00C04FB984F9",
+      true
+    ],
+    "output": "31B2F340-016D-11D2-945F-00C04FB984F9"
+  },
+  {
+    "fn": "transform_guid",
+    "args": [
+      "  {ABCDEF00-0000-0000-0000-000000000000}  ",
+      false
+    ],
+    "output": "{M<guids|abcdef00-0000-0000-0000-000000000000>}"
+  },
+  {
+    "fn": "transform_samaccountname",
+    "args": [
+      "SRV-SQL01$"
+    ],
+    "output": "M<accounts|SRV-SQL01>$"
+  },
+  {
+    "fn": "transform_samaccountname",
+    "args": [
+      "jdoe"
+    ],
+    "output": "M<accounts|jdoe>"
+  },
+  {
+    "fn": "transform_samaccountname",
+    "args": [
+      "Domain Admins"
+    ],
+    "output": "M<accounts|Domain Admins>"
+  },
+  {
+    "fn": "transform_upn_name",
+    "args": [
+      "JDOE@ACME.LOCAL"
+    ],
+    "output": "M<accounts|JDOE>@M<domains|acme>.LOCAL"
+  },
+  {
+    "fn": "transform_upn_name",
+    "args": [
+      "plainname"
+    ],
+    "output": "M<accounts|plainname>"
+  },
+  {
+    "fn": "transform_upn_name",
+    "args": [
+      "DOMAIN ADMINS@ACME.LOCAL"
+    ],
+    "output": "M<accounts|DOMAIN ADMINS>@M<domains|acme>.LOCAL"
+  },
+  {
+    "fn": "transform_email",
+    "args": [
+      "jdoe@acme.local"
+    ],
+    "output": "M<accounts|jdoe>@M<domains|acme>.local"
+  },
+  {
+    "fn": "transform_email",
+    "args": [
+      "not-an-email"
+    ],
+    "output": "not-an-email"
+  },
+  {
+    "fn": "transform_email",
+    "args": [
+      "a@b@c"
+    ],
+    "output": "M<accounts|a>@M<domains|b@c>"
+  },
+  {
+    "fn": "transform_dnshostname",
+    "args": [
+      "srv-sql01.acme.local"
+    ],
+    "output": "M<hosts|srv-sql01>.M<domains|acme>.local"
+  },
+  {
+    "fn": "transform_dnshostname",
+    "args": [
+      "host"
+    ],
+    "output": "M<hosts|host>"
+  },
+  {
+    "fn": "transform_dnshostname",
+    "args": [
+      "DC01.ACME.LOCAL"
+    ],
+    "output": "M<hosts|dc01>.M<domains|acme>.LOCAL"
+  },
+  {
+    "fn": "transform_dnshostname",
+    "args": [
+      "a.b.c"
+    ],
+    "output": "M<hosts|a>.M<domains|b>.M<domains|c>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "\\\\ACMEFS\\profiles\\jdoe"
+    ],
+    "output": "\\\\M<hosts|acmefs>\\M<accounts|profiles>\\M<accounts|jdoe>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "PayrollShare"
+    ],
+    "output": "M<accounts|PayrollShare>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "C:\\Users\\jdoe"
+    ],
+    "output": "C:\\M<accounts|Users>\\M<accounts|jdoe>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "a/b/c"
+    ],
+    "output": "M<accounts|a>/M<accounts|b>/M<accounts|c>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "\\\\host\\share"
+    ],
+    "output": "\\\\M<hosts|host>\\M<accounts|share>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "single"
+    ],
+    "output": "M<accounts|single>"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "\\\\host\\\\"
+    ],
+    "output": "\\\\M<hosts|host>\\\\"
+  },
+  {
+    "fn": "transform_path",
+    "args": [
+      "/etc/passwd"
+    ],
+    "output": "/M<accounts|etc>/M<accounts|passwd>"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "https://svc:secret@ca01.acme.local:8443/certsrv/"
+    ],
+    "output": "https://M<accounts|svc>:[REDACTED]@M<hosts|ca01>.M<domains|acme>.local:8443/M<accounts|certsrv>/"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "\\\\ACMEFS\\share"
+    ],
+    "output": "\\\\M<hosts|acmefs>\\M<accounts|share>"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "http://host/path"
+    ],
+    "output": "http://M<hosts|host>/M<accounts|path>"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "ftp://user@h:21/d"
+    ],
+    "output": "ftp://M<accounts|user>@M<hosts|h>:21/M<accounts|d>"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "https://h"
+    ],
+    "output": "https://M<hosts|h>"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "https://user@h:9/p?q=1#f"
+    ],
+    "output": "https://M<accounts|user>@M<hosts|h>:9/M<accounts|p>?q=1#f"
+  },
+  {
+    "fn": "transform_url",
+    "args": [
+      "nonscheme"
+    ],
+    "output": "M<accounts|nonscheme>"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=John Doe,OU=Staff,DC=acme,DC=local",
+      "none"
+    ],
+    "output": "CN=M<accounts|John Doe>,OU=M<accounts|Staff>,DC=M<domains|acme>,DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "O=Contoso,CN=Alice,DC=corp,DC=local",
+      "none"
+    ],
+    "output": "O=M<opaque|Contoso>,CN=M<accounts|Alice>,DC=M<domains|corp>,DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=Managed User,DC=local",
+      "none"
+    ],
+    "output": "CN=M<accounts|Managed User>,DC=M<domains|local>"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=Managed User,DC=corp+DC=local",
+      "none"
+    ],
+    "output": "CN=M<accounts|Managed User>,DC=M<domains|corp>+DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=Doe\\, John,OU=Staff,DC=acme,DC=local",
+      "none"
+    ],
+    "output": "CN=M<accounts|Doe\\, John>,OU=M<accounts|Staff>,DC=M<domains|acme>,DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=Doe\\+John+OU=Engineering+UID=42,DC=acme,DC=local",
+      "none"
+    ],
+    "output": "CN=M<accounts|Doe\\+John>+OU=M<accounts|Engineering>+UID=M<opaque|42>,DC=M<domains|acme>,DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=Domain Admins,CN=Users,DC=acme,DC=local",
+      "preserve_cn_set"
+    ],
+    "output": "CN=Domain Admins,CN=Users,DC=M<domains|acme>,DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=Alice,OU=Research,DC=acme,UID=42,DC=local",
+      "preserve_ou"
+    ],
+    "output": "CN=M<accounts|Alice>,OU=Research,DC=M<domains|acme>,UID=M<opaque|42>,DC=local"
+  },
+  {
+    "fn": "transform_dn",
+    "args": [
+      "CN=a,DC=corp,DC=com",
+      "none"
+    ],
+    "output": "CN=M<accounts|a>,DC=M<domains|corp>,DC=com"
+  },
+  {
+    "fn": "transform_oid",
+    "args": [
+      "1.3.6.1.4.1.311.999.1",
+      false
+    ],
+    "output": "M<oids|1.3.6.1.4.1.311.999.1>"
+  },
+  {
+    "fn": "transform_oid",
+    "args": [
+      "1.3.6.1.5.5.7.3.1",
+      true
+    ],
+    "output": "1.3.6.1.5.5.7.3.1"
+  },
+  {
+    "fn": "transform_template_name",
+    "args": [
+      "User",
+      false
+    ],
+    "output": "M<cert_templates|User>"
+  },
+  {
+    "fn": "transform_template_name",
+    "args": [
+      "User",
+      true
+    ],
+    "output": "User"
+  },
+  {
+    "fn": "transform_ad_local_group_name",
+    "args": [
+      "Administrators@WS01.ACME.LOCAL",
+      false
+    ],
+    "output": "M<accounts|Administrators>@M<hosts|ws01>.M<domains|acme>.LOCAL"
+  },
+  {
+    "fn": "transform_ad_local_group_name",
+    "args": [
+      "Administrators",
+      false
+    ],
+    "output": "M<accounts|Administrators>"
+  },
+  {
+    "fn": "transform_ad_local_group_name",
+    "args": [
+      "Admins@HOST",
+      true
+    ],
+    "output": "Admins@M<hosts|host>"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "MSSQLSvc/srv-sql01.acme.local:1433"
+    ],
+    "output": "MSSQLSvc/M<hosts|srv-sql01>.M<domains|acme>.local:1433"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "GC/dc01.acme.local/acme.local"
+    ],
+    "output": "GC/M<hosts|dc01>.M<domains|acme>.local/M<hosts|acme>.M<domains|local>"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "Vault/srv01.corp.local:8443"
+    ],
+    "output": "M<accounts|Vault>/M<hosts|srv01>.M<domains|corp>.local:8443"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "alice/"
+    ],
+    "output": "alice/"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "alice//"
+    ],
+    "output": "alice//"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "/host"
+    ],
+    "output": "/host"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "svc//instance"
+    ],
+    "output": "svc//instance"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "svc/host:"
+    ],
+    "output": "svc/host:"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "svc/host/"
+    ],
+    "output": "svc/host/"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "HOST/h"
+    ],
+    "output": "HOST/M<hosts|h>"
+  },
+  {
+    "fn": "transform_spn",
+    "args": [
+      "http/web.acme.local"
+    ],
+    "output": "http/M<hosts|web>.M<domains|acme>.local"
+  }
+]
