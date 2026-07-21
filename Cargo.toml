@@ -21,7 +21,7 @@ caseless = "0.2" # Unicode full case folding (CaseFolding.txt C+F mappings)
 # fields' v1 sweep/find pattern uses lookbehind+lookahead word boundaries
 # (`(?<![A-Za-z0-9_])...(?![A-Za-z0-9_])`) — the ONE place lookaround is needed,
 # so `fancy-regex` is scoped to it (§R2). `regex` alone cannot express it.
-fancy-regex = "0.13"
+fancy-regex = "0.18"
 proptest = "1"   # path-grammar round-trip + cross-impl fuzz (P1)
 thiserror = "1"  # §3.4 error/exit-code contract (ShanonError enum)
 # §3.5 platform layer: openat-anchored traversal + renameat_with(NOREPLACE).
