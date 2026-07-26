@@ -17,9 +17,9 @@ the LLM's analysis can be restored to real identities.
 **No network. No LLM calls. Never mutates your input.** The mapping file is
 client-sensitive — keep it local, never ship it.
 
-> Pseudonymization, not a guarantee. shanon lowers re-identification risk; it does
-> not make a collection legally anonymous. Read [SECURITY.md](SECURITY.md) before
-> trusting it with real engagement data.
+> **Scope.** shanon pseudonymizes — it substantially lowers re-identification
+> risk, but a collection is not legally anonymous afterward.
+> [SECURITY.md](SECURITY.md) states the exact threat model and residual risks.
 
 ## Install
 
