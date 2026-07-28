@@ -76,6 +76,51 @@ Send only the emitted `collection_anon.zip` to the LLM, never its parent output
 directory — that may also contain the mapping file. Same input + same salt →
 byte-identical output.
 
+### `inspect`
+
+```
+shanon inspect --input <zip|dir> [--progress | --no-progress]
+```
+
+A dry run: same discovery, transform and leak-gate verification as `anonymize`,
+then stop. **Nothing is written** — no output collection, no mapping file, no
+staging directory — so it is safe to point at a collection that must not leave
+the machine. Exit `0` if the collection would anonymize cleanly, `1` if it would
+abort.
+
+```sh
+shanon inspect --input engagement.zip
+```
+
+```
+members: 7 read, 7 accepted, 0 skipped
+objects: 5752
+
+collections:
+  users                    type=User           version=6          objects=4000
+  computers                type=Computer       version=6          objects=800
+  azbase                   type=Unknown        version=6          objects=12  <- unrecognized, contents anonymized opaquely
+
+audit codes:
+  malformed-source-value: 600
+  unknown-key-path: 33106
+
+unknown field paths (21 distinct):
+       800  data[].localgroups[]["[redacted:wx5fedc6e5w56]"]
+
+verdict: this collection would anonymize cleanly
+```
+
+Every line is a count, a synthetic `member-NNNNN.json` label, a canonical field
+path or a BLAKE2b-6 fingerprint — never a source value and never a source
+filename — so the report can be shared for a collection that cannot be. That
+also means the *names* of unmodeled fields appear as fingerprints rather than
+in clear: the path tells you where the drift is, the digest tells you it is the
+same field each time.
+
+Reach for it when a run aborts, when a new collector version is in play, or
+before spending minutes on a collection that will not finish.
+
 ### `restore`
 
 ```
@@ -101,8 +146,8 @@ shanon restore --map ./anon/collection.map.json --input llm_findings.md
 
 | code | condition |
 | --- | --- |
-| `0` | success |
-| `1` | leak-gate abort, invalid mapping data, or I/O error — no output written |
+| `0` | success — for `inspect`, the collection would anonymize cleanly |
+| `1` | leak-gate abort, invalid mapping data, or I/O error — no output written; for `inspect`, the collection would abort |
 | `2` | pre-flight refusal (e.g. `--out` already holds a map, or conflicting flags) |
 
 ## What gets scrubbed

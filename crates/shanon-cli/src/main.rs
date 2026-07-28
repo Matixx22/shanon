@@ -69,6 +69,18 @@ enum Command {
         #[arg(long = "no-progress")]
         no_progress: bool,
     },
+    /// Dry-run a collection and report what a real run would do. Writes nothing.
+    Inspect {
+        /// SharpHound zip or dir
+        #[arg(long)]
+        input: PathBuf,
+        /// draw a progress bar even when stderr is not a terminal
+        #[arg(long, conflicts_with = "no_progress")]
+        progress: bool,
+        /// never draw a progress bar
+        #[arg(long = "no-progress")]
+        no_progress: bool,
+    },
     /// Resolve pseudonyms against a mapping file (lookup / forward / bulk).
     Restore {
         /// mapping file
@@ -105,12 +117,131 @@ fn main() {
             verbose_failures,
             progress::should_render(progress, no_progress),
         ),
+        Command::Inspect {
+            input,
+            progress,
+            no_progress,
+        } => inspect(input, progress::should_render(progress, no_progress)),
         Command::Restore {
             map,
             lookup_value,
             forward_value,
             input,
         } => restore(map, lookup_value, forward_value, input),
+    }
+}
+
+/// Dry-run a collection: same discovery, transform and verification as a real
+/// run, then stop. Nothing is written, and every line printed is a count, a
+/// synthetic member label, a canonical path or a fingerprint — so a report can
+/// be shared for a collection that cannot be.
+fn inspect(input: PathBuf, render_progress: bool) {
+    let reporter = render_progress.then(progress::Reporter::new);
+    let sink = reporter.as_ref().map(|(_, sink)| sink.clone());
+
+    let report = shanon_core::pipeline::inspect_collection(
+        &input,
+        Registry::new_random(),
+        PolicyConfig::default(),
+        PolicyAudit::new(),
+        sink,
+    );
+    if let Some((reporter, _)) = &reporter {
+        reporter.finish();
+    }
+    let report = match report {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("{}", e.stderr_verbose());
+            exit(e.exit_code());
+        }
+    };
+
+    println!(
+        "members: {} read, {} accepted, {} skipped",
+        report.members_read,
+        report.members_accepted,
+        report.members_skipped.len()
+    );
+    println!("objects: {}", report.objects);
+
+    println!("\ncollections:");
+    for row in &report.collection_types {
+        let flag = if row.node_type == "Unknown" {
+            "  <- unrecognized, contents anonymized opaquely"
+        } else {
+            ""
+        };
+        println!(
+            "  {:<24} type={:<14} version={:<10} objects={}{}",
+            row.meta_type, row.node_type, row.version, row.objects, flag
+        );
+    }
+
+    for (label, section) in [
+        ("object classifications", "object_classifications"),
+        ("audit codes", "audit_codes"),
+    ] {
+        if let Some(map) = report.audit.get(section).and_then(|v| v.as_object()) {
+            if !map.is_empty() {
+                println!("\n{label}:");
+                for (key, value) in map {
+                    println!("  {key}: {value}");
+                }
+            }
+        }
+    }
+
+    // Unknown paths are the ingestor-drift signal: fields no rule covers. They
+    // are anonymized, not leaked, but each one is a field shanon does not model.
+    if let Some(map) = report
+        .audit
+        .get("unknown_paths")
+        .and_then(|v| v.as_object())
+    {
+        if !map.is_empty() {
+            let mut paths: Vec<(&String, u64)> = map
+                .iter()
+                .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
+                .collect();
+            paths.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
+            println!("\nunknown field paths ({} distinct):", paths.len());
+            for (path, count) in paths.iter().take(20) {
+                println!("  {count:>8}  {path}");
+            }
+            if paths.len() > 20 {
+                println!("  ... {} more", paths.len() - 20);
+            }
+        }
+    }
+
+    if let Some(abort) = &report.abort {
+        println!("\nwould abort:");
+        for line in abort.lines() {
+            println!("  {line}");
+        }
+    }
+    if !report.findings.is_empty() {
+        println!(
+            "\nwould abort - {} leak-gate finding(s):",
+            report.findings.len()
+        );
+        for f in report.findings.iter().take(50) {
+            println!(
+                "  {} {}: {} {}",
+                f.member, f.path, f.policy_code, f.offender
+            );
+        }
+        if report.findings.len() > 50 {
+            println!("  ... {} more", report.findings.len() - 50);
+        }
+    }
+
+    if report.would_publish() {
+        println!("\nverdict: this collection would anonymize cleanly");
+    } else {
+        println!("\nverdict: this collection would abort with no output written");
+        exit(1);
     }
 }
 

@@ -40,6 +40,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `shanon inspect --input <zip|dir>`: a dry run that performs the same
+  discovery, transform and leak-gate verification as `anonymize` and then stops,
+  writing nothing at all. It reports the `meta.type` / `meta.version` /
+  node-type breakdown, unrecognized collection types, object classifications,
+  audit codes, the field paths no rule covers, and the sanitized reason a run
+  would abort. Exits `0` if the collection would anonymize cleanly and `1` if it
+  would not. Every line is a count, a synthetic member label, a canonical path
+  or a fingerprint, so the report can be shared for a collection that cannot be
+  — which is what turns "it aborts on my engagement data" into a filable bug.
+  `pipeline::inspect_collection` and `pipeline::InspectReport` back it.
 - `--verbose-failures` now also expands the mapping-abort classes — pseudonym
   collision, unsafe mapping, publication identity, and the generic runtime
   abort. Previously the flag only affected leak-gate findings, so a run that

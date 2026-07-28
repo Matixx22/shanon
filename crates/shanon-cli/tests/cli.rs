@@ -8,12 +8,28 @@ fn bin() -> &'static str {
 }
 
 #[test]
-fn help_lists_both_verbs() {
+fn help_lists_every_verb() {
     let out = Command::new(bin()).arg("--help").output().unwrap();
     assert!(out.status.success());
     let text = String::from_utf8_lossy(&out.stdout);
     assert!(text.contains("anonymize"), "{text}");
+    assert!(text.contains("inspect"), "{text}");
     assert!(text.contains("restore"), "{text}");
+}
+
+/// `inspect` takes an input and nothing that could name an output — the verb is
+/// read-only by construction, not by convention.
+#[test]
+fn inspect_help_offers_no_output_destination() {
+    let out = Command::new(bin())
+        .args(["inspect", "--help"])
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("--input"), "{text}");
+    assert!(!text.contains("--out"), "{text}");
+    assert!(!text.contains("--map"), "{text}");
 }
 
 /// A downloaded binary must be able to identify itself, and the reported

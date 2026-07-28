@@ -88,7 +88,12 @@ offender, never the real value) that aborts the run with no output written.
 - **`engine`** — generic JSON walker that classifies objects and normalizes
   documents. No typed structs per SharpHound kind.
 - **`pipeline`** — orchestration, size bounds, and the single `ShanonError` enum
-  that backs the CLI's stderr and exit-code contract.
+  that backs the CLI's stderr and exit-code contract. `inspect_collection` is
+  the read-only dry run behind `shanon inspect`: it shares
+  `read_collection_input` with `anonymize_collection` and runs the same
+  discovery, transform and verification, but never reaches the publish path, so
+  it must stay incapable of writing. `ShanonError::stderr` is the frozen
+  surface; `stderr_verbose` is the additive one `--verbose-failures` selects.
 - **`progress`** — write-only progress channel for the CLI's bar. A
   `ProgressEvent` carries a phase tag and unit counts and *nothing else*: no
   value, path, or member name may ever be added to it (invariant 7), and the
