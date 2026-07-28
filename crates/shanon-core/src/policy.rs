@@ -940,6 +940,11 @@ fn source_shape_supports(
                         component.contains('=') && component.splitn(2, '=').all(|p| !p.is_empty())
                     })
                 })
+                // `transform_dn` maps RDN values but emits attribute types
+                // verbatim, so a schema-extended type would reach the output
+                // naming the organization however well its value was redacted.
+                // A DN shanon cannot decompose safely is redacted whole.
+                && crate::components::dn_attribute_types_are_standard(value)
         }
         FieldOperation::ParseSpn => {
             let components: Vec<&str> = value.split('/').collect();

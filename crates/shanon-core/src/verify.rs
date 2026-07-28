@@ -967,11 +967,20 @@ fn output_shape_valid(
                 true
             }
         }
-        FieldOperation::ParseDn => output.split(',').all(|rdn| {
-            rdn.split('+').all(|component| {
-                component.contains('=') && component.splitn(2, '=').all(|p| !p.is_empty())
-            })
-        }),
+        // The attribute-type check is what stops this gate being satisfiable by
+        // any string with an `=` in it. `transform_dn` copies attribute types
+        // through verbatim, and the verifier re-derives output using that same
+        // function — so a type-level leak is invisible to re-derivation by
+        // construction, and this shape gate is the only thing that can catch
+        // it. It shares `dn_attribute_types_are_standard` with the policy's
+        // source gate so the two cannot drift apart.
+        FieldOperation::ParseDn => {
+            output.split(',').all(|rdn| {
+                rdn.split('+').all(|component| {
+                    component.contains('=') && component.splitn(2, '=').all(|p| !p.is_empty())
+                })
+            }) && crate::components::dn_attribute_types_are_standard(output)
+        }
         FieldOperation::ParseSpn => {
             let components: Vec<&str> = output.split('/').collect();
             matches!(components.len(), 2 | 3) && components.iter().all(|c| !c.is_empty())
