@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-label="shanon — deterministically anonymize Active Directory collection data">
+  <!--
+    Self-contained banner: no external fonts, no CSS, no prefers-color-scheme.
+    GitHub proxies README images through camo, which strips <style> and does not
+    evaluate media queries, so the panel carries its own dark background and
+    reads identically in light and dark themes.
+  -->
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12161d"/>
+      <stop offset="100%" stop-color="#0b0e13"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="340" rx="14" fill="url(#panel)"/>
+  <rect x="0.5" y="0.5" width="1279" height="339" rx="14" fill="none" stroke="#232a35" stroke-width="1"/>
+
+  <!-- wordmark -->
+  <text x="72" y="112" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="72" font-weight="700" fill="#e8edf4" letter-spacing="-2">shanon</text>
+  <rect x="316" y="72" width="9" height="52" fill="#4ea1ff"/>
+
+  <!-- tagline -->
+  <text x="72" y="160" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#8b97a8">Hand your Active Directory collection to an LLM. Not your client.</text>
+
+  <!-- transformation strip -->
+  <rect x="72" y="200" width="1136" height="76" rx="9" fill="#161b23" stroke="#232a35" stroke-width="1"/>
+
+  <text x="100" y="234" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#5c6675">before</text>
+  <text x="100" y="259" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#ff8f6b">svc_sql@contoso.local</text>
+
+  <text x="404" y="250" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#4ea1ff">-&gt;</text>
+
+  <text x="462" y="234" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#5c6675">after</text>
+  <text x="462" y="259" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#7ee081">kjeffersg46lvu6zae6m@fabrikam-cmw5tqv5maqpm.local</text>
+
+  <text x="1052" y="234" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#5c6675">graph intact</text>
+  <text x="1052" y="259" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#5c6675">reversible</text>
+
+  <!-- footer strip -->
+  <text x="72" y="312" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#5c6675">deterministic  ·  fail-closed  ·  no network  ·  no LLM calls  ·  never mutates your input</text>
+</svg>

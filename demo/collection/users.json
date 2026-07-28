@@ -1,0 +1,88 @@
+{
+  "data": [
+    {
+      "Properties": {
+        "domain": "CONTOSO.LOCAL",
+        "name": "SVC_SQL@CONTOSO.LOCAL",
+        "distinguishedname": "CN=svc_sql,OU=Service Accounts,DC=CONTOSO,DC=LOCAL",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "samaccountname": "svc_sql",
+        "displayname": "SQL Server Service Account",
+        "email": "svc_sql@contoso.local",
+        "description": "Runs MSSQLSvc on SQL01. Ticket owner: Helpdesk.",
+        "serviceprincipalnames": [
+          "MSSQLSvc/sql01.contoso.local:1433"
+        ],
+        "hasspn": true,
+        "unconstraineddelegation": false,
+        "enabled": true,
+        "admincount": false,
+        "whencreated": 1600000000
+      },
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1105",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "SPNTargets": [],
+      "AllowedToDelegate": [],
+      "HasSIDHistory": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        }
+      ],
+      "IsDeleted": false,
+      "IsACLProtected": false
+    },
+    {
+      "Properties": {
+        "domain": "CONTOSO.LOCAL",
+        "name": "JDOE@CONTOSO.LOCAL",
+        "distinguishedname": "CN=jdoe,OU=Finance,DC=CONTOSO,DC=LOCAL",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "samaccountname": "jdoe",
+        "displayname": "Jane Doe",
+        "email": "jane.doe@contoso.local",
+        "title": "Financial Controller",
+        "enabled": true,
+        "admincount": false,
+        "whencreated": 1600000000
+      },
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1104",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "SPNTargets": [],
+      "AllowedToDelegate": [],
+      "HasSIDHistory": [],
+      "Aces": [],
+      "IsDeleted": false,
+      "IsACLProtected": false
+    },
+    {
+      "Properties": {
+        "domain": "CONTOSO.LOCAL",
+        "name": "ADMINISTRATOR@CONTOSO.LOCAL",
+        "distinguishedname": "CN=Administrator,CN=Users,DC=CONTOSO,DC=LOCAL",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "samaccountname": "Administrator",
+        "enabled": true,
+        "admincount": true,
+        "whencreated": 1600000000
+      },
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-500",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "SPNTargets": [],
+      "AllowedToDelegate": [],
+      "HasSIDHistory": [],
+      "Aces": [],
+      "IsDeleted": false,
+      "IsACLProtected": false
+    }
+  ],
+  "meta": {
+    "methods": 46067,
+    "type": "users",
+    "count": 3,
+    "version": 6
+  }
+}
