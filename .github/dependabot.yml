@@ -5,6 +5,11 @@ updates:
   # behind. Cargo is deliberately absent: Cargo.lock is committed and the
   # `cargo deny` job in ci.yml covers the risks that actually matter
   # (advisories, yanked crates, licenses, and source registries).
+  #
+  # Every `uses:` is pinned to a commit SHA with the tag in a trailing comment.
+  # This updater understands that form — it bumps the SHA and rewrites the
+  # comment — so pinning costs nothing in maintenance and is what makes the
+  # pins safe to keep.
   - package-ecosystem: github-actions
     directory: /
     schedule:

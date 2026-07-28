@@ -5,6 +5,11 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# This job publishes the binaries users download and the `.sha256` they verify
+# against, so a third-party action running here with `contents: write` could
+# replace both. Every `uses:` is therefore pinned to a commit SHA — a tag is
+# mutable and can be repointed at any commit by whoever owns the repository, or
+# by whoever compromises it. Dependabot keeps the pins current.
 permissions:
   contents: write
 
@@ -26,7 +31,7 @@ jobs:
     env:
       RUSTUP_TOOLCHAIN: stable
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Rust toolchain
         run: |
@@ -37,7 +42,7 @@ jobs:
       - name: Show active toolchain
         run: rustc --version --verbose
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
 
       - name: Build release binary
         run: cargo build --release --locked -p shanon-cli --target ${{ matrix.target }}
@@ -51,7 +56,7 @@ jobs:
           tar -C "target/${TARGET}/release" -czf "$archive" shanon
           shasum -a 256 "$archive" > "$archive.sha256"
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: shanon-${{ matrix.target }}
           path: |
@@ -63,12 +68,12 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: dist
           merge-multiple: true
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           files: |
             dist/*.tar.gz
