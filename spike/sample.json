@@ -2,456 +2,132 @@
   "data": [
     {
       "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "DAVIS@ESC1.LOCAL",
-        "distinguishedname": "CN=DAVIS,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "Davis",
-        "description": null,
-        "whencreated": 1664490311,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": false,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": false,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664490311,
-        "serviceprincipalnames": [],
-        "hasspn": false,
-        "displayname": null,
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": false,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1112",
-      "IsDeleted": false,
-      "IsACLProtected": false,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "MARTINEZ@ESC1.LOCAL",
-        "distinguishedname": "CN=MARTINEZ,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "Martinez",
-        "description": null,
-        "whencreated": 1664490345,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": false,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": false,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664490345,
-        "serviceprincipalnames": [],
-        "hasspn": false,
-        "displayname": null,
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": false,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1115",
-      "IsDeleted": false,
-      "IsACLProtected": false,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "ADMINISTRATOR@ESC1.LOCAL",
-        "distinguishedname": "CN=ADMINISTRATOR,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "ADMINISTRATOR@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=ADMINISTRATOR,CN=Users,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": true,
         "samaccountname": "administrator",
         "description": null,
-        "whencreated": 1665176283,
+        "whencreated": 1687000000,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": true,
+        "enabled": true,
+        "trustedtoauth": false,
+        "lastlogon": 1704067200,
+        "lastlogontimestamp": 1704067200,
+        "pwdlastset": 1687000000,
+        "serviceprincipalnames": [],
+        "hasspn": false,
+        "displayname": null,
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": true,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-500",
+      "IsDeleted": false,
+      "IsACLProtected": true,
+      "ContainedBy": {
+        "ObjectIdentifier": "CN=Users,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "Container"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "GUEST@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=GUEST,CN=Users,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "guest",
+        "description": null,
+        "whencreated": 1687000000,
         "sensitive": false,
         "dontreqpreauth": false,
         "passwordnotreqd": false,
         "unconstraineddelegation": false,
         "pwdneverexpires": false,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 1668387049,
-        "lastlogontimestamp": 1668295788,
-        "pwdlastset": 1665176283,
-        "serviceprincipalnames": [],
-        "hasspn": false,
-        "displayname": null,
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": false,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1116",
-      "IsDeleted": false,
-      "IsACLProtected": false,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "VICTIM@ESC1.LOCAL",
-        "distinguishedname": "CN=VICTIM,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "victim",
-        "description": null,
-        "whencreated": 1665521497,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": false,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": true,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 1665526129,
-        "lastlogontimestamp": 1665521721,
-        "pwdlastset": 1665521497,
-        "serviceprincipalnames": [],
-        "hasspn": false,
-        "displayname": "victim",
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": false,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1117",
-      "IsDeleted": false,
-      "IsACLProtected": false,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "GUEST@ESC1.LOCAL",
-        "distinguishedname": "CN=GUEST,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "Guest",
-        "description": "Built-in account for guest access to the computer/domain",
-        "whencreated": 1664419051,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": true,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": true,
         "enabled": false,
         "trustedtoauth": false,
         "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 0,
+        "lastlogontimestamp": 0,
+        "pwdlastset": -1,
         "serviceprincipalnames": [],
         "hasspn": false,
         "displayname": null,
@@ -467,89 +143,757 @@
         "sidhistory": []
       },
       "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-514",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-32-544",
           "PrincipalType": "Group",
           "RightName": "Owns",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
           "RightName": "GenericAll",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
           "PrincipalType": "Group",
           "RightName": "GenericAll",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
           "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
         }
       ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-501",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-501",
       "IsDeleted": false,
       "IsACLProtected": false,
       "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
+        "ObjectIdentifier": "CN=Users,DC=SHANONLAB,DC=EXAMPLE",
         "ObjectType": "Container"
       }
     },
     {
       "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "KRBTGT@ESC1.LOCAL",
-        "distinguishedname": "CN=KRBTGT,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "KRBTGT@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=KRBTGT,CN=Users,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": true,
         "samaccountname": "krbtgt",
-        "description": "Key Distribution Center Service Account",
-        "whencreated": 1664419087,
+        "description": null,
+        "whencreated": 1687000001,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": true,
+        "enabled": false,
+        "trustedtoauth": false,
+        "lastlogon": 0,
+        "lastlogontimestamp": 0,
+        "pwdlastset": 1687000001,
+        "serviceprincipalnames": [],
+        "hasspn": false,
+        "displayname": null,
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": true,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-502",
+      "IsDeleted": false,
+      "IsACLProtected": true,
+      "ContainedBy": {
+        "ObjectIdentifier": "CN=Users,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "Container"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "ALICE.MORGAN@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=ALICE.MORGAN,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "alicemorgan",
+        "description": null,
+        "whencreated": 1690104000,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": false,
+        "enabled": true,
+        "trustedtoauth": false,
+        "lastlogon": 1703980800,
+        "lastlogontimestamp": 1703894400,
+        "pwdlastset": 1690104000,
+        "serviceprincipalnames": [],
+        "hasspn": false,
+        "displayname": null,
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": false,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1104",
+      "IsDeleted": false,
+      "IsACLProtected": false,
+      "ContainedBy": {
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "BEN.OKAFOR@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=BEN.OKAFOR,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "benokafor",
+        "description": "Shared reception workstation account",
+        "whencreated": 1690190400,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": false,
+        "enabled": true,
+        "trustedtoauth": false,
+        "lastlogon": 1703894400,
+        "lastlogontimestamp": 1703808000,
+        "pwdlastset": 1690190400,
+        "serviceprincipalnames": [],
+        "hasspn": false,
+        "displayname": null,
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": false,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1105",
+      "IsDeleted": false,
+      "IsACLProtected": false,
+      "ContainedBy": {
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "SVC-REPORTING@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=SVC-REPORTING,OU=Service Accounts,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "svc-reporting",
+        "description": "Reporting service; password rotated quarterly",
+        "whencreated": 1690276800,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": false,
+        "enabled": true,
+        "trustedtoauth": false,
+        "lastlogon": 1704000000,
+        "lastlogontimestamp": 1703980800,
+        "pwdlastset": 1690276800,
+        "serviceprincipalnames": [
+          "MSSQLSvc/app01.shanonlab.example:1433"
+        ],
+        "hasspn": true,
+        "displayname": "Reporting Service",
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": false,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1110",
+          "PrincipalType": "User",
+          "RightName": "GenericWrite",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-560",
+          "PrincipalType": "Group",
+          "RightName": "WriteProperty",
+          "IsInherited": true
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1106",
+      "IsDeleted": false,
+      "IsACLProtected": false,
+      "ContainedBy": {
+        "ObjectIdentifier": "OU=Service Accounts,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "CARLA.NDIAYE@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=CARLA.NDIAYE,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "carlandiaye",
+        "description": null,
+        "whencreated": 1690363200,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": false,
+        "enabled": true,
+        "trustedtoauth": false,
+        "lastlogon": 1703808000,
+        "lastlogontimestamp": 1703721600,
+        "pwdlastset": 1690363200,
+        "serviceprincipalnames": [],
+        "hasspn": false,
+        "displayname": null,
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": false,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1107",
+      "IsDeleted": false,
+      "IsACLProtected": false,
+      "ContainedBy": {
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "DMITRI.LAAR@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=DMITRI.LAAR,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "dmitrilaar",
+        "description": null,
+        "whencreated": 1690449600,
+        "sensitive": false,
+        "dontreqpreauth": false,
+        "passwordnotreqd": false,
+        "unconstraineddelegation": false,
+        "pwdneverexpires": false,
+        "enabled": true,
+        "trustedtoauth": false,
+        "lastlogon": 1703721600,
+        "lastlogontimestamp": 1703635200,
+        "pwdlastset": 1690449600,
+        "serviceprincipalnames": [],
+        "hasspn": false,
+        "displayname": null,
+        "email": null,
+        "title": null,
+        "homedirectory": null,
+        "userpassword": null,
+        "unixpassword": null,
+        "unicodepassword": null,
+        "sfupassword": null,
+        "logonscript": null,
+        "admincount": false,
+        "sidhistory": []
+      },
+      "AllowedToDelegate": [],
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
+      "HasSIDHistory": [],
+      "SPNTargets": [],
+      "Aces": [
+        {
+          "PrincipalSID": "S-1-5-32-544",
+          "PrincipalType": "Group",
+          "RightName": "Owns",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
+        }
+      ],
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+      "IsDeleted": false,
+      "IsACLProtected": false,
+      "ContainedBy": {
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
+      }
+    },
+    {
+      "Properties": {
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "ELENA.FISCHER@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=ELENA.FISCHER,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": false,
+        "samaccountname": "elenafischer",
+        "description": null,
+        "whencreated": 1690536000,
         "sensitive": false,
         "dontreqpreauth": false,
         "passwordnotreqd": false,
@@ -557,135 +901,9 @@
         "pwdneverexpires": false,
         "enabled": false,
         "trustedtoauth": false,
-        "lastlogon": 0,
+        "lastlogon": -1,
         "lastlogontimestamp": -1,
-        "pwdlastset": 1664419087,
-        "serviceprincipalnames": ["kadmin/changepw"],
-        "hasspn": true,
-        "displayname": null,
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": true,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": false
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-502",
-      "IsDeleted": false,
-      "IsACLProtected": true,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "SHARPHOUND@ESC1.LOCAL",
-        "distinguishedname": "CN=SHARPHOUND,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "SharpHound",
-        "description": null,
-        "whencreated": 1664482876,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": false,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": false,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 1668103432,
-        "lastlogontimestamp": 1668103429,
-        "pwdlastset": 1664482876,
+        "pwdlastset": 1690536000,
         "serviceprincipalnames": [],
         "hasspn": false,
         "displayname": null,
@@ -701,89 +919,89 @@
         "sidhistory": []
       },
       "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-32-544",
           "PrincipalType": "Group",
           "RightName": "Owns",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
           "RightName": "GenericAll",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
           "PrincipalType": "Group",
           "RightName": "GenericAll",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
           "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
         }
       ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1104",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1109",
       "IsDeleted": false,
       "IsACLProtected": false,
       "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
       }
     },
     {
       "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "JONES@ESC1.LOCAL",
-        "distinguishedname": "CN=JONES,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "FARID.HASSAN@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=FARID.HASSAN,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
         "highvalue": false,
-        "samaccountname": "Jones",
+        "samaccountname": "faridhassan",
         "description": null,
-        "whencreated": 1664489940,
+        "whencreated": 1690622400,
         "sensitive": false,
         "dontreqpreauth": false,
         "passwordnotreqd": false,
@@ -791,9 +1009,9 @@
         "pwdneverexpires": false,
         "enabled": true,
         "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664489940,
+        "lastlogon": 1703635200,
+        "lastlogontimestamp": 1703548800,
+        "pwdlastset": 1690622400,
         "serviceprincipalnames": [],
         "hasspn": false,
         "displayname": null,
@@ -809,305 +1027,89 @@
         "sidhistory": []
       },
       "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-32-544",
           "PrincipalType": "Group",
           "RightName": "Owns",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
           "RightName": "GenericAll",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
           "PrincipalType": "Group",
           "RightName": "GenericAll",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1105",
-      "IsDeleted": false,
-      "IsACLProtected": false,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "SMITH@ESC1.LOCAL",
-        "distinguishedname": "CN=SMITH,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "Smith",
-        "description": null,
-        "whencreated": 1664490260,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": false,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": false,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664490260,
-        "serviceprincipalnames": [],
-        "hasspn": false,
-        "displayname": null,
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": false,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
-          "IsInherited": true
+          "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
         }
       ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1110",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1110",
       "IsDeleted": false,
       "IsACLProtected": false,
       "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
       }
     },
     {
       "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "MILLER@ESC1.LOCAL",
-        "distinguishedname": "CN=MILLER,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "Miller",
-        "description": null,
-        "whencreated": 1664490303,
-        "sensitive": false,
-        "dontreqpreauth": false,
-        "passwordnotreqd": false,
-        "unconstraineddelegation": false,
-        "pwdneverexpires": false,
-        "enabled": true,
-        "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664490303,
-        "serviceprincipalnames": [],
-        "hasspn": false,
-        "displayname": null,
-        "email": null,
-        "title": null,
-        "homedirectory": null,
-        "userpassword": null,
-        "unixpassword": null,
-        "unicodepassword": null,
-        "sfupassword": null,
-        "logonscript": null,
-        "admincount": false,
-        "sidhistory": []
-      },
-      "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
-      "HasSIDHistory": [],
-      "SPNTargets": [],
-      "Aces": [
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "Owns",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
-        }
-      ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1111",
-      "IsDeleted": false,
-      "IsACLProtected": false,
-      "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
-      }
-    },
-    {
-      "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "RESEARCHER@ESC1.LOCAL",
-        "distinguishedname": "CN=RESEARCHER,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "highvalue": false,
-        "samaccountname": "Researcher",
-        "description": "Built-in account for administering the computer/domain",
-        "whencreated": 1664419051,
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "HELPDESK.ADMIN@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=HELPDESK.ADMIN,OU=Tier1,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "highvalue": true,
+        "samaccountname": "helpdeskadmin",
+        "description": "Delegated helpdesk operator",
+        "whencreated": 1690708800,
         "sensitive": false,
         "dontreqpreauth": false,
         "passwordnotreqd": false,
@@ -1115,9 +1117,9 @@
         "pwdneverexpires": true,
         "enabled": true,
         "trustedtoauth": false,
-        "lastlogon": 1701806844,
-        "lastlogontimestamp": 1701284136,
-        "pwdlastset": 1668103669,
+        "lastlogon": 1703548800,
+        "lastlogontimestamp": 1703462400,
+        "pwdlastset": 1690708800,
         "serviceprincipalnames": [],
         "hasspn": false,
         "displayname": null,
@@ -1133,107 +1135,107 @@
         "sidhistory": []
       },
       "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-32-544",
           "PrincipalType": "Group",
           "RightName": "Owns",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
+          "RightName": "GenericAll",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteDacl",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-11",
           "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
+          "RightName": "ReadProperty",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1110",
+          "PrincipalType": "User",
           "RightName": "GenericWrite",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
           "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": false
+          "RightName": "ReadProperty",
+          "IsInherited": true
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-32-560",
           "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "WriteDacl",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "WriteOwner",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": false
+          "RightName": "WriteProperty",
+          "IsInherited": true
         }
       ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-500",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1111",
       "IsDeleted": false,
       "IsACLProtected": true,
       "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
+        "ObjectIdentifier": "OU=Tier1,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
       }
     },
     {
       "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "GARCIA@ESC1.LOCAL",
-        "distinguishedname": "CN=GARCIA,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "GRETA.LINDQVIST@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=GRETA.LINDQVIST,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
         "highvalue": false,
-        "samaccountname": "Garcia",
+        "samaccountname": "gretalindqvist",
         "description": null,
-        "whencreated": 1664490329,
+        "whencreated": 1690795200,
         "sensitive": false,
         "dontreqpreauth": false,
         "passwordnotreqd": false,
@@ -1241,9 +1243,9 @@
         "pwdneverexpires": false,
         "enabled": true,
         "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664490329,
+        "lastlogon": 1703462400,
+        "lastlogontimestamp": 1703376000,
+        "pwdlastset": 1690795200,
         "serviceprincipalnames": [],
         "hasspn": false,
         "displayname": null,
@@ -1259,89 +1261,89 @@
         "sidhistory": []
       },
       "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-32-544",
           "PrincipalType": "Group",
           "RightName": "Owns",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
           "RightName": "GenericAll",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
           "PrincipalType": "Group",
           "RightName": "GenericAll",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
           "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
         }
       ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1113",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1112",
       "IsDeleted": false,
       "IsACLProtected": false,
       "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
       }
     },
     {
       "Properties": {
-        "domain": "ESC1.LOCAL",
-        "name": "HERNANDEZ@ESC1.LOCAL",
-        "distinguishedname": "CN=HERNANDEZ,CN=USERS,DC=ESC1,DC=LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
+        "domain": "SHANONLAB.EXAMPLE",
+        "name": "HIROSHI.TANAKA@SHANONLAB.EXAMPLE",
+        "distinguishedname": "CN=HIROSHI.TANAKA,OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
         "highvalue": false,
-        "samaccountname": "Hernandez",
+        "samaccountname": "hiroshitanaka",
         "description": null,
-        "whencreated": 1664490337,
+        "whencreated": 1690881600,
         "sensitive": false,
         "dontreqpreauth": false,
         "passwordnotreqd": false,
@@ -1349,9 +1351,9 @@
         "pwdneverexpires": false,
         "enabled": true,
         "trustedtoauth": false,
-        "lastlogon": 0,
-        "lastlogontimestamp": -1,
-        "pwdlastset": 1664490337,
+        "lastlogon": 1703376000,
+        "lastlogontimestamp": 1703289600,
+        "pwdlastset": 1690881600,
         "serviceprincipalnames": [],
         "hasspn": false,
         "displayname": null,
@@ -1367,95 +1369,100 @@
         "sidhistory": []
       },
       "AllowedToDelegate": [],
-      "PrimaryGroupSID": "S-1-5-21-909015691-3030120388-2582151266-513",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-513",
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
+          "PrincipalSID": "S-1-5-32-544",
           "PrincipalType": "Group",
           "RightName": "Owns",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-548",
-          "PrincipalType": "Group",
+          "PrincipalSID": "S-1-5-18",
+          "PrincipalType": "User",
           "RightName": "GenericAll",
           "IsInherited": false
         },
         {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-512",
-          "PrincipalType": "Group",
-          "RightName": "GenericAll",
-          "IsInherited": false
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-526",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-527",
-          "PrincipalType": "Group",
-          "RightName": "AddKeyCredentialLink",
-          "IsInherited": true
-        },
-        {
-          "PrincipalSID": "S-1-5-21-909015691-3030120388-2582151266-519",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-512",
           "PrincipalType": "Group",
           "RightName": "GenericAll",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-519",
+          "PrincipalType": "Group",
+          "RightName": "GenericAll",
+          "IsInherited": true
+        },
+        {
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteDacl",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-32-548",
           "PrincipalType": "Group",
           "RightName": "WriteOwner",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-526",
           "PrincipalType": "Group",
-          "RightName": "AllExtendedRights",
+          "RightName": "WriteDacl",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-527",
+          "PrincipalType": "Group",
+          "RightName": "WriteOwner",
+          "IsInherited": false
+        },
+        {
+          "PrincipalSID": "S-1-5-11",
+          "PrincipalType": "Group",
+          "RightName": "ReadProperty",
           "IsInherited": true
         },
         {
-          "PrincipalSID": "ESC1.LOCAL-S-1-5-32-544",
-          "PrincipalType": "Group",
-          "RightName": "GenericWrite",
-          "IsInherited": true
+          "PrincipalSID": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+          "PrincipalType": "User",
+          "RightName": "ForceChangePassword",
+          "IsInherited": false
         }
       ],
-      "ObjectIdentifier": "S-1-5-21-909015691-3030120388-2582151266-1114",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1113",
       "IsDeleted": false,
       "IsACLProtected": false,
       "ContainedBy": {
-        "ObjectIdentifier": "B328621C-8721-4ED4-8BF1-0A0EEEB93BA3",
-        "ObjectType": "Container"
+        "ObjectIdentifier": "OU=Staff,DC=SHANONLAB,DC=EXAMPLE",
+        "ObjectType": "OU"
       }
     },
     {
       "Properties": {
-        "name": "NETWORK SERVICE@ESC1.LOCAL",
-        "domainsid": "S-1-5-21-909015691-3030120388-2582151266",
-        "domain": "ESC1.LOCAL"
+        "name": "IMPORTED.SVC@SHANONLAB.EXAMPLE",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "domain": "SHANONLAB.EXAMPLE"
       },
       "AllowedToDelegate": [],
       "PrimaryGroupSID": null,
       "HasSIDHistory": [],
       "SPNTargets": [],
       "Aces": [],
-      "ObjectIdentifier": "ESC1.LOCAL-S-1-5-20",
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1114",
       "IsDeleted": false,
       "IsACLProtected": false,
       "ContainedBy": null
     }
   ],
-  "meta": { "methods": 521215, "type": "users", "count": 14, "version": 6 }
+  "meta": {
+    "methods": 521215,
+    "type": "users",
+    "count": 14,
+    "version": 6
+  }
 }

@@ -7,8 +7,20 @@
 scratch/
 sharphound-samples/
 
+# A collection is just as often a *directory* of loose .json files — that form
+# is a first-class shanon input, and the *.zip rule above does not cover it.
+# SharpHound and the BloodHound CE collectors name their output
+# <timestamp>_<kind>.json, so block that shape wherever it lands.
+[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]*_*.json
+collections/
+engagements/
+loot/
+
 # The parity replay seed carries only a fixed synthetic salt — safe to track.
 !tests/parity/seed.map.json
+
+# These rules are pattern matching, and pattern matching is not enough on its
+# own: scripts/check-fixtures.sh is the actual guarantee, and CI runs it.
 
 # demo/collection/ is synthetic and tracked; anything a demo run *writes* is not.
 /demo/out/

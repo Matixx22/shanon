@@ -68,6 +68,18 @@ jobs:
       - name: Check against MSRV
         run: cargo check --workspace --all-targets --locked
 
+  fixtures:
+    name: no real collections
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # CONTRIBUTING.md forbids committing real collections, but .gitignore can
+      # only block what it can name — a directory-form collection is loose
+      # .json and matches no rule. This is the mechanical enforcement.
+      - name: Check tracked files for real collection data
+        run: ./scripts/check-fixtures.sh
+
   supply-chain:
     name: cargo deny
     runs-on: ubuntu-latest
