@@ -1233,6 +1233,21 @@ const OPAQUE_PATH_URL_PATHS: &[&str] = &[
     "NtlmSessions.Result.Sessions[].PackageName",
 ];
 
+/// Collector diagnostics: `null` when the block collected, otherwise a free-text
+/// reason that routinely names the host or account that refused. The sibling
+/// `.Collected` flag and `.Results[]` members are already declared; without
+/// these the diagnostic's *key* is unmodeled, so it is mapped along with every
+/// other unknown key and a standard SharpHound field comes back renamed.
+/// Declared as opaque rather than preserved: the value carries no graph edge and
+/// can carry a hostname.
+const OPAQUE_DIAGNOSTIC_PATHS: &[&str] = &[
+    "Sessions.FailureReason",
+    "PrivilegedSessions.FailureReason",
+    "RegistrySessions.FailureReason",
+    "LocalGroups[].FailureReason",
+    "UserRights[].FailureReason",
+];
+
 const OID_IDENTIFIER_PATHS: &[&str] = &[
     "Properties.oid",
     "Properties.ekus[]",
@@ -1287,6 +1302,8 @@ const NUMERIC_PATHS: &[&str] = &[
     "Properties.pwdlastset",
     "Properties.samaccounttype",
     "Properties.useraccountcontrol",
+    "Properties.whencreated",
+    "Properties.whenchanged",
     "SPNTargets[].Port",
 ];
 
@@ -1310,6 +1327,10 @@ const BOOLEAN_PATHS: &[&str] = &[
     "Sessions.Collected",
     "PrivilegedSessions.Collected",
     "RegistrySessions.Collected",
+    "LocalGroups[].Collected",
+    "UserRights[].Collected",
+    "IsDeleted",
+    "IsACLProtected",
 ];
 
 fn set_of(values: &[&str]) -> HashSet<String> {
@@ -1501,6 +1522,16 @@ pub fn default_rules() -> Vec<FieldRule> {
     for path in OPAQUE_PATH_URL_PATHS {
         rules.push(rule(
             &format!("opaque.path-url.{}", canonical_path(path)),
+            path,
+            ReplaceOpaque,
+            Some("opaque"),
+            None,
+            star,
+        ));
+    }
+    for path in OPAQUE_DIAGNOSTIC_PATHS {
+        rules.push(rule(
+            &format!("opaque.diagnostic.{}", canonical_path(path)),
             path,
             ReplaceOpaque,
             Some("opaque"),

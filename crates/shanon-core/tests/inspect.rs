@@ -168,12 +168,45 @@ fn a_ce_shaped_collection_is_accounted_for() {
     assert_eq!(row.version, "6");
     assert_eq!(row.objects, 1);
 
-    // CE-only blocks are fields the rule table does not model. They are
-    // anonymized, but an operator needs to see that they exist.
+    // Every field this fixture carries is now declared, so a realistic CE user
+    // node reports no drift at all. It did not always: `IsDeleted`,
+    // `IsACLProtected` and `Properties.whencreated` used to land here, which is
+    // what made the assertion below pass while its comment blamed
+    // `ContainedBy` — a block that has been modeled the whole time. Keep this
+    // exact: a new entry means either genuine collector drift or a rule the
+    // table lost.
     let unknown = report.audit["unknown_paths"]
         .as_object()
         .expect("unknown_paths");
-    assert!(!unknown.is_empty(), "ContainedBy should surface as unknown");
+    assert!(
+        unknown.is_empty(),
+        "a fully modeled CE node reported drift: {unknown:?}"
+    );
+}
+
+/// The other half of that guarantee: a field the table really does not model
+/// still surfaces. `inspect` is how an operator learns a new collector version
+/// is emitting something shanon has not been taught, so an empty report has to
+/// mean "nothing to see", not "not looking".
+#[test]
+fn an_unmodeled_field_surfaces_as_drift() {
+    let scratch = Scratch::new("drift");
+    let mut users = ce_users();
+    users["data"][0]["Properties"]
+        .as_object_mut()
+        .expect("properties")
+        .insert("shanonnosuchattribute".to_string(), json!("value"));
+    scratch.write("collection/users.json", &users);
+
+    let report = report(&scratch.path("collection"));
+    let unknown = report.audit["unknown_paths"]
+        .as_object()
+        .expect("unknown_paths");
+    assert_eq!(
+        unknown.len(),
+        1,
+        "exactly the unmodeled attribute should surface: {unknown:?}"
+    );
 }
 
 /// A collection type no ingestor version taught shanon about must be reported,
