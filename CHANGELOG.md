@@ -6,7 +6,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- `shanon -V` / `shanon --version`, reporting the crate version. Release
+  binaries are published as standalone archives, so a user holding one
+  previously had no way to identify which build it was.
 
 ## [0.2.0] - 2026-07-28
 

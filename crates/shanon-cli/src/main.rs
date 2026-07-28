@@ -1,7 +1,11 @@
 //! shanon CLI (module 12): the `clap`-derived command surface.
 //!
 //! Subcommands, flags, help text, stdout/stderr and exit codes are stable
-//! byte-for-byte (§3.4).
+//! byte-for-byte (§3.4), with one deliberate addition: `-V/--version` reports
+//! the crate version so a downloaded binary can be identified. That adds a line
+//! to the top-level help and re-pads the adjacent `-h` line as clap widens the
+//! column. Both subcommand helps, all stderr, and every exit code are
+//! unchanged.
 
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -19,6 +23,7 @@ use shanon_core::restore::{bulk_restore, forward as forward_lookup, lookup};
 #[derive(Parser)]
 #[command(
     name = "shanon",
+    version,
     about = "Deterministic anonymizer for SharpHound collections.",
     arg_required_else_help = true,
     disable_help_subcommand = true
