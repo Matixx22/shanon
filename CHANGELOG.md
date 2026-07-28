@@ -8,6 +8,23 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Standard SharpHound fields came back under a different name. A key no rule
+  declares is treated as organization-bound and mapped through the opaque
+  namespace — correct, since a custom AD attribute leaks in its name as surely
+  as in its contents — but the rule table never declared `IsDeleted`,
+  `IsACLProtected`, `Properties.whencreated` / `whenchanged`, the
+  `FailureReason` sibling of every `Collected` flag, or `LocalGroups[]` /
+  `UserRights[]`'s own `Collected`. Every collector emits them, so every output
+  carried renamed keys and every `inspect` report listed drift that was not
+  drift. No graph edge depends on any of them, so nothing was ever
+  mis-anonymized and no collection failed to load — but the document was not a
+  SharpHound document. They are now declared: the booleans and numerics as
+  schema-preserved, `FailureReason` as opaque, because a populated one names the
+  host that refused. Declaring a schema path cannot widen what escapes —
+  `resolve_schema` type-gates them, so a string at a boolean or numeric path
+  still falls through to `ReplaceOpaque` — and `tests/schema_fields.rs` pins
+  exactly that alongside the key names.
+
 - A collection where a well-known domain RID appeared both at a catalog-declared
   path and at an undeclared one aborted with `ABORTED - invalid or conflicting
   mapping data; no output written`. The catalog permits preserving a RID only at
