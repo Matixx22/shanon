@@ -19,6 +19,9 @@ First tagged release.
 - Fail-closed two-pass pipeline with an independent verification stage and atomic
   no-replace publication.
 - Reversal map with stable pseudonyms across collections via `--reuse-map`.
+- Prebuilt release binaries for `x86_64-unknown-linux-gnu` and
+  `aarch64-apple-darwin`. Intel macOS is not published separately — the arm64
+  build runs under Rosetta 2, and building from source is supported everywhere.
 - Community health files: contributing guide, code of conduct, issue and pull
   request templates, and Dependabot config.
 - `rust-toolchain.toml` pinning local development to the MSRV (1.97), so a
