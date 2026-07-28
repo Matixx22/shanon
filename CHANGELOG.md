@@ -9,7 +9,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Community health files: contributing guide, code of conduct, issue and pull
-  request templates, Dependabot config, and a pinned `rust-toolchain.toml`.
+  request templates, and Dependabot config.
+- `rust-toolchain.toml` pinning local development to the MSRV (1.97), so a
+  feature newer than the floor fails at edit time instead of in CI. The `test`
+  job overrides it with `RUSTUP_TOOLCHAIN=stable` to keep stable coverage.
 - Supply-chain CI: `cargo-deny` (licenses, advisories, bans) on every push.
 
 ## [0.2.0] - 2026-07

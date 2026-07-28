@@ -1,0 +1,13 @@
+# Pins local development to the MSRV declared in Cargo.toml (rust-version =
+# "1.97"), so a language or standard-library feature newer than the floor fails
+# at edit time rather than in the `msrv` CI job. Keep this channel and
+# `workspace.package.rust-version` in lockstep — raising one without the other
+# is the drift this file exists to prevent.
+#
+# CI deliberately overrides this. The `test` job sets RUSTUP_TOOLCHAIN=stable
+# (an environment variable outranks this file) so stable keeps its coverage of
+# fmt, clippy, and the test suite. The `msrv` job inherits 1.97 from here.
+[toolchain]
+channel = "1.97"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
