@@ -24,10 +24,10 @@ use serde_json::{Map, Value};
 use crate::casefold::casefold;
 use crate::catalog::{match_catalog, CatalogMatch, IdentifierKind, PrivacyClass};
 use crate::components::{
-    transform_ad_local_group_name, transform_dn, transform_dnshostname, transform_domain,
-    transform_email, transform_guid, transform_name_token, transform_oid, transform_samaccountname,
-    transform_sid, transform_spn, transform_upn_name, ACCOUNTS, CERT_TEMPLATES, DOMAINS, GUIDS,
-    HOSTS, OIDS, OPAQUE, SIDS,
+    sid_identity, transform_ad_local_group_name, transform_dn, transform_dnshostname,
+    transform_domain, transform_email, transform_guid, transform_name_token, transform_oid,
+    transform_samaccountname, transform_sid, transform_spn, transform_upn_name, ACCOUNTS,
+    CERT_TEMPLATES, DOMAINS, GUIDS, HOSTS, OIDS, OPAQUE, SIDS,
 };
 use crate::policy::{
     array_path, canonical_path, object_path, redact_functional_level_number, DecisionRecord,
@@ -494,6 +494,8 @@ impl AnonymizationEngine {
             None => return,
             Some(id) => id.clone(),
         };
+        // A `<DOMAIN>-<SID>` object identifier still defines the inner SID.
+        let identifier = sid_identity(&identifier).to_string();
         let caps = match domain_sid_re().captures(&identifier) {
             None => return,
             Some(c) => c,
@@ -519,20 +521,74 @@ impl AnonymizationEngine {
         );
     }
 
+    /// Record a domain-RID preservation decision reached at a *reference* (or
+    /// at any classified identifier path) as collection-wide evidence.
+    ///
+    /// The catalog only permits preserving a RID at explicitly declared paths,
+    /// and a reference additionally needs a sibling `ObjectType` /
+    /// `PrincipalType` to resolve against. Both are properties of the
+    /// *occurrence*, but a SID's pseudonym is a property of the *identity*: the
+    /// registry binds one structured output per SID. So a SID that qualifies at
+    /// `Aces[].PrincipalSID` and also appears at an undeclared path such as
+    /// `PrimaryGroupSID` used to be bound twice with opposite terminal intent,
+    /// aborting the whole run with `preloaded "sids" mapping conflicts with
+    /// structured output`. Publishing the decision here lets
+    /// [`Self::apply_discovered_domain_rid_evidence`] replay it at every other
+    /// occurrence, and lets `finalize_discovery` settle the binding before the
+    /// registry freezes — so the answer no longer depends on which path the
+    /// walk happened to reach first.
+    fn remember_referenced_domain_rid(
+        &mut self,
+        context: &ObjectContext,
+        path: &str,
+        value: &str,
+        decision: &FieldDecision,
+        reference_node_type: Option<&str>,
+    ) {
+        if !matches!(
+            decision.operation,
+            FieldOperation::MapCustomIdentifier | FieldOperation::MapReference
+        ) {
+            return;
+        }
+        let identity = sid_identity(value);
+        let key = identity.to_uppercase();
+        // A definition already spoke for this SID; it stays authoritative.
+        if self.catalog_domain_rid_targets.contains_key(&key) {
+            return;
+        }
+        let is_reference = decision.operation == FieldOperation::MapReference;
+        let matched = match self.field_policy.catalog_domain_rid_match(
+            context,
+            path,
+            value,
+            is_reference,
+            reference_node_type,
+        ) {
+            None => return,
+            Some(m) => m,
+        };
+        self.catalog_domain_rid_targets.insert(
+            key,
+            DomainRidTargetEvidence {
+                source_identifier: identity.to_string(),
+                catalog_rule_id: matched.rule_id,
+                node_type: matched.node_type,
+            },
+        );
+    }
+
     fn apply_discovered_domain_rid_evidence(
         &self,
         value: &str,
         decision: FieldDecision,
     ) -> FieldDecision {
+        // Keyed on the SID the registry actually binds, so a `<DOMAIN>-<SID>`
+        // spelling resolves to the same evidence as the bare SID.
+        let key = sid_identity(value).to_uppercase();
         let target = match &self.verification_context {
-            Some(ctx) => ctx
-                .catalog_domain_rid_targets
-                .get(&value.to_uppercase())
-                .cloned(),
-            None => self
-                .catalog_domain_rid_targets
-                .get(&value.to_uppercase())
-                .cloned(),
+            Some(ctx) => ctx.catalog_domain_rid_targets.get(&key).cloned(),
+            None => self.catalog_domain_rid_targets.get(&key).cloned(),
         };
         let target = match target {
             None => return decision,
@@ -1039,6 +1095,15 @@ impl AnonymizationEngine {
         let mut decision = self
             .field_policy
             .resolve(context, path, value, reference_node_type);
+        if mode == VisitMode::Discover {
+            self.remember_referenced_domain_rid(
+                context,
+                path,
+                &value_str,
+                &decision,
+                reference_node_type,
+            );
+        }
         decision = self.apply_discovered_domain_rid_evidence(&value_str, decision);
 
         if mode == VisitMode::Discover

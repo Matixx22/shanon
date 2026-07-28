@@ -29,6 +29,7 @@ use serde_json::Value;
 
 use crate::casefold::casefold;
 use crate::catalog::{catalog, match_catalog, CatalogEntry, IdentifierKind, PrivacyClass};
+use crate::components::sid_identity;
 
 // ===========================================================================
 // Enums / dataclasses
@@ -589,6 +590,61 @@ impl FieldPolicy {
         false
     }
 
+    /// The catalog entry that permits preserving this SID's RID at this path,
+    /// if any.
+    ///
+    /// A definition resolves against the object's own catalog classification; a
+    /// reference resolves against the node type its sibling `ObjectType` /
+    /// `PrincipalType` declares. Both branches are path-scoped, which is why
+    /// the answer alone is not enough to decide a mapping: the engine records
+    /// every match as collection-wide evidence so that occurrences of the same
+    /// SID at *undeclared* paths do not disagree with it. See
+    /// `AnonymizationEngine::remember_domain_rid_target`.
+    pub(crate) fn catalog_domain_rid_match(
+        &self,
+        context: &ObjectContext,
+        path: &str,
+        value: &str,
+        is_reference: bool,
+        reference_node_type: Option<&str>,
+    ) -> Option<DomainRidMatch> {
+        // `<DOMAIN>-<SID>` binds its inner SID, so the RID is read from there.
+        let caps = domain_rid_re().captures(sid_identity(value))?;
+        let rid = caps.get(1).expect("capture group 1").as_str();
+
+        if is_reference {
+            let target = normalized_object_types()
+                .get(&casefold(reference_node_type?))
+                .cloned()?;
+            return catalog()
+                .iter()
+                .find(|candidate| {
+                    candidate.kind == IdentifierKind::Rid
+                        && candidate.node_types.contains(&target)
+                        && self.entry_permits(candidate, path, rid)
+                })
+                .map(|entry| DomainRidMatch {
+                    rule_id: entry.rule_id.clone(),
+                    node_type: target.clone(),
+                });
+        }
+
+        let rule_id = context.catalog_rule_id.as_ref()?;
+        catalog()
+            .iter()
+            .find(|candidate| {
+                &candidate.rule_id == rule_id
+                    && candidate.kind == IdentifierKind::Rid
+                    && candidate.node_types.contains(&context.node_type)
+                    && candidate.privacy == context.privacy
+            })
+            .filter(|entry| self.entry_permits(entry, path, rid))
+            .map(|entry| DomainRidMatch {
+                rule_id: entry.rule_id.clone(),
+                node_type: context.node_type.clone(),
+            })
+    }
+
     fn catalog_permits_domain_rid(
         &self,
         context: &ObjectContext,
@@ -597,41 +653,8 @@ impl FieldPolicy {
         is_reference: bool,
         reference_node_type: Option<&str>,
     ) -> bool {
-        let caps = match domain_rid_re().captures(value) {
-            Some(caps) => caps,
-            None => return false,
-        };
-        let rid = caps.get(1).expect("capture group 1").as_str();
-
-        if is_reference {
-            let target = match reference_node_type {
-                Some(rt) => normalized_object_types().get(&casefold(rt)).cloned(),
-                None => None,
-            };
-            let target = match target {
-                Some(t) => t,
-                None => return false,
-            };
-            return catalog().iter().any(|candidate| {
-                candidate.kind == IdentifierKind::Rid
-                    && candidate.node_types.contains(&target)
-                    && self.entry_permits(candidate, path, rid)
-            });
-        }
-
-        let rule_id = match &context.catalog_rule_id {
-            Some(id) => id,
-            None => return false,
-        };
-        match catalog().iter().find(|candidate| {
-            &candidate.rule_id == rule_id
-                && candidate.kind == IdentifierKind::Rid
-                && candidate.node_types.contains(&context.node_type)
-                && candidate.privacy == context.privacy
-        }) {
-            Some(entry) => self.entry_permits(entry, path, rid),
-            None => false,
-        }
+        self.catalog_domain_rid_match(context, path, value, is_reference, reference_node_type)
+            .is_some()
     }
 
     fn decision(
@@ -796,6 +819,14 @@ impl FieldPolicy {
 // ===========================================================================
 // PolicyAudit
 // ===========================================================================
+
+/// The catalog entry backing one domain-RID preservation decision, and the node
+/// type it was resolved against.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DomainRidMatch {
+    pub rule_id: String,
+    pub node_type: String,
+}
 
 /// Aggregate policy decisions without retaining source or output values
 /// (`PolicyAudit`).

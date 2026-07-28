@@ -6,6 +6,27 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- A collection where a well-known domain RID appeared both at a catalog-declared
+  path and at an undeclared one aborted with `ABORTED - invalid or conflicting
+  mapping data; no output written`. The catalog permits preserving a RID only at
+  declared paths (`ObjectIdentifier`, `Aces[].PrincipalSID`,
+  `Members[].ObjectIdentifier`, `Properties.objectsid`), and a reference also
+  needs a sibling `ObjectType` / `PrincipalType` to resolve against — but the
+  registry binds one structured output per SID. So `PrimaryGroupSID` (on every
+  user and computer, and not a declared path) and an ACE naming the same group
+  bound the same SID twice with opposite terminal intent. Whether a RID is a
+  catalog default is now decided once per SID identity: any occurrence that
+  qualifies publishes collection-wide evidence, `finalize_discovery` settles the
+  binding before the registry freezes, and every other occurrence replays it.
+  The answer no longer depends on which path the walk reached first, and
+  verification re-derives it from the same frozen evidence.
+- Domain-qualified SIDs (`<DOMAIN>-<SID>`, which SharpHound and both BloodHound
+  CE ingestors emit) are keyed on the inner SID that `transform_sid` actually
+  binds, so a prefixed spelling and a bare one no longer disagree about the
+  terminal. `components::sid_identity` is the shared accessor.
+
 ### Added
 
 - `--verbose-failures` now also expands the mapping-abort classes — pseudonym
