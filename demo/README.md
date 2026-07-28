@@ -11,7 +11,7 @@ descriptions were written for this file. It is not a redacted sample of a real
 environment, because a redacted sample is precisely the thing this project
 exists to argue you cannot produce by hand.
 
-It is deliberately small and deliberately varied — it carries a kerberoastable
+It is deliberately small and deliberately varied. It carries a kerberoastable
 service account with an SPN, a built-in RID (500) and a built-in group (512)
 that exercise the catalog's preserve-at-declared-paths rule, a custom group with
 free-text prose in `description`, an unconstrained-delegation domain
@@ -27,5 +27,5 @@ cargo build --release
 ```
 
 `demo/out/` is gitignored. Nothing in this directory should ever be replaced
-with real collection data, including "just to check something quickly" — use a
+with real collection data, including "just to check something quickly". Use a
 path outside the repository for that.
