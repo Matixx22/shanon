@@ -27,3 +27,6 @@ libc.workspace = true
 
 [dev-dependencies]
 proptest.workspace = true
+# `tests/zip.rs` inflates the published archive to assert its contents. The
+# input archives it builds are STORED, so only the read side is needed.
+flate2.workspace = true
