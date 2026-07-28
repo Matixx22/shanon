@@ -3,7 +3,8 @@ version: 2
 updates:
   # Actions go stale silently — nothing in CI fails when a pinned major falls
   # behind. Cargo is deliberately absent: Cargo.lock is committed and the
-  # `cargo audit` job in ci.yml covers the risk that actually matters.
+  # `cargo deny` job in ci.yml covers the risks that actually matter
+  # (advisories, yanked crates, licenses, and source registries).
   - package-ecosystem: github-actions
     directory: /
     schedule:

@@ -13,7 +13,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `rust-toolchain.toml` pinning local development to the MSRV (1.97), so a
   feature newer than the floor fails at edit time instead of in CI. The `test`
   job overrides it with `RUSTUP_TOOLCHAIN=stable` to keep stable coverage.
-- Supply-chain CI: `cargo-deny` (licenses, advisories, bans) on every push.
+- Supply-chain CI: a `cargo deny` job checking advisories, licenses, bans, and
+  source registries, configured in `deny.toml`. Supersedes the former
+  `cargo audit` job — same RustSec database, plus license enforcement so an
+  MIT-licensed binary cannot silently redistribute a conflicting dependency.
 
 ## [0.2.0] - 2026-07
 
