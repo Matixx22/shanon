@@ -1086,6 +1086,27 @@ impl AnonymizationEngine {
                     return redact_functional_level_number(value)
                         .map_err(|e| EngineError::Value(e.to_string()));
                 }
+                // Numbers, booleans and nulls are emitted verbatim: they never
+                // reach the policy, so nothing anonymizes them and no decision
+                // records that. Where a rule declares the path that is the
+                // intended answer — a schema flag or a count carries no
+                // identity. Where no rule declares it, the value is passed
+                // through on the assumption that it carries none, and for a
+                // number that assumption is not always true: an ingestor
+                // collecting a custom numeric attribute (an employee or uid
+                // number, an asset tag) lands exactly here. Count those so the
+                // gap is visible in `shanon inspect` rather than silent.
+                //
+                // Only numbers. A null carries nothing by construction, and a
+                // boolean carries one bit that cannot identify anyone — while
+                // a real collection has enough undeclared booleans to bury the
+                // numeric signal this exists to surface.
+                if mode == VisitMode::Transform
+                    && matches!(value, Value::Number(_))
+                    && !self.field_policy.declares(context, path)
+                {
+                    self.audit.record_undeclared_numeric(&source_path);
+                }
                 return Ok(value.clone());
             }
         };

@@ -215,6 +215,34 @@ fn inspect(input: PathBuf, render_progress: bool) {
         }
     }
 
+    // Numeric leaves never reach the policy, so one at an undeclared path is
+    // passed through unchanged rather than anonymized. Unlike the unknown paths
+    // above, these are not modelled imperfectly — they are not modelled at all,
+    // and the value went out exactly as it came in. See SECURITY.md.
+    if let Some(map) = report
+        .audit
+        .get("numeric_passthrough_paths")
+        .and_then(|v| v.as_object())
+    {
+        if !map.is_empty() {
+            let mut paths: Vec<(&String, u64)> = map
+                .iter()
+                .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
+                .collect();
+            paths.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
+            println!(
+                "\nnumeric values passed through unchanged ({} distinct path(s)):",
+                paths.len()
+            );
+            for (path, count) in paths.iter().take(20) {
+                println!("  {count:>8}  {path}");
+            }
+            if paths.len() > 20 {
+                println!("  ... {} more", paths.len() - 20);
+            }
+        }
+    }
+
     if let Some(abort) = &report.abort {
         println!("\nwould abort:");
         for line in abort.lines() {

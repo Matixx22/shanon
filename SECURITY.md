@@ -63,6 +63,21 @@ what that boundary covers, what it does not, and how to report a leak.
   shape and otherwise replaced as opaque values, with their canonical paths
   counted in the audit. If a new structure cannot be handled without preserving
   confidentiality and schema shape, the run fails rather than publishing it.
+- **Numbers.** The policy classifies string leaves. A number, boolean or null is
+  emitted verbatim, and its *key* is anonymized like any other. For the paths
+  shanon models this is the intended answer — a schema flag, a count or a
+  timestamp carries no identity, and BloodHound needs them intact. But a
+  collector that emits an organization-bound value as a JSON number at a path no
+  rule declares — a custom `employeeNumber`, `uidNumber`, or asset tag under
+  `CollectAllProperties` — is passed straight through.
+
+  This is a real gap, not a theoretical one, and it is not closed by simply
+  redacting: replacing a number with a redaction string changes the leaf's JSON
+  type, and the output has to stay BloodHound-loadable. Until it is closed,
+  `shanon inspect` counts every occurrence as `undeclared-numeric-value` and
+  lists the canonical paths under *numeric values passed through unchanged*.
+  **Read that section before sending a collection anywhere**, and confirm the
+  paths it names are ones you are willing to disclose.
 
 ## Before you send anything to an LLM
 
