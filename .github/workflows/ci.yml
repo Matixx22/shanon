@@ -68,15 +68,19 @@ jobs:
       - name: Check against MSRV
         run: cargo check --workspace --all-targets --locked
 
-  audit:
-    name: cargo audit
+  supply-chain:
+    name: cargo deny
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-audit
+          tool: cargo-deny
 
-      - name: Audit dependencies against the RustSec database
-        run: cargo audit
+      # Supersedes the former `cargo audit` job. Same RustSec advisory database,
+      # plus license enforcement (shanon ships MIT binaries and must not
+      # redistribute a conflicting dependency) and source-registry pinning.
+      # Configured in deny.toml.
+      - name: Check advisories, licenses, bans, and sources
+        run: cargo deny check

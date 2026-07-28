@@ -1,0 +1,50 @@
+# cargo-deny configuration. The `supply-chain` CI job runs `cargo deny check`
+# against this on every push, pull request, and the Monday advisory cron.
+#
+# shanon is a safety boundary that people compile from source and run against
+# client data, so the dependency graph is part of the threat surface. This file
+# enforces three things the test suite cannot: no known-vulnerable or yanked
+# crates, no license that conflicts with shipping an MIT binary, and no
+# unvetted source registry.
+
+[graph]
+all-features = true
+
+[advisories]
+# RustSec advisories. The unmaintained check is scoped to dependencies this
+# workspace chose directly — those are ours to replace. A transitive crate
+# going unmaintained is someone else's release cadence and must not block
+# unrelated work here.
+yanked = "deny"
+unmaintained = "workspace"
+ignore = []
+
+[licenses]
+# Permissive only. Every entry below is present in the current graph — this is
+# an inventory, not a wishlist. Adding a license here is a deliberate decision
+# about what shanon may redistribute, so it belongs in a reviewed diff.
+allow = [
+  "0BSD",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-3-Clause",           # subtle — sole license, no permissive alternative
+  "MIT",
+  "Unicode-3.0",            # unicode-ident — AND clause, cannot be satisfied otherwise
+  "Unlicense",
+  "Zlib",
+]
+confidence-threshold = 0.93
+
+[bans]
+# Duplicate major versions bloat the binary and mean two copies of a crate can
+# disagree. A warning, not an error: transitive graphs converge on their own
+# schedule and blocking on it would be noise.
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true   # shanon-cli -> shanon-core is an intra-workspace path dep
+
+[sources]
+# Anything outside crates.io is a supply-chain decision that must be argued for
+# in review, not discovered after the fact.
+unknown-registry = "deny"
+unknown-git = "deny"
