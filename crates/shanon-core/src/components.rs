@@ -84,6 +84,21 @@ fn prefixed_sid_shape() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)^(.+)-(S-1-.+)$").unwrap())
 }
 
+/// The SID a value actually binds in the registry, with any domain prefix
+/// stripped.
+///
+/// SharpHound and the BloodHound CE ingestors both qualify some principals as
+/// `<DOMAIN>-<SID>`. [`transform_sid`] recurses through that prefix and binds
+/// the inner SID, so the inner SID — not the spelling at the leaf — is the
+/// identity that catalog evidence must be keyed on. Anything that is not a
+/// prefixed SID is returned unchanged.
+pub fn sid_identity(sid: &str) -> &str {
+    match prefixed_sid_shape().captures(sid) {
+        Some(caps) => caps.get(2).expect("capture group 2").as_str(),
+        None => sid,
+    }
+}
+
 /// Remap a SID, retaining a domain RID only with explicit evidence.
 pub fn transform_sid(reg: &mut dyn RegistryOps, sid: &str, preserve: bool) -> String {
     if let Some(caps) = prefixed_sid_shape().captures(sid) {

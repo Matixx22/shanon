@@ -6,8 +6,64 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- A collection where a well-known domain RID appeared both at a catalog-declared
+  path and at an undeclared one aborted with `ABORTED - invalid or conflicting
+  mapping data; no output written`. The catalog permits preserving a RID only at
+  declared paths (`ObjectIdentifier`, `Aces[].PrincipalSID`,
+  `Members[].ObjectIdentifier`, `Properties.objectsid`), and a reference also
+  needs a sibling `ObjectType` / `PrincipalType` to resolve against — but the
+  registry binds one structured output per SID. So `PrimaryGroupSID` (on every
+  user and computer, and not a declared path) and an ACE naming the same group
+  bound the same SID twice with opposite terminal intent. Whether a RID is a
+  catalog default is now decided once per SID identity: any occurrence that
+  qualifies publishes collection-wide evidence, `finalize_discovery` settles the
+  binding before the registry freezes, and every other occurrence replays it.
+  The answer no longer depends on which path the walk reached first, and
+  verification re-derives it from the same frozen evidence.
+- Domain-qualified SIDs (`<DOMAIN>-<SID>`, which SharpHound and both BloodHound
+  CE ingestors emit) are keyed on the inner SID that `transform_sid` actually
+  binds, so a prefixed spelling and a bare one no longer disagree about the
+  terminal. `components::sid_identity` is the shared accessor.
+- A value a field rule's operation could not parse aborted the whole
+  collection. `bloodhound-ce` and `rusthound-ce` write `""` for attributes they
+  could not read and names with an empty domain part (`JDOE@`); neither can
+  produce a well-shaped output, so the leak gate rejected the member and the run
+  ended with no output. Policy now redacts such a value opaquely instead — more
+  anonymization, never less, and the gate itself is unchanged.
+- A GUID in `Aces[].PrincipalSID`, which the CE collectors emit for Container,
+  OU and GPO principals, was mapped through the SID transform and came back a
+  SID, failing the same gate. Identifier references are now routed by the shape
+  the value actually has, so the ACE and the principal's own `ObjectIdentifier`
+  still resolve to one pseudonym and the edge survives.
+
 ### Added
 
+- `shanon inspect --input <zip|dir>`: a dry run that performs the same
+  discovery, transform and leak-gate verification as `anonymize` and then stops,
+  writing nothing at all. It reports the `meta.type` / `meta.version` /
+  node-type breakdown, unrecognized collection types, object classifications,
+  audit codes, the field paths no rule covers, and the sanitized reason a run
+  would abort. Exits `0` if the collection would anonymize cleanly and `1` if it
+  would not. Every line is a count, a synthetic member label, a canonical path
+  or a fingerprint, so the report can be shared for a collection that cannot be
+  — which is what turns "it aborts on my engagement data" into a filable bug.
+  `pipeline::inspect_collection` and `pipeline::InspectReport` back it.
+- `--verbose-failures` now also expands the mapping-abort classes — pseudonym
+  collision, unsafe mapping, publication identity, and the generic runtime
+  abort. Previously the flag only affected leak-gate findings, so a run that
+  died with `ABORTED - invalid or conflicting mapping data` printed exactly that
+  and nothing else, with or without the flag. The engine's sanitized reason was
+  computed and then discarded. The expanded block names the abort class, the
+  synthetic member, the record path, the classified node type, and a BLAKE2b-6
+  fingerprint of the offender — the same digest a leak-gate finding uses, so no
+  source value and no source filename leaves the process (invariant 7).
+- `shanon_core::engine::AbortLocator`, the sanitized leaf locator behind that
+  block, plus `ShanonError::stderr_verbose`, `ShanonError::unlocated`, and
+  `ShanonError::locator`. Default `stderr()` and every exit code are unchanged
+  for every class, located or not; `tests/errors.rs` pins that byte for byte
+  (invariant 2).
 - `shanon -V` / `shanon --version`, reporting the crate version. Release
   binaries are published as standalone archives, so a user holding one
   previously had no way to identify which build it was.

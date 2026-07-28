@@ -24,10 +24,10 @@ use serde_json::{Map, Value};
 use crate::casefold::casefold;
 use crate::catalog::{match_catalog, CatalogMatch, IdentifierKind, PrivacyClass};
 use crate::components::{
-    transform_ad_local_group_name, transform_dn, transform_dnshostname, transform_domain,
-    transform_email, transform_guid, transform_name_token, transform_oid, transform_samaccountname,
-    transform_sid, transform_spn, transform_upn_name, ACCOUNTS, CERT_TEMPLATES, DOMAINS, GUIDS,
-    HOSTS, OIDS, OPAQUE, SIDS,
+    sid_identity, transform_ad_local_group_name, transform_dn, transform_dnshostname,
+    transform_domain, transform_email, transform_guid, transform_name_token, transform_oid,
+    transform_samaccountname, transform_sid, transform_spn, transform_upn_name, ACCOUNTS,
+    CERT_TEMPLATES, DOMAINS, GUIDS, HOSTS, OIDS, OPAQUE, SIDS,
 };
 use crate::policy::{
     array_path, canonical_path, object_path, redact_functional_level_number, DecisionRecord,
@@ -145,6 +145,22 @@ pub struct VerificationContext {
 // Errors.
 // ---------------------------------------------------------------------------
 
+/// Where an abort fired, in sanitized form.
+///
+/// Holds no source value and no source filename (invariant 7): only the
+/// synthetic member name the pipeline already assigns, the classified node
+/// type, the record path, and a BLAKE2b-6 fingerprint of the offending value.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AbortLocator {
+    /// Synthetic member name (`member-00001.json`), never the source filename.
+    pub member: Option<String>,
+    pub node_type: String,
+    /// Record path into the member document, e.g. `data[0].Aces[0].PrincipalSID`.
+    pub path: String,
+    /// `blake2b(value, digest_size=6)` of the offender, as in a leak-gate finding.
+    pub offender: String,
+}
+
 /// Engine failure surface.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EngineError {
@@ -156,6 +172,28 @@ pub enum EngineError {
     PseudonymCollision(String),
     /// `RuntimeError` (discovery lifecycle violation).
     Runtime(String),
+    /// Any of the above with the leaf it fired on attached. Displays exactly
+    /// like the error it wraps, so no existing message text moves; the locator
+    /// is reachable only through [`EngineError::locator`].
+    Located(Box<EngineError>, AbortLocator),
+}
+
+impl EngineError {
+    /// The wrapped error, with any locator peeled off.
+    pub fn unlocated(&self) -> &EngineError {
+        match self {
+            EngineError::Located(inner, _) => inner.unlocated(),
+            other => other,
+        }
+    }
+
+    /// The attached locator, if this error was raised at a known leaf.
+    pub fn locator(&self) -> Option<&AbortLocator> {
+        match self {
+            EngineError::Located(_, locator) => Some(locator),
+            _ => None,
+        }
+    }
 }
 
 impl std::fmt::Display for EngineError {
@@ -165,6 +203,9 @@ impl std::fmt::Display for EngineError {
             EngineError::Value(m) => write!(f, "{m}"),
             EngineError::PseudonymCollision(m) => write!(f, "pseudonym collision: {m}"),
             EngineError::Runtime(m) => write!(f, "{m}"),
+            // Byte-identical to the wrapped error: the locator is additive
+            // diagnostic state, never part of the frozen stderr surface.
+            EngineError::Located(inner, _) => write!(f, "{inner}"),
         }
     }
 }
@@ -270,6 +311,11 @@ pub struct AnonymizationEngine {
     /// Optional write-only progress channel. Never read back, so installing one
     /// cannot change a single output byte (invariants 1 and 3).
     progress: Option<ProgressSink>,
+    /// Synthetic name of the member being walked, for abort locators only.
+    current_member: Option<String>,
+    /// Sanitized locator for the leaf currently being transformed. Diagnostic
+    /// state: read only when building an error, never when producing output.
+    abort_locator: Option<AbortLocator>,
 }
 
 impl AnonymizationEngine {
@@ -300,6 +346,8 @@ impl AnonymizationEngine {
             template_mappings_finalized: false,
             verification_context: None,
             progress: None,
+            current_member: None,
+            abort_locator: None,
         }
     }
 
@@ -321,11 +369,32 @@ impl AnonymizationEngine {
         casefold(value)
     }
 
+    /// Record where the walk currently is, so a deferred registry failure can
+    /// name its leaf. `value` is fingerprinted immediately and never retained.
+    fn mark_leaf(&mut self, context: &ObjectContext, record_path: &str, value: &str) {
+        self.abort_locator = Some(AbortLocator {
+            member: self.current_member.clone(),
+            node_type: context.node_type.clone(),
+            path: record_path.to_string(),
+            offender: crate::verify::fingerprint(value),
+        });
+    }
+
+    /// Attach the current leaf locator to an error, if one is known.
+    fn locate(&self, e: EngineError) -> EngineError {
+        match (&self.abort_locator, &e) {
+            // Never double-wrap: the innermost locator is the precise one.
+            (_, EngineError::Located(_, _)) => e,
+            (Some(locator), _) => EngineError::Located(Box::new(e), locator.clone()),
+            (None, _) => e,
+        }
+    }
+
     /// Drain a deferred registry error from the infallible transform bridge.
     fn check_registry(&mut self) -> Result<()> {
         match self.registry.take_trait_error() {
             None => Ok(()),
-            Some(e) => Err(EngineError::Registry(e)),
+            Some(e) => Err(self.locate(EngineError::Registry(e))),
         }
     }
 
@@ -425,6 +494,8 @@ impl AnonymizationEngine {
             None => return,
             Some(id) => id.clone(),
         };
+        // A `<DOMAIN>-<SID>` object identifier still defines the inner SID.
+        let identifier = sid_identity(&identifier).to_string();
         let caps = match domain_sid_re().captures(&identifier) {
             None => return,
             Some(c) => c,
@@ -450,20 +521,74 @@ impl AnonymizationEngine {
         );
     }
 
+    /// Record a domain-RID preservation decision reached at a *reference* (or
+    /// at any classified identifier path) as collection-wide evidence.
+    ///
+    /// The catalog only permits preserving a RID at explicitly declared paths,
+    /// and a reference additionally needs a sibling `ObjectType` /
+    /// `PrincipalType` to resolve against. Both are properties of the
+    /// *occurrence*, but a SID's pseudonym is a property of the *identity*: the
+    /// registry binds one structured output per SID. So a SID that qualifies at
+    /// `Aces[].PrincipalSID` and also appears at an undeclared path such as
+    /// `PrimaryGroupSID` used to be bound twice with opposite terminal intent,
+    /// aborting the whole run with `preloaded "sids" mapping conflicts with
+    /// structured output`. Publishing the decision here lets
+    /// [`Self::apply_discovered_domain_rid_evidence`] replay it at every other
+    /// occurrence, and lets `finalize_discovery` settle the binding before the
+    /// registry freezes — so the answer no longer depends on which path the
+    /// walk happened to reach first.
+    fn remember_referenced_domain_rid(
+        &mut self,
+        context: &ObjectContext,
+        path: &str,
+        value: &str,
+        decision: &FieldDecision,
+        reference_node_type: Option<&str>,
+    ) {
+        if !matches!(
+            decision.operation,
+            FieldOperation::MapCustomIdentifier | FieldOperation::MapReference
+        ) {
+            return;
+        }
+        let identity = sid_identity(value);
+        let key = identity.to_uppercase();
+        // A definition already spoke for this SID; it stays authoritative.
+        if self.catalog_domain_rid_targets.contains_key(&key) {
+            return;
+        }
+        let is_reference = decision.operation == FieldOperation::MapReference;
+        let matched = match self.field_policy.catalog_domain_rid_match(
+            context,
+            path,
+            value,
+            is_reference,
+            reference_node_type,
+        ) {
+            None => return,
+            Some(m) => m,
+        };
+        self.catalog_domain_rid_targets.insert(
+            key,
+            DomainRidTargetEvidence {
+                source_identifier: identity.to_string(),
+                catalog_rule_id: matched.rule_id,
+                node_type: matched.node_type,
+            },
+        );
+    }
+
     fn apply_discovered_domain_rid_evidence(
         &self,
         value: &str,
         decision: FieldDecision,
     ) -> FieldDecision {
+        // Keyed on the SID the registry actually binds, so a `<DOMAIN>-<SID>`
+        // spelling resolves to the same evidence as the bare SID.
+        let key = sid_identity(value).to_uppercase();
         let target = match &self.verification_context {
-            Some(ctx) => ctx
-                .catalog_domain_rid_targets
-                .get(&value.to_uppercase())
-                .cloned(),
-            None => self
-                .catalog_domain_rid_targets
-                .get(&value.to_uppercase())
-                .cloned(),
+            Some(ctx) => ctx.catalog_domain_rid_targets.get(&key).cloned(),
+            None => self.catalog_domain_rid_targets.get(&key).cloned(),
         };
         let target = match target {
             None => return decision,
@@ -905,9 +1030,10 @@ impl AnonymizationEngine {
                 let policy_child_path = object_path(path, key);
                 let (projected_key, dynamic) = self.project_output_key(context, path, key)?;
                 if !projected_keys.insert(projected_key.clone()) {
-                    return Err(EngineError::PseudonymCollision(
+                    self.mark_leaf(context, &object_path(&source_path, key), key);
+                    return Err(self.locate(EngineError::PseudonymCollision(
                         "object key projection collision".into(),
-                    ));
+                    )));
                 }
                 let projected_path = object_path(&source_path, &projected_key);
                 let output_key = if mode == VisitMode::Discover {
@@ -964,9 +1090,20 @@ impl AnonymizationEngine {
             }
         };
 
+        self.mark_leaf(context, &source_path, &value_str);
+
         let mut decision = self
             .field_policy
             .resolve(context, path, value, reference_node_type);
+        if mode == VisitMode::Discover {
+            self.remember_referenced_domain_rid(
+                context,
+                path,
+                &value_str,
+                &decision,
+                reference_node_type,
+            );
+        }
         decision = self.apply_discovered_domain_rid_evidence(&value_str, decision);
 
         if mode == VisitMode::Discover
@@ -1045,7 +1182,9 @@ impl AnonymizationEngine {
             Some(t) if decision.operation == FieldOperation::PreserveConstant => {
                 t.source_value.clone()
             }
-            _ => self.apply_string_operation(context, path, &value_str, &decision)?,
+            _ => self
+                .apply_string_operation(context, path, &value_str, &decision)
+                .map_err(|e| self.locate(e))?,
         };
 
         if mode == VisitMode::Discover {
@@ -1092,6 +1231,8 @@ impl AnonymizationEngine {
         doc: &Map<String, Value>,
         mode: VisitMode,
     ) -> Result<(Map<String, Value>, Vec<DecisionRecord>)> {
+        self.current_member = Some(member.to_string());
+        self.abort_locator = None;
         let contexts = self.contexts_for_document(member, doc, mode == VisitMode::Discover)?;
         if mode == VisitMode::Discover {
             for context in &contexts {
@@ -1148,9 +1289,10 @@ impl AnonymizationEngine {
             let root_path = object_path("", key);
             let (projected_key, dynamic) = self.project_output_key(&document_context, "", key)?;
             if !projected_root_keys.insert(projected_key.clone()) {
-                return Err(EngineError::PseudonymCollision(
+                self.mark_leaf(&document_context, &root_path, key);
+                return Err(self.locate(EngineError::PseudonymCollision(
                     "object key projection collision".into(),
-                ));
+                )));
             }
             let projected_path = object_path("", &projected_key);
             let output_key = if mode == VisitMode::Discover {

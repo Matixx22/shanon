@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 
 use serde_json::{Map, Value};
 
-use crate::engine::{AnonymizationEngine, EngineError, VerificationContext};
+use crate::engine::{AbortLocator, AnonymizationEngine, EngineError, VerificationContext};
 use crate::platform;
 use crate::policy::{PolicyAudit, PolicyConfig};
 use crate::progress::{self, Phase, ProgressEvent, ProgressSink};
@@ -92,6 +92,29 @@ pub enum ShanonError {
     /// Non-fatal post-commit cleanup warning (exit 0, stderr note only).
     #[error("{0}")]
     CleanupWarning(String),
+    /// Any of the above with a sanitized abort locator attached. Renders
+    /// byte-identically to the error it wraps under [`ShanonError::stderr`];
+    /// only [`ShanonError::stderr_verbose`] expands it.
+    #[error("{0}")]
+    Located(Box<ShanonError>, AbortLocator),
+}
+
+impl ShanonError {
+    /// The wrapped error, with any locator peeled off.
+    pub fn unlocated(&self) -> &ShanonError {
+        match self {
+            ShanonError::Located(inner, _) => inner.unlocated(),
+            other => other,
+        }
+    }
+
+    /// The attached abort locator, if the failure was raised at a known leaf.
+    pub fn locator(&self) -> Option<&AbortLocator> {
+        match self {
+            ShanonError::Located(_, locator) => Some(locator),
+            _ => None,
+        }
+    }
 }
 
 fn verification_message(finding: Option<&VerificationFinding>) -> String {
@@ -154,14 +177,35 @@ impl ShanonError {
     /// `1`; the non-fatal cleanup warning does not abort (`0`).
     pub fn exit_code(&self) -> i32 {
         match self {
+            ShanonError::Located(inner, _) => inner.exit_code(),
             ShanonError::CleanupWarning(_) => 0,
             _ => 1,
         }
     }
 
+    /// The abort class shown in verbose diagnostics. Stable, kebab-case, and
+    /// never derived from input.
+    fn class(&self) -> &'static str {
+        match self.unlocated() {
+            ShanonError::Verification(_) | ShanonError::VerboseVerification(_) => "leak-gate",
+            ShanonError::PseudonymCollision(_) => "pseudonym-collision",
+            ShanonError::UnsafeMapping(_) => "unsafe-mapping",
+            ShanonError::PublicationIdentity(_) => "publication-identity",
+            ShanonError::Runtime(_) => "runtime",
+            ShanonError::Value(_) => "value",
+            ShanonError::Io(_) => "io",
+            ShanonError::FileExists(_) => "file-exists",
+            ShanonError::CleanupWarning(_) => "cleanup-warning",
+            ShanonError::Located(_, _) => unreachable!("unlocated() peels every locator"),
+        }
+    }
+
     /// The exact stderr text the CLI prints for this error.
+    ///
+    /// Frozen interop surface (invariant 2). A locator never reaches it.
     pub fn stderr(&self) -> String {
         match self {
+            ShanonError::Located(inner, _) => inner.stderr(),
             ShanonError::VerboseVerification(findings) => format_verbose_findings(findings),
             ShanonError::Verification(finding) => format!(
                 "ABORTED - leak check failed, no output written: {}",
@@ -180,6 +224,44 @@ impl ShanonError {
                 format!("post-commit publication cleanup warning: {details}")
             }
         }
+    }
+
+    /// The stderr text for a run started with `--verbose-failures`.
+    ///
+    /// Identical to [`ShanonError::stderr`] except for the mapping-abort
+    /// classes, which collapse to one fixed line there and so carried no
+    /// diagnostic at all. Everything added is sanitized: a stable class slug,
+    /// the engine's own value-free reason, the synthetic member name, the
+    /// record path, the classified node type, and a BLAKE2b-6 fingerprint of
+    /// the offender (invariant 7).
+    pub fn stderr_verbose(&self) -> String {
+        let headline = self.stderr();
+        if !matches!(
+            self.unlocated(),
+            ShanonError::PseudonymCollision(_)
+                | ShanonError::UnsafeMapping(_)
+                | ShanonError::PublicationIdentity(_)
+                | ShanonError::Runtime(_)
+        ) {
+            return headline;
+        }
+
+        let mut lines = vec![headline, String::new(), "mapping-abort:".to_string()];
+        match self.locator() {
+            Some(locator) => {
+                let member = locator.member.as_deref().unwrap_or("<unknown-member>");
+                lines.push(format!(
+                    "- {member} {} {} {}",
+                    locator.path,
+                    self.class(),
+                    locator.offender
+                ));
+                lines.push(format!("  node-type: {}", locator.node_type));
+            }
+            None => lines.push(format!("- {}", self.class())),
+        }
+        lines.push(format!("  reason: {}", self.unlocated()));
+        lines.join("\n")
     }
 }
 
@@ -265,6 +347,11 @@ pub fn sha256_of_file(path: &std::path::Path) -> std::io::Result<String> {
 impl From<EngineError> for ShanonError {
     fn from(e: EngineError) -> Self {
         use crate::registry::RegistryError as R;
+        // Classify the wrapped error, then re-attach the locator so the class
+        // and the leaf travel together to the CLI.
+        if let EngineError::Located(inner, locator) = e {
+            return ShanonError::Located(Box::new(ShanonError::from(*inner)), locator);
+        }
         match e {
             EngineError::PseudonymCollision(_) => ShanonError::PseudonymCollision(e.to_string()),
             EngineError::Registry(R::PseudonymCollision(_)) => {
@@ -277,6 +364,7 @@ impl From<EngineError> for ShanonError {
             EngineError::Registry(R::Frozen(_))
             | EngineError::Registry(R::Type(_))
             | EngineError::Runtime(_) => ShanonError::Runtime(e.to_string()),
+            EngineError::Located(_, _) => unreachable!("peeled above"),
         }
     }
 }
@@ -715,6 +803,292 @@ struct Accepted {
     doc: Map<String, Value>,
 }
 
+/// Read every member of a collection into `(synthetic label, raw bytes)` pairs.
+///
+/// Shared by [`anonymize_collection`] and [`inspect_collection`] so a dry run
+/// sees exactly the members a real run would: the same size bounds, the same
+/// openat-anchored traversal, the same latest-duplicate-wins rule, and the same
+/// `member-00001.json` labels — real filenames never leave this function
+/// (invariant 7). Also returns the raw archive bytes for a zip input, which the
+/// mapping's input hash needs.
+#[allow(clippy::type_complexity)]
+fn read_collection_input(
+    input_path: &Path,
+    is_dir: bool,
+    root_fd: Option<&std::os::fd::OwnedFd>,
+) -> Result<(Vec<(String, Vec<u8>)>, Option<Vec<u8>>), ShanonError> {
+    let mut members: Vec<(String, Vec<u8>)> = Vec::new();
+
+    if is_dir {
+        let root = root_fd.expect("dir root fd");
+        let paths = safe_directory_members(input_path)?;
+        if paths.is_empty() {
+            return Err(ShanonError::Value(
+                "input contains no SharpHound JSON members".to_string(),
+            ));
+        }
+        for (index, path) in paths.iter().enumerate() {
+            let raw = platform::read_directory_member_anchored(
+                input_path,
+                path,
+                std::os::fd::AsFd::as_fd(root),
+            )
+            .map_err(|e| ShanonError::Value(e.0))?;
+            members.push((format!("member-{:05}.json", index + 1), raw));
+        }
+        return Ok((members, None));
+    }
+
+    // Reject an archive whose on-disk size already exceeds the total
+    // uncompressed ceiling before reading it into memory (compressed input can
+    // never legitimately be larger than its uncompressed contents).
+    if let Ok(meta) = std::fs::metadata(input_path) {
+        if meta.len() > MAX_TOTAL_UNCOMPRESSED {
+            return Err(ShanonError::Value(
+                "archive size exceeds maximum".to_string(),
+            ));
+        }
+    }
+    let raw =
+        std::fs::read(input_path).map_err(|_| ShanonError::Io("File is not a zip file".into()))?;
+    let entries = parse_zip_central(&raw)?;
+    let entries = safe_zip_members(entries)?;
+    if entries.is_empty() {
+        return Err(ShanonError::Value(
+            "input contains no SharpHound JSON members".to_string(),
+        ));
+    }
+    // Retain the last duplicate at its first-seen position.
+    let mut positions: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+    let mut latest: Vec<&ZipEntry> = Vec::new();
+    for info in &entries {
+        match positions.get(&info.name) {
+            None => {
+                positions.insert(info.name.clone(), latest.len());
+                latest.push(info);
+            }
+            Some(&p) => latest[p] = info,
+        }
+    }
+    for (index, info) in latest.iter().enumerate() {
+        let raw_member = read_zip_entry(&raw, info)?;
+        members.push((format!("member-{:05}.json", index + 1), raw_member));
+    }
+    Ok((members, Some(raw)))
+}
+
+/// What a dry run found in one collection, in sanitized form.
+///
+/// Every field is either a count, a synthetic member label, a canonical policy
+/// path, or a value-free classification — the same discipline the leak-gate
+/// findings follow, so a report can be pasted into a bug report against a
+/// collection that must not leave the operator's machine (invariant 7).
+#[derive(Clone, Debug)]
+pub struct InspectReport {
+    /// Members read from the input, before parsing.
+    pub members_read: usize,
+    /// Members that parsed as SharpHound documents *and* survived discovery.
+    pub members_accepted: usize,
+    /// Synthetic labels of members that did not, and would be excluded.
+    pub members_skipped: Vec<String>,
+    /// Total top-level `data` objects across accepted members.
+    pub objects: u64,
+    /// One row per `(meta.type, resolved node type, meta.version)`, with the
+    /// object count. A node type of `Unknown` is an unrecognized collection.
+    pub collection_types: Vec<CollectionTypeRow>,
+    /// [`PolicyAudit::summary`] over the transform pass.
+    pub audit: Value,
+    /// Leak-gate findings, sanitized. Non-empty means the run would abort.
+    pub findings: Vec<VerificationFinding>,
+    /// A mapping-class abort, rendered as `stderr_verbose` would render it.
+    pub abort: Option<String>,
+}
+
+/// One `(meta.type, node type, meta.version)` row of an [`InspectReport`].
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CollectionTypeRow {
+    pub meta_type: String,
+    pub node_type: String,
+    pub version: String,
+    pub objects: u64,
+}
+
+impl InspectReport {
+    /// Whether a real run over this input would publish.
+    pub fn would_publish(&self) -> bool {
+        self.findings.is_empty() && self.abort.is_none()
+    }
+}
+
+/// Dry-run a collection and report what a real run would do, writing nothing.
+///
+/// This is the diagnostic path for a collection that will not anonymize: it
+/// runs the same discovery, transform and independent verification as
+/// [`anonymize_collection`] and then stops, so the answer is the real answer
+/// rather than an approximation — but no output collection, no mapping file and
+/// no staging directory is ever created.
+pub fn inspect_collection(
+    input_path: &Path,
+    reg: Registry,
+    policy: PolicyConfig,
+    audit: PolicyAudit,
+    progress: Option<ProgressSink>,
+) -> Result<InspectReport, ShanonError> {
+    let progress = progress.as_ref();
+    let is_dir = input_path.is_dir();
+    let root_fd = if is_dir {
+        Some(platform::open_directory_root(input_path).map_err(|e| ShanonError::Value(e.0))?)
+    } else {
+        None
+    };
+
+    let (raw_members, _) = read_collection_input(input_path, is_dir, root_fd.as_ref())?;
+
+    let mut engine = AnonymizationEngine::new(reg, Some(policy), Some(audit));
+    if let Some(sink) = progress {
+        engine.set_progress_sink(sink.clone());
+    }
+
+    progress::emit(
+        progress,
+        ProgressEvent::PhaseStarted {
+            phase: Phase::Discovery,
+            total: None,
+        },
+    );
+    let mut accepted: Vec<Accepted> = Vec::new();
+    let mut members_skipped: Vec<String> = Vec::new();
+    let mut objects: u64 = 0;
+    // Keyed on the row identity so counts aggregate across members.
+    let mut types: indexmap::IndexMap<(String, String, String), u64> = indexmap::IndexMap::new();
+
+    for (label, raw) in &raw_members {
+        let doc = match parse_collection_member(raw) {
+            Some(doc) => doc,
+            None => {
+                members_skipped.push(label.clone());
+                continue;
+            }
+        };
+        let meta = doc.get("meta").and_then(|v| v.as_object());
+        let meta_type = meta
+            .and_then(|m| m.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("<missing>")
+            .to_string();
+        let version = meta
+            .and_then(|m| m.get("version"))
+            .map(|v| v.to_string())
+            .unwrap_or_else(|| "<missing>".to_string());
+        let node_type = crate::engine::normalize_node_type(meta.and_then(|m| m.get("type")));
+        let count = data_len(&doc);
+        objects += count;
+        *types.entry((meta_type, node_type, version)).or_insert(0) += count;
+
+        // A discovery failure is itself the finding; report it rather than
+        // aborting the inspection.
+        if let Err(e) = engine.discover_document(label, &doc) {
+            let e = ShanonError::from(e);
+            return Ok(InspectReport {
+                members_read: raw_members.len(),
+                members_accepted: accepted.len(),
+                members_skipped,
+                objects,
+                collection_types: rows(types),
+                audit: engine.audit.summary(),
+                findings: Vec::new(),
+                abort: Some(e.stderr_verbose()),
+            });
+        }
+        accepted.push(Accepted {
+            name: label.clone(),
+            doc,
+        });
+    }
+    progress::emit(progress, ProgressEvent::PhaseFinished);
+
+    if accepted.is_empty() {
+        return Err(ShanonError::Value(
+            "input contains no SharpHound collection documents".to_string(),
+        ));
+    }
+
+    let members_accepted = accepted.len();
+    let context = match engine.finalize_discovery() {
+        Ok(c) => c,
+        Err(e) => {
+            let e = ShanonError::from(e);
+            return Ok(InspectReport {
+                members_read: raw_members.len(),
+                members_accepted,
+                members_skipped,
+                objects,
+                collection_types: rows(types),
+                audit: engine.audit.summary(),
+                findings: Vec::new(),
+                abort: Some(e.stderr_verbose()),
+            });
+        }
+    };
+
+    progress::emit(
+        progress,
+        ProgressEvent::PhaseStarted {
+            phase: Phase::TransformVerify,
+            total: Some(objects * 2),
+        },
+    );
+    let mut findings: Vec<VerificationFinding> = Vec::new();
+    let mut abort: Option<String> = None;
+    for member in &accepted {
+        match engine.transform_document(&member.name, &member.doc) {
+            Ok((output, records)) => findings.extend(verify_document_with_progress(
+                &member.name,
+                &member.doc,
+                &output,
+                &records,
+                &mut engine.registry,
+                &context,
+                progress,
+            )),
+            Err(e) => {
+                // The first mapping abort is terminal for a real run, so report
+                // it and stop rather than compounding a poisoned registry.
+                abort = Some(ShanonError::from(e).stderr_verbose());
+                break;
+            }
+        }
+    }
+    progress::emit(progress, ProgressEvent::PhaseFinished);
+
+    Ok(InspectReport {
+        members_read: raw_members.len(),
+        members_accepted,
+        members_skipped,
+        objects,
+        collection_types: rows(types),
+        audit: engine.audit.summary(),
+        findings,
+        abort,
+    })
+}
+
+fn rows(types: indexmap::IndexMap<(String, String, String), u64>) -> Vec<CollectionTypeRow> {
+    let mut rows: Vec<CollectionTypeRow> = types
+        .into_iter()
+        .map(
+            |((meta_type, node_type, version), objects)| CollectionTypeRow {
+                meta_type,
+                node_type,
+                version,
+                objects,
+            },
+        )
+        .collect();
+    rows.sort_by(|a, b| (&a.meta_type, &a.version).cmp(&(&b.meta_type, &b.version)));
+    rows
+}
+
 /// Anonymize a directory or ZIP through the bounded two-pass pipeline, then
 /// atomically publish the collection and (optionally) the mapping file.
 #[allow(clippy::too_many_arguments)]
@@ -793,25 +1167,7 @@ pub fn anonymize_collection(
     // once by the engine and once, independently, by the verifier.
     let mut total_objects: u64 = 0;
 
-    // Cache the raw archive bytes once for zip inputs.
-    let zip_raw: Option<Vec<u8>> = if is_dir {
-        None
-    } else {
-        // Reject an archive whose on-disk size already exceeds the total
-        // uncompressed ceiling before reading it into memory (compressed input
-        // can never legitimately be larger than its uncompressed contents).
-        if let Ok(meta) = std::fs::metadata(input_path) {
-            if meta.len() > MAX_TOTAL_UNCOMPRESSED {
-                return Err(ShanonError::Value(
-                    "archive size exceeds maximum".to_string(),
-                ));
-            }
-        }
-        Some(
-            std::fs::read(input_path)
-                .map_err(|_| ShanonError::Io("File is not a zip file".into()))?,
-        )
-    };
+    let (raw_members, zip_raw) = read_collection_input(input_path, is_dir, root_fd.as_ref())?;
 
     let input_hash: Option<String> = if map_path.is_some() {
         Some(if let Some(raw) = &zip_raw {
@@ -835,64 +1191,17 @@ pub fn anonymize_collection(
             total: None,
         },
     );
-    if is_dir {
-        let root = root_fd.as_ref().expect("dir root fd");
-        let paths = safe_directory_members(input_path)?;
-        if paths.is_empty() {
-            return Err(ShanonError::Value(
-                "input contains no SharpHound JSON members".to_string(),
-            ));
-        }
-        for (index, path) in paths.iter().enumerate() {
-            let label = format!("member-{:05}.json", index + 1);
-            let raw = platform::read_directory_member_anchored(
-                input_path,
-                path,
-                std::os::fd::AsFd::as_fd(root),
-            )
-            .map_err(|e| ShanonError::Value(e.0))?;
-            match parse_collection_member(&raw) {
-                Some(doc) => {
-                    engine.discover_document(&label, &doc)?;
-                    total_objects += data_len(&doc);
-                    accepted.push(Accepted { name: label, doc });
-                }
-                None => skipped.push(label),
+    for (label, raw) in &raw_members {
+        match parse_collection_member(raw) {
+            Some(doc) => {
+                engine.discover_document(label, &doc)?;
+                total_objects += data_len(&doc);
+                accepted.push(Accepted {
+                    name: label.clone(),
+                    doc,
+                });
             }
-        }
-    } else {
-        let raw = zip_raw.as_ref().expect("zip bytes");
-        let entries = parse_zip_central(raw)?;
-        let members = safe_zip_members(entries)?;
-        if members.is_empty() {
-            return Err(ShanonError::Value(
-                "input contains no SharpHound JSON members".to_string(),
-            ));
-        }
-        // Retain the last duplicate at its first-seen position.
-        let mut positions: std::collections::HashMap<String, usize> =
-            std::collections::HashMap::new();
-        let mut latest: Vec<&ZipEntry> = Vec::new();
-        for info in &members {
-            match positions.get(&info.name) {
-                None => {
-                    positions.insert(info.name.clone(), latest.len());
-                    latest.push(info);
-                }
-                Some(&p) => latest[p] = info,
-            }
-        }
-        for (index, info) in latest.iter().enumerate() {
-            let label = format!("member-{:05}.json", index + 1);
-            let raw_member = read_zip_entry(raw, info)?;
-            match parse_collection_member(&raw_member) {
-                Some(doc) => {
-                    engine.discover_document(&label, &doc)?;
-                    total_objects += data_len(&doc);
-                    accepted.push(Accepted { name: label, doc });
-                }
-                None => skipped.push(label),
-            }
+            None => skipped.push(label.clone()),
         }
     }
     // Close the bar before any diagnostic below writes to stderr.

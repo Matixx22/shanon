@@ -18,10 +18,10 @@ use serde_json::{Map, Value};
 use crate::casefold::casefold;
 use crate::catalog::{match_catalog, IdentifierKind, PrivacyClass};
 use crate::components::{
-    transform_ad_local_group_name, transform_dn, transform_dnshostname, transform_domain,
-    transform_email, transform_guid, transform_name_token, transform_oid, transform_samaccountname,
-    transform_sid, transform_spn, transform_upn_name, ACCOUNTS, CERT_TEMPLATES, DOMAINS, GUIDS,
-    HOSTS, OIDS, OPAQUE, SIDS,
+    sid_identity, transform_ad_local_group_name, transform_dn, transform_dnshostname,
+    transform_domain, transform_email, transform_guid, transform_name_token, transform_oid,
+    transform_samaccountname, transform_sid, transform_spn, transform_upn_name, ACCOUNTS,
+    CERT_TEMPLATES, DOMAINS, GUIDS, HOSTS, OIDS, OPAQUE, SIDS,
 };
 use crate::engine::{
     classify_object, normalize_node_type, DomainRidTargetEvidence, TemplateTargetEvidence,
@@ -122,7 +122,10 @@ struct SourceLeaf {
 }
 
 /// `blake2b(value, digest_size=6).hexdigest()` (§3.1a leak-gate token).
-fn fingerprint(value: &str) -> String {
+///
+/// Shared with the engine so an abort locator fingerprints its offender exactly
+/// the way a leak-gate finding does.
+pub(crate) fn fingerprint(value: &str) -> String {
     use blake2::digest::consts::U6;
     use blake2::{Blake2b, Digest};
     let mut hasher = Blake2b::<U6>::new();
@@ -642,7 +645,11 @@ fn expected_decision(
         leaf.reference_node_type.as_deref(),
     );
 
-    if let Some(domain_rid_target) = domain_rid_targets.get(&leaf.value.to_uppercase()) {
+    // Keyed on the SID the registry binds, matching the engine: a
+    // `<DOMAIN>-<SID>` leaf resolves to the bare SID's evidence.
+    if let Some(domain_rid_target) =
+        domain_rid_targets.get(&sid_identity(&leaf.value).to_uppercase())
+    {
         let op_ok = matches!(
             decision.operation,
             FieldOperation::MapCustomIdentifier | FieldOperation::MapReference
