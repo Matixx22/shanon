@@ -24,6 +24,12 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    # rust-toolchain.toml pins the repository to the MSRV (1.97). This variable
+    # outranks that file, so this job keeps testing against current stable —
+    # without it, adding the pin would silently downgrade every check below to
+    # 1.97 and lose stable coverage entirely.
+    env:
+      RUSTUP_TOOLCHAIN: stable
     steps:
       - uses: actions/checkout@v7
 
@@ -31,6 +37,9 @@ jobs:
         run: |
           rustup toolchain install stable --profile minimal --component rustfmt,clippy
           rustup default stable
+
+      - name: Show active toolchain
+        run: rustc --version --verbose
 
       - uses: Swatinem/rust-cache@v2
 
