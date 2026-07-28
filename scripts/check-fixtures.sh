@@ -73,9 +73,17 @@ DENIED=(
 
 status=0
 
+# Every check scans tracked files, and this script is one — it necessarily
+# contains the very strings it bans, so scanning itself would make it fail the
+# moment it was committed. Exclude it, and only it.
+SELF="scripts/check-fixtures.sh"
+tracked() {
+  git ls-files -z | grep -zv "^${SELF}$"
+}
+
 # --- Check 0: known-real identifiers ----------------------------------------
 for bad in "${DENIED[@]}"; do
-  hits=$(git ls-files -z | xargs -0 grep -lFi "$bad" 2>/dev/null || true)
+  hits=$(tracked | xargs -0 grep -lFi "$bad" 2>/dev/null || true)
   if [ -n "$hits" ]; then
     echo "ERROR: known-real identifier '$bad' present in a tracked file:"
     echo "$hits" | sed 's/^/         /'
@@ -85,7 +93,7 @@ for bad in "${DENIED[@]}"; do
 done
 
 # --- Check 1: domain SID authorities ---------------------------------------
-found=$(git ls-files -z |
+found=$(tracked |
   xargs -0 grep -ohE 'S-1-5-21-[0-9]+-[0-9]+-[0-9]+' 2>/dev/null |
   sed -E 's/(S-1-5-21-[0-9]+-[0-9]+-[0-9]+).*/\1/' |
   sort -u || true)
@@ -100,7 +108,7 @@ for authority in $found; do
   done
   if [ "$allowed" -eq 0 ]; then
     echo "ERROR: unrecognized domain SID authority in a tracked file: $authority"
-    git ls-files -z | xargs -0 grep -lF "$authority" 2>/dev/null | sed 's/^/         /'
+    tracked | xargs -0 grep -lF "$authority" 2>/dev/null | sed 's/^/         /'
     echo "       If this is synthetic, add it to ALLOWED_SYNTHETIC in $0."
     echo "       If it came from a real collection, remove the file — and rewrite"
     echo "       history if it was ever pushed."
@@ -109,7 +117,7 @@ for authority in $found; do
 done
 
 # --- Check 2: collector-shaped filenames ------------------------------------
-collector_named=$(git ls-files |
+collector_named=$(git ls-files | grep -v "^${SELF}$" |
   grep -E '(^|/)[0-9]{8,14}_[a-z]+\.json$' || true)
 
 if [ -n "$collector_named" ]; then
