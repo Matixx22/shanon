@@ -759,6 +759,26 @@ impl FieldPolicy {
                     namespace = Some("sids_preserve_rid".to_string());
                 }
             }
+            // A rule declares the shape it expects at a path. Ingestors do not
+            // always honour it: the CE collectors emit empty strings for absent
+            // attributes, names with an empty domain part, and GUID principals
+            // in `Aces[].PrincipalSID`. Re-route to the namespace the value
+            // actually is, or fall back to `opaque` — never hand a structured
+            // transform a value it cannot parse, which used to abort the run.
+            if let Some(s) = value.as_str() {
+                if let Some(routed) = routed_identifier_namespace(rule.operation, &namespace, s) {
+                    namespace = Some(routed);
+                } else if !source_shape_supports(rule.operation, &namespace, s) {
+                    return self.decision(
+                        context,
+                        &rule.rule_id,
+                        FieldOperation::ReplaceOpaque,
+                        Some("opaque"),
+                        Some("malformed-source-value"),
+                    );
+                }
+            }
+
             return FieldDecision {
                 rule_id: rule.rule_id.clone(),
                 operation: rule.operation,
@@ -819,6 +839,100 @@ impl FieldPolicy {
 // ===========================================================================
 // PolicyAudit
 // ===========================================================================
+
+/// The namespace an identifier *reference* should use given what the value
+/// actually is, when that disagrees with the namespace its rule declared.
+///
+/// `map_custom_identifier` already dispatches on the value's shape, but
+/// `map_reference` dispatches on the namespace, so a GUID sitting in
+/// `Aces[].PrincipalSID` — which the BloodHound CE collectors emit for
+/// Container, OU and GPO principals — was mapped through the SID transform and
+/// came back a SID, failing the leak gate's output-shape check. Routing it to
+/// `guids` keeps the cross-reference intact: the ACE and the container's own
+/// `ObjectIdentifier` resolve to the same pseudonym.
+///
+/// Returns `None` when the declared namespace already fits, when the value is
+/// not an identifier at all (the caller then falls back to `opaque`), or when
+/// the operation is not a reference.
+fn routed_identifier_namespace(
+    operation: FieldOperation,
+    namespace: &Option<String>,
+    value: &str,
+) -> Option<String> {
+    if operation != FieldOperation::MapReference {
+        return None;
+    }
+    let declared = namespace.as_deref()?;
+    let actual = if sid_re().is_match(value) {
+        "sids"
+    } else if guid_re().is_match(value) {
+        "guids"
+    } else if oid_re().is_match(value) {
+        "oids"
+    } else {
+        return None;
+    };
+    // `sids_preserve_rid` is a SID namespace with extra intent; leave it alone.
+    let declared_is_sid = declared == "sids" || declared == "sids_preserve_rid";
+    let fits = match actual {
+        "sids" => declared_is_sid,
+        other => declared == other,
+    };
+    if fits || !matches!(declared, "sids" | "sids_preserve_rid" | "guids" | "oids") {
+        return None;
+    }
+    Some(actual.to_string())
+}
+
+/// Whether a source value can satisfy the operation its rule declares.
+///
+/// Mirrors the leak gate's `output_shape_valid` checks, applied to the source.
+/// A value that fails here cannot produce a well-shaped output, so the run
+/// would abort on it; the caller anonymizes it opaquely instead, which is the
+/// safe direction — more redaction, never less.
+fn source_shape_supports(
+    operation: FieldOperation,
+    namespace: &Option<String>,
+    value: &str,
+) -> bool {
+    match operation {
+        FieldOperation::ParseDn => {
+            !value.is_empty()
+                && value.split(',').all(|rdn| {
+                    rdn.split('+').all(|component| {
+                        component.contains('=') && component.splitn(2, '=').all(|p| !p.is_empty())
+                    })
+                })
+        }
+        FieldOperation::ParseSpn => {
+            let components: Vec<&str> = value.split('/').collect();
+            matches!(components.len(), 2 | 3) && components.iter().all(|c| !c.is_empty())
+        }
+        FieldOperation::ParseComposite if value.contains('@') => {
+            let parts: Vec<&str> = value.rsplitn(2, '@').collect();
+            parts.len() == 2 && parts.iter().all(|p| !p.is_empty())
+        }
+        FieldOperation::MapIdentity => {
+            if value.contains('@') {
+                let parts: Vec<&str> = value.split('@').collect();
+                parts.len() == 2 && parts.iter().all(|p| !p.is_empty())
+            } else if matches!(namespace.as_deref(), Some("domains") | Some("hosts")) {
+                !value.is_empty() && value.split('.').all(|p| !p.is_empty())
+            } else {
+                true
+            }
+        }
+        FieldOperation::MapCustomIdentifier | FieldOperation::MapReference => {
+            // A structured SID transform needs a parseable SID; anything else
+            // at an identifier path is routed by shape or redacted.
+            !matches!(
+                namespace.as_deref(),
+                Some("sids") | Some("sids_preserve_rid")
+            ) || sid_re().is_match(value)
+        }
+        _ => true,
+    }
+}
 
 /// The catalog entry backing one domain-RID preservation decision, and the node
 /// type it was resolved against.

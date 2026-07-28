@@ -26,6 +26,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   CE ingestors emit) are keyed on the inner SID that `transform_sid` actually
   binds, so a prefixed spelling and a bare one no longer disagree about the
   terminal. `components::sid_identity` is the shared accessor.
+- A value a field rule's operation could not parse aborted the whole
+  collection. `bloodhound-ce` and `rusthound-ce` write `""` for attributes they
+  could not read and names with an empty domain part (`JDOE@`); neither can
+  produce a well-shaped output, so the leak gate rejected the member and the run
+  ended with no output. Policy now redacts such a value opaquely instead — more
+  anonymization, never less, and the gate itself is unchanged.
+- A GUID in `Aces[].PrincipalSID`, which the CE collectors emit for Container,
+  OU and GPO principals, was mapped through the SID transform and came back a
+  SID, failing the same gate. Identifier references are now routed by the shape
+  the value actually has, so the ACE and the principal's own `ObjectIdentifier`
+  still resolve to one pseudonym and the edge survives.
 
 ### Added
 
