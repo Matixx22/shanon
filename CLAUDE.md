@@ -89,6 +89,13 @@ offender, never the real value) that aborts the run with no output written.
   documents. No typed structs per SharpHound kind.
 - **`pipeline`** — orchestration, size bounds, and the single `ShanonError` enum
   that backs the CLI's stderr and exit-code contract.
+- **`progress`** — write-only progress channel for the CLI's bar. A
+  `ProgressEvent` carries a phase tag and unit counts and *nothing else*: no
+  value, path, or member name may ever be added to it (invariant 7), and the
+  library never reads a sink back, so output bytes are identical with or without
+  one (invariants 1 and 3). Rendering lives in `shanon-cli/src/progress.rs` and
+  is suppressed unless stderr is a terminal, which is what keeps the frozen
+  stdout/stderr surface intact.
 - **`platform`** — openat-anchored traversal and atomic no-replace publish.
   Linux and macOS only. macOS uses `renamex_np(RENAME_EXCL)` through a scoped
   `libc` FFI call — the one `unsafe` block in the crate.

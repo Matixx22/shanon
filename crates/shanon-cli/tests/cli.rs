@@ -32,6 +32,36 @@ fn version_reports_the_crate_version() {
 }
 
 #[test]
+fn anonymize_help_documents_the_progress_flags() {
+    let out = Command::new(bin())
+        .args(["anonymize", "--help"])
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("--progress"), "{text}");
+    assert!(text.contains("--no-progress"), "{text}");
+}
+
+/// Asking to both draw and not draw a bar is a pre-flight refusal, not a
+/// silently-picked default.
+#[test]
+fn anonymize_conflicting_progress_flags_rejected() {
+    let out = Command::new(bin())
+        .args([
+            "anonymize",
+            "--input",
+            "/nonexistent",
+            "--out",
+            "/nonexistent",
+        ])
+        .args(["--progress", "--no-progress"])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+}
+
+#[test]
 fn restore_mutually_exclusive_flags_rejected() {
     let out = Command::new(bin())
         .args(["restore", "--map", "/nonexistent.map.json"])

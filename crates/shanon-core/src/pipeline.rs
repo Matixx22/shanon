@@ -24,8 +24,9 @@ use serde_json::{Map, Value};
 use crate::engine::{AnonymizationEngine, EngineError, VerificationContext};
 use crate::platform;
 use crate::policy::{PolicyAudit, PolicyConfig};
+use crate::progress::{self, Phase, ProgressEvent, ProgressSink};
 use crate::registry::Registry;
-use crate::verify::{verify_document, VerificationFinding};
+use crate::verify::{verify_document_with_progress, VerificationFinding};
 
 /// `_MAX_JSON_MEMBERS`.
 pub const MAX_JSON_MEMBERS: usize = 10_000;
@@ -726,7 +727,9 @@ pub fn anonymize_collection(
     audit: PolicyAudit,
     map_path: Option<&Path>,
     map_policy: Option<Value>,
+    progress: Option<ProgressSink>,
 ) -> Result<AnonymizeOutcome, ShanonError> {
+    let progress = progress.as_ref();
     let is_dir = input_path.is_dir();
     let root_fd = if is_dir {
         Some(platform::open_directory_root(input_path).map_err(|e| ShanonError::Value(e.0))?)
@@ -781,8 +784,14 @@ pub fn anonymize_collection(
     }
 
     let mut engine = AnonymizationEngine::new(reg, Some(policy), Some(audit));
+    if let Some(sink) = progress {
+        engine.set_progress_sink(sink.clone());
+    }
     let mut accepted: Vec<Accepted> = Vec::new();
     let mut skipped: Vec<String> = Vec::new();
+    // Work units for the transform+verify phase: each accepted object is walked
+    // once by the engine and once, independently, by the verifier.
+    let mut total_objects: u64 = 0;
 
     // Cache the raw archive bytes once for zip inputs.
     let zip_raw: Option<Vec<u8>> = if is_dir {
@@ -817,6 +826,15 @@ pub fn anonymize_collection(
     };
 
     // ---- Discovery pass -----------------------------------------------------
+    // The size of this phase is only known once every member has been parsed,
+    // so it reports as indeterminate.
+    progress::emit(
+        progress,
+        ProgressEvent::PhaseStarted {
+            phase: Phase::Discovery,
+            total: None,
+        },
+    );
     if is_dir {
         let root = root_fd.as_ref().expect("dir root fd");
         let paths = safe_directory_members(input_path)?;
@@ -836,6 +854,7 @@ pub fn anonymize_collection(
             match parse_collection_member(&raw) {
                 Some(doc) => {
                     engine.discover_document(&label, &doc)?;
+                    total_objects += data_len(&doc);
                     accepted.push(Accepted { name: label, doc });
                 }
                 None => skipped.push(label),
@@ -869,12 +888,15 @@ pub fn anonymize_collection(
             match parse_collection_member(&raw_member) {
                 Some(doc) => {
                     engine.discover_document(&label, &doc)?;
+                    total_objects += data_len(&doc);
                     accepted.push(Accepted { name: label, doc });
                 }
                 None => skipped.push(label),
             }
         }
     }
+    // Close the bar before any diagnostic below writes to stderr.
+    progress::emit(progress, ProgressEvent::PhaseFinished);
 
     if accepted.is_empty() {
         return Err(ShanonError::Value(
@@ -892,17 +914,27 @@ pub fn anonymize_collection(
 
     // ---- Transform + verify pass -------------------------------------------
     let context: VerificationContext = engine.finalize_discovery()?;
+    // Two units per object: one for the transform walk, one for the independent
+    // re-derivation in `verify_document`.
+    progress::emit(
+        progress,
+        ProgressEvent::PhaseStarted {
+            phase: Phase::TransformVerify,
+            total: Some(total_objects * 2),
+        },
+    );
     let mut blobs: Vec<(String, Vec<u8>)> = Vec::with_capacity(accepted.len());
     let mut all_findings: Vec<VerificationFinding> = Vec::new();
     for member in &accepted {
         let (output, records) = engine.transform_document(&member.name, &member.doc)?;
-        let findings = verify_document(
+        let findings = verify_document_with_progress(
             &member.name,
             &member.doc,
             &output,
             &records,
             &mut engine.registry,
             &context,
+            progress,
         );
         if !findings.is_empty() {
             if verbose_failures {
@@ -919,8 +951,18 @@ pub fn anonymize_collection(
     if !all_findings.is_empty() {
         return Err(ShanonError::VerboseVerification(all_findings));
     }
+    progress::emit(progress, ProgressEvent::PhaseFinished);
 
     // ---- Publication --------------------------------------------------------
+    // A single indivisible step (build, stage, atomic rename), so it reports as
+    // indeterminate and only marks its start and end.
+    progress::emit(
+        progress,
+        ProgressEvent::PhaseStarted {
+            phase: Phase::Publish,
+            total: None,
+        },
+    );
     let out_dir_existed = out_dir.exists();
     std::fs::create_dir_all(out_dir)
         .map_err(|e| ShanonError::Io(format!("cannot create output directory: {e}")))?;
@@ -963,11 +1005,20 @@ pub fn anonymize_collection(
         }
         return Err(err);
     }
+    progress::emit(progress, ProgressEvent::PhaseFinished);
 
     Ok(AnonymizeOutcome {
         dest,
         audit: engine.audit,
     })
+}
+
+/// Number of top-level `data` objects in a parsed collection member.
+fn data_len(doc: &Map<String, Value>) -> u64 {
+    doc.get("data")
+        .and_then(|v| v.as_array())
+        .map(|a| a.len() as u64)
+        .unwrap_or(0)
 }
 
 fn sha256_hex(data: &[u8]) -> String {

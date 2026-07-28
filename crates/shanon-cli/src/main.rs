@@ -1,11 +1,21 @@
 //! shanon CLI (module 12): the `clap`-derived command surface.
 //!
-//! Subcommands, flags, help text, stdout/stderr and exit codes are stable
-//! byte-for-byte (§3.4), with one deliberate addition: `-V/--version` reports
-//! the crate version so a downloaded binary can be identified. That adds a line
-//! to the top-level help and re-pads the adjacent `-h` line as clap widens the
-//! column. Both subcommand helps, all stderr, and every exit code are
-//! unchanged.
+//! Subcommands, help text, stdout/stderr and exit codes are stable byte-for-byte
+//! (§3.4), with two deliberate additions:
+//!
+//! * `-V/--version` reports the crate version so a downloaded binary can be
+//!   identified. That adds a line to the top-level help and re-pads the adjacent
+//!   `-h` line as clap widens the column.
+//! * `--progress/--no-progress` on `anonymize`, adding two lines to that
+//!   subcommand's help. A run takes minutes on a real collection, and used to
+//!   give no sign it was alive.
+//!
+//! The progress bar itself changes no captured bytes: it draws only when stderr
+//! is a terminal (see [`progress::should_render`]), so redirected stderr — every
+//! parity fixture and every CLI test — is unchanged. All other stderr, and every
+//! exit code, are as before.
+
+mod progress;
 
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -52,6 +62,12 @@ enum Command {
         /// print every verification-gate finding before aborting
         #[arg(long = "verbose-failures")]
         verbose_failures: bool,
+        /// draw a progress bar even when stderr is not a terminal
+        #[arg(long, conflicts_with = "no_progress")]
+        progress: bool,
+        /// never draw a progress bar
+        #[arg(long = "no-progress")]
+        no_progress: bool,
     },
     /// Resolve pseudonyms against a mapping file (lookup / forward / bulk).
     Restore {
@@ -79,7 +95,16 @@ fn main() {
             map,
             reuse_map,
             verbose_failures,
-        } => anonymize(input, out, map, reuse_map, verbose_failures),
+            progress,
+            no_progress,
+        } => anonymize(
+            input,
+            out,
+            map,
+            reuse_map,
+            verbose_failures,
+            progress::should_render(progress, no_progress),
+        ),
         Command::Restore {
             map,
             lookup_value,
@@ -100,6 +125,7 @@ fn anonymize(
     map: Option<PathBuf>,
     reuse_map: Option<PathBuf>,
     verbose_failures: bool,
+    render_progress: bool,
 ) {
     let out = resolve(&out);
     let map_path = resolve(&map.unwrap_or_else(|| out.join("collection.map.json")));
@@ -147,7 +173,12 @@ fn anonymize(
         }
     };
 
-    let outcome = match anonymize_collection(
+    // Held across the call so the bar can be torn down before anything else
+    // writes to stderr — an aborted run never emits a closing phase event.
+    let reporter = render_progress.then(progress::Reporter::new);
+    let sink = reporter.as_ref().map(|(_, sink)| sink.clone());
+
+    let result = anonymize_collection(
         &input,
         &out,
         reg,
@@ -156,7 +187,13 @@ fn anonymize(
         audit,
         Some(&map_path),
         Some(map_policy),
-    ) {
+        sink,
+    );
+    if let Some((reporter, _)) = &reporter {
+        reporter.finish();
+    }
+
+    let outcome = match result {
         Ok(o) => o,
         Err(e) => {
             eprintln!("{}", e.stderr());
