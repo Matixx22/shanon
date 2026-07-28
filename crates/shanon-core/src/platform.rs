@@ -214,23 +214,20 @@ mod tests {
     use super::*;
     use std::io::Write;
 
-    fn tmp() -> std::path::PathBuf {
-        let mut base = std::env::temp_dir();
-        base.push(format!("shanon-plat-{}", std::process::id()));
-        base.push(format!(
-            "{:?}",
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
+    /// A private directory for one test. The name is the discriminator: tests in
+    /// this module run on parallel threads and share a pid, and macOS quantizes
+    /// the realtime clock to a microsecond, so a timestamp here is not unique
+    /// enough to keep two tests off the same path.
+    fn tmp(name: &str) -> std::path::PathBuf {
+        let base = std::env::temp_dir().join(format!("shanon-plat-{name}-{}", std::process::id()));
+        std::fs::remove_dir_all(&base).ok();
         std::fs::create_dir_all(&base).unwrap();
         base
     }
 
     #[test]
     fn anchored_read_returns_member_bytes() {
-        let root = tmp();
+        let root = tmp("member-bytes");
         std::fs::create_dir_all(root.join("sub")).unwrap();
         let target = root.join("sub").join("a.json");
         std::fs::write(&target, b"{\"data\": []}").unwrap();
@@ -243,7 +240,7 @@ mod tests {
 
     #[test]
     fn anchored_read_rejects_parent_escape() {
-        let root = tmp();
+        let root = tmp("parent-escape");
         let root_fd = open_directory_root(&root).unwrap();
         // A path that does not live beneath the root -> strip_prefix fails.
         let outside = root.parent().unwrap().join("elsewhere.json");
@@ -262,7 +259,7 @@ mod tests {
 
     #[test]
     fn rename_no_replace_refuses_existing_destination() {
-        let root = tmp();
+        let root = tmp("rename-no-replace");
         let stage = root.join("stage");
         let dest = root.join("dest");
         {
