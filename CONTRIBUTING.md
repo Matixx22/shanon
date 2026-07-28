@@ -11,7 +11,7 @@ features. This guide covers how to build, test, and propose changes.
   rules. Reproductions in issues/PRs must use **synthetic** collections.
 - **Fail-closed is a feature.** A change that lets a run publish output when a
   verification check is uncertain is a regression, even if tests pass.
-- **A surviving real identifier is a security bug**, not a normal issue — see
+- **A surviving real identifier is a security bug**, not a normal issue. See
   [SECURITY.md](SECURITY.md) for private disclosure.
 
 ## Development setup
@@ -24,7 +24,7 @@ cargo build --workspace
 
 Develop on current stable Rust. The project's minimum supported Rust version
 (MSRV) is **1.97**, declared as `rust-version` in `Cargo.toml` and verified by a
-dedicated CI job — don't use language features newer than that floor.
+dedicated CI job. Don't use language features newer than that floor.
 
 ## Quality gates
 
@@ -53,11 +53,11 @@ Run them before you push. Warnings are errors here.
 - Anything touching the verification pass, the policy/catalog, or the publish
   path. These are the confidentiality guarantees.
 - New dependencies. Keep the tree small and auditable; justify each addition.
-- Error messages. They must stay sanitized — no source secrets or filenames in
+- Error messages. They must stay sanitized: no source secrets or filenames in
   diagnostics.
 
 ## Reporting bugs and requesting features
 
 Use the [issue templates](https://github.com/Matixx22/shanon/issues/new/choose).
-For a suspected leak, do **not** open a public issue — follow
+For a suspected leak, do **not** open a public issue. Follow
 [SECURITY.md](SECURITY.md).

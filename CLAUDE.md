@@ -32,15 +32,15 @@ cargo test -p shanon-core --test verify verify_name    # one test by name substr
 ```
 
 Run the three gates before pushing. MSRV is **1.97** and a dedicated CI job
-enforces it — do not reach for newer language or standard-library features.
+enforces it. Do not reach for newer language or standard-library features.
 
 ## Architecture
 
 Two-crate workspace:
 
-- `crates/shanon-core` — the entire library: classification, policy, registry,
-  transforms, verification, pipeline, platform.
-- `crates/shanon-cli` — the `shanon` binary. A thin `clap` layer over
+- `crates/shanon-core`: the entire library, covering classification, policy,
+  registry, transforms, verification, pipeline, platform.
+- `crates/shanon-cli`: the `shanon` binary. A thin `clap` layer over
   `pipeline::anonymize_collection` and `restore::*`.
 
 ### The anonymize pipeline (fail-closed, two-pass)
@@ -65,45 +65,45 @@ offender, never the real value) that aborts the run with no output written.
 
 ### Module layers in shanon-core (bottom-up)
 
-- **Support** — `casefold` (Unicode full case folding, used for semantic identity
+- **Support**: `casefold` (Unicode full case folding, used for semantic identity
   everywhere), `ignorecase`, `textutil`.
-- **Transforms** — `patterns`, `fields` (token matching), `components`
+- **Transforms**: `patterns`, `fields` (token matching), `components`
   (decompose composite identifiers: SIDs, GUIDs, UPNs, SPNs, DNs, emails; then
   dispatch each piece to a registry category). `wellknown` is the deprecated
-  pre-catalog predicate module — do not build on it.
-- **`catalog`** — the authoritative AD-defaults table. Data-driven (flat
+  pre-catalog predicate module. Do not build on it.
+- **`catalog`**: the authoritative AD-defaults table. Data-driven (flat
   `CatalogEntry` rows), never a typed struct per SharpHound kind. A match
   requires exact node type + identifier kind + normalized value, and only permits
   preserving a value at an explicitly declared path. `CATALOG_VERSION` is stamped
   into the output map.
-- **`policy`** — path-aware, immutable field decisions. `object_path`,
+- **`policy`**: path-aware, immutable field decisions. `object_path`,
   `array_path`, and `path_tokens` form a collision-safe path grammar that must
   round-trip exactly; it drives verification-finding paths and is fuzzed in
   `tests/policy_pathgrammar.rs`.
-- **`registry`** — deterministic pseudonym store. Seed is
+- **`registry`**: deterministic pseudonym store. Seed is
   `blake2b(salt || category || semantic_real)`, 128-bit, big-endian. Implements
   both `components::RegistryOps` and `fields::TokenRegistry`; those traits are
   infallible by contract, so failures (collisions, unsafe mappings) are stashed
   via `take_trait_error` and drained by the engine afterward.
-- **`engine`** — generic JSON walker that classifies objects and normalizes
+- **`engine`**: generic JSON walker that classifies objects and normalizes
   documents. No typed structs per SharpHound kind.
-- **`pipeline`** — orchestration, size bounds, and the single `ShanonError` enum
+- **`pipeline`**: orchestration, size bounds, and the single `ShanonError` enum
   that backs the CLI's stderr and exit-code contract. `inspect_collection` is
   the read-only dry run behind `shanon inspect`: it shares
   `read_collection_input` with `anonymize_collection` and runs the same
   discovery, transform and verification, but never reaches the publish path, so
   it must stay incapable of writing. `ShanonError::stderr` is the frozen
   surface; `stderr_verbose` is the additive one `--verbose-failures` selects.
-- **`progress`** — write-only progress channel for the CLI's bar. A
+- **`progress`**: write-only progress channel for the CLI's bar. A
   `ProgressEvent` carries a phase tag and unit counts and *nothing else*: no
   value, path, or member name may ever be added to it (invariant 7), and the
   library never reads a sink back, so output bytes are identical with or without
   one (invariants 1 and 3). Rendering lives in `shanon-cli/src/progress.rs` and
   is suppressed unless stderr is a terminal, which is what keeps the frozen
   stdout/stderr surface intact.
-- **`platform`** — openat-anchored traversal and atomic no-replace publish.
+- **`platform`**: openat-anchored traversal and atomic no-replace publish.
   Linux and macOS only. macOS uses `renamex_np(RENAME_EXCL)` through a scoped
-  `libc` FFI call — the one `unsafe` block in the crate.
+  `libc` FFI call, the one `unsafe` block in the crate.
 
 ## Invariants
 
@@ -125,7 +125,7 @@ Breaking one of these is a regression even when the test suite is green.
    Never `to_lowercase`.
 5. **Hand-rolled serializers.** `lib.rs` implements `canonical_json` (compact
    `, ` / `: `, `ensure_ascii`, lowercase `\uXXXX`, surrogate pairs for astral)
-   and `canonical_json_sorted` (`indent=2, sort_keys=true` — the map save format)
+   and `canonical_json_sorted` (`indent=2, sort_keys=true`, the map save format)
    to match the reference exactly. Do not swap either for
    `serde_json::to_string`.
 6. **Regex policy.** The `regex` crate only (no lookaround, no backrefs). The one
@@ -151,15 +151,15 @@ committed fixture ever disagree, the fixture wins.
 
 ## Tests and fixtures
 
-- `tests/truth/*.json` — golden vectors the reference produced. Integration tests
+- `tests/truth/*.json`: golden vectors the reference produced. Integration tests
   load them via `../../tests/truth/<name>` and assert equality; see
   `crates/shanon-core/tests/casefold.rs` for the pattern.
-- `tests/parity/*.json` — cross-implementation replay truth (engine output,
-  registry seeding, map format). Wall-clock fields — the map's `created`, the ZIP
-  DOS timestamp — are normalized on both sides.
-- `*_property.rs` with `.proptest-regressions` — proptest fuzzing for the path
+- `tests/parity/*.json`: cross-implementation replay truth (engine output,
+  registry seeding, map format). Wall-clock fields (the map's `created`, the ZIP
+  DOS timestamp) are normalized on both sides.
+- `*_property.rs` with `.proptest-regressions`: proptest fuzzing for the path
   grammar and cross-implementation invariants. Commit new regression seeds.
-- `spike/` — S1 spike fixtures (canonical JSON round-trip, seed digest).
+- `spike/`: S1 spike fixtures (canonical JSON round-trip, seed digest).
 
 New anonymization or verification behavior needs a committed **synthetic**
 fixture pinning it field by field.
@@ -179,7 +179,7 @@ exception for a "small" sample.
 
 ## Further reading
 
-- [README.md](README.md) — install, usage, flags, exit codes.
-- [SECURITY.md](SECURITY.md) — threat model, and what shanon does **not** protect
+- [README.md](README.md): install, usage, flags, exit codes.
+- [SECURITY.md](SECURITY.md): threat model, and what shanon does **not** protect
   against.
-- [CONTRIBUTING.md](CONTRIBUTING.md) — PR expectations.
+- [CONTRIBUTING.md](CONTRIBUTING.md): PR expectations.

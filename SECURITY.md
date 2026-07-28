@@ -29,7 +29,7 @@ what that boundary covers, what it does not, and how to report a leak.
   strings and unknown fields are conservatively transformed and audited when that
   can be done safely.
 - **Sanitized diagnostics.** Verification failures identify a generic member
-  label, a collision-safe path, a policy code, and an offender fingerprint —
+  label, a collision-safe path, a policy code, and an offender fingerprint,
   never the original secret or the source filename. Policy audit summaries
   contain counts and canonical paths, not source values.
 - **No network. No LLM calls. Never mutates your input.** The tool itself
@@ -44,14 +44,14 @@ what that boundary covers, what it does not, and how to report a leak.
 - **The mapping file.** `*.map.json` contains the real↔fake mapping in the
   clear. It is as sensitive as the raw collection. Keep it local, never send it
   to the LLM, never commit it. `.gitignore` blocks `*.map.json` and `*.zip` by
-  default — do not remove those rules. Version-1 maps remain loadable; newly
+  default; do not remove those rules. Version-1 maps remain loadable; newly
   saved version-2 maps add typed namespaces and policy metadata but are no less
   sensitive.
 - **Correlation through a reused map.** `--reuse-map` keeps pseudonyms stable
   across collections, and that stability *is* linkage: any real value present in
   two collections receives the same pseudonym in both. Reusing one map across
-  separate engagements therefore lets anything downstream — including the LLM's
-  context window — tie those engagements together. Use one map per engagement
+  separate engagements therefore lets anything downstream, including the LLM's
+  context window, tie those engagements together. Use one map per engagement
   unless you specifically want the collections linked.
 - **Your prompt.** shanon scrubs the collection, not the sentences you type
   around it. Do not paste real names into the chat yourself.
@@ -65,11 +65,11 @@ what that boundary covers, what it does not, and how to report a leak.
   confidentiality and schema shape, the run fails rather than publishing it.
 - **Numbers.** The policy classifies string leaves. A number, boolean or null is
   emitted verbatim, and its *key* is anonymized like any other. For the paths
-  shanon models this is the intended answer — a schema flag, a count or a
+  shanon models this is the intended answer: a schema flag, a count or a
   timestamp carries no identity, and BloodHound needs them intact. But a
   collector that emits an organization-bound value as a JSON number at a path no
-  rule declares — a custom `employeeNumber`, `uidNumber`, or asset tag under
-  `CollectAllProperties` — is passed straight through.
+  rule declares (a custom `employeeNumber`, `uidNumber`, or asset tag under
+  `CollectAllProperties`) is passed straight through.
 
   This is a real gap, not a theoretical one, and it is not closed by simply
   redacting: replacing a number with a redaction string changes the leaf's JSON
@@ -81,7 +81,7 @@ what that boundary covers, what it does not, and how to report a leak.
 
 ## Before you send anything to an LLM
 
-1. Send **only** the emitted `collection_anon.zip` / `collection_anon/` collection — never the
+1. Send **only** the emitted `collection_anon.zip` / `collection_anon/` collection, never the
    parent output directory (it may hold the mapping file).
 2. Confirm the run completed without a contextual verification abort.
 3. Verify your engagement contract permits third-party LLM processing of
@@ -90,8 +90,9 @@ what that boundary covers, what it does not, and how to report a leak.
 ## Dependencies
 
 shanon has a deliberately small dependency tree and pulls in nothing that can
-open a socket. A `cargo audit` job runs on every pull request and weekly against
-the RustSec advisory database; new dependencies are reviewed by hand.
+open a socket. A `cargo deny` job runs on every pull request and weekly against
+the RustSec advisory database, and also enforces licenses, banned crates, and
+source-registry pinning. New dependencies are reviewed by hand.
 
 ## Supported versions
 
@@ -100,10 +101,10 @@ release; there are no backports to earlier tags.
 
 ## Reporting a vulnerability
 
-A leak vector — any real identifier that survives a run without triggering a
-contextual verification abort — is a security bug, not a feature request. Report
-it privately: open a GitHub security advisory (Security → Report a
-vulnerability) rather than a public issue, and include a **synthetic** minimal
+A leak vector, meaning any real identifier that survives a run without
+triggering a contextual verification abort, is a security bug, not a feature
+request. Report it privately: open a GitHub security advisory (Security →
+Report a vulnerability) rather than a public issue, and include a **synthetic** minimal
 collection that reproduces the leak. Never attach real client data to a report.
 
 Expect a first response within seven days.

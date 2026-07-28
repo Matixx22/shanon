@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="shanon — hand your Active Directory collection to an LLM, not your client" width="860">
+  <img src="assets/banner.svg" alt="shanon: hand your Active Directory collection to an LLM, not your client" width="860">
 </p>
 
 <p align="center">
@@ -10,18 +10,18 @@
 </p>
 
 You want to ask an LLM about the attack paths in a SharpHound collection. You
-cannot, because that file is your client's entire directory — every account,
+cannot, because that file is your client's entire directory: every account,
 every hostname, every group name, in clear.
 
-**shanon** remaps the organization-bound identifiers in the collection — every
-string one, which is where identity actually lives — and leaves the structure
+**shanon** remaps the organization-bound identifiers in the collection (every
+string one, which is where identity actually lives) and leaves the structure
 alone. The output is still SharpHound JSON, still loads in BloodHound, and every
-graph cross-reference still points where it pointed — the edges are what you are
+graph cross-reference still points where it pointed. The edges are what you are
 asking the model about, and they all survive. A local mapping file turns its
 answer back into real names when it comes back.
 
 Numbers, booleans and nulls are passed through as they are. That is deliberate
-for the ones a rule declares — a flag or a timestamp carries no identity — but
+for the ones a rule declares (a flag or a timestamp carries no identity), but
 it also means a *custom numeric* attribute at a path shanon does not model goes
 out unchanged. `shanon inspect` reports exactly which paths those were; see
 [SECURITY.md](SECURITY.md#what-shanon-does-not-protect-against).
@@ -29,8 +29,8 @@ out unchanged. `shanon inspect` reports exactly which paths those were; see
 ## What it actually does
 
 An excerpt from a real run over the synthetic collection in [`demo/`](demo/).
-Every run picks a fresh random salt, so your pseudonyms will read differently —
-pass `--map` once and `--reuse-map` after it to pin them.
+Every run picks a fresh random salt, so your pseudonyms will read differently.
+Pass `--map` once and `--reuse-map` after it to pin them.
 
 **Before**
 
@@ -63,18 +63,18 @@ Read what survived, because that is the point:
 - `hasspn` is still `true`, the SPN is still an `MSSQLSvc/…:1433`, the DN is
   still a DN. **The account is still visibly kerberoastable**, which is what you
   wanted the model to notice.
-- The account appears in four places across three collection members — its UPN,
-  its email, its DN, the SPN's host — and every one of them got the *same*
+- The account appears in four places across three collection members (its UPN,
+  its email, its DN, the SPN's host), and every one of them got the *same*
   pseudonym, so the graph edges survive.
 - Free text becomes an opaque `[REDACTED:…]` handle rather than a guess at what
   part of the sentence was sensitive.
 - One line down, `Domain Admins` keeps RID 512 and its canonical name, because
-  that is a global constant rather than something about your client — while its
+  that is a global constant rather than something about your client, while its
   SID authority and domain are still remapped.
 
 ## Install
 
-**Prebuilt binary** (Linux x86_64, macOS Apple Silicon) — pick the current tag
+**Prebuilt binary** (Linux x86_64, macOS Apple Silicon). Pick the current tag
 from [Releases](https://github.com/Matixx22/shanon/releases):
 
 ```sh
@@ -107,19 +107,19 @@ cargo build --release          # binary at ./target/release/shanon
 ## Quickstart
 
 ```sh
-# 1. dry run — tells you whether it would work, writes absolutely nothing
+# 1. dry run: tells you whether it would work, writes absolutely nothing
 shanon inspect --input engagement.zip
 
 # 2. the real thing
 shanon anonymize --input engagement.zip --out ./anon
 #   ->  ./anon/collection_anon.zip      send this one to the model
-#   ->  ./anon/collection.map.json      reversal keys — keep local, never ship
+#   ->  ./anon/collection.map.json      reversal keys, keep local, never ship
 
 # 3. fold the model's answer back to real identities
 shanon restore --map ./anon/collection.map.json --input llm_findings.md
 ```
 
-Send only the emitted `collection_anon.zip`, never its parent output directory —
+Send only the emitted `collection_anon.zip`, never its parent output directory;
 that also holds the mapping file. Same input + same salt → byte-identical output.
 
 Try it against the committed synthetic collection first:
@@ -153,12 +153,12 @@ Because a directory is a graph, not a word list.
 
 > shanon **pseudonymizes**. It substantially lowers re-identification risk, but a
 > collection is not legally anonymous afterward, and structure itself carries
-> information — a 40,000-user domain with two DCs still looks like a
+> information: a 40,000-user domain with two DCs still looks like a
 > 40,000-user domain with two DCs. [SECURITY.md](SECURITY.md) states the exact
 > threat model and residual risks. Read it before you send anything anywhere.
 
 **No network. No LLM calls. Never mutates your input.** The mapping file is
-client-sensitive — keep it local, never ship it.
+client-sensitive: keep it local, never ship it.
 
 ## Usage
 
@@ -175,12 +175,12 @@ shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH]
 | `--out` | yes | output directory (must not already contain the target) |
 | `--map` | no | where to write the reversal map (default `<out>/collection.map.json`) |
 | `--reuse-map` | no | reuse salt + prior mappings so pseudonyms stay stable across collections |
-| `--verbose-failures` | no | on an abort, print sanitized detail — every leak-gate finding, or the class, member, path and offender fingerprint of a mapping failure |
+| `--verbose-failures` | no | on an abort, print sanitized detail: every leak-gate finding, or the class, member, path and offender fingerprint of a mapping failure |
 | `--progress` | no | draw the progress bar even when stderr is not a terminal |
 | `--no-progress` | no | never draw the progress bar |
 
 A run over a real collection takes minutes, so `anonymize` draws a progress bar
-on stderr showing each phase — discovery, transform+verify, publish — with a
+on stderr showing each phase (discovery, transform+verify, publish) with a
 count and an ETA:
 
 ```
@@ -207,8 +207,8 @@ shanon inspect --input <zip|dir> [--progress | --no-progress]
 ```
 
 A dry run: same discovery, transform and leak-gate verification as `anonymize`,
-then stop. **Nothing is written** — no output collection, no mapping file, no
-staging directory — so it is safe to point at a collection that must not leave
+then stop. **Nothing is written**: no output collection, no mapping file, no
+staging directory, so it is safe to point at a collection that must not leave
 the machine. Exit `0` if the collection would anonymize cleanly, `1` if it would
 abort.
 
@@ -236,8 +236,8 @@ verdict: this collection would anonymize cleanly
 ```
 
 Every line is a count, a synthetic `member-NNNNN.json` label, a canonical field
-path or a BLAKE2b-6 fingerprint — never a source value and never a source
-filename — so the report can be shared for a collection that cannot be. That
+path or a BLAKE2b-6 fingerprint, never a source value and never a source
+filename, so the report can be shared for a collection that cannot be. That
 also means the *names* of unmodeled fields appear as fingerprints rather than
 in clear: the path tells you where the drift is, the digest tells you it is the
 same field each time.
@@ -267,8 +267,8 @@ shanon restore --map ./anon/collection.map.json --lookup kjeffersg46lvu6zae6m
 shanon restore --map ./anon/collection.map.json --input llm_findings.md
 ```
 
-`--lookup` and `--forward` resolve one mapped **component** — an account label, a
-domain label, a hostname — because that is the granularity the registry binds.
+`--lookup` and `--forward` resolve one mapped **component** (an account label, a
+domain label, a hostname), because that is the granularity the registry binds.
 A composite string such as a full UPN or SPN goes through `--input`, which
 substitutes every component it recognizes.
 
@@ -276,8 +276,8 @@ substitutes every component it recognizes.
 
 | code | condition |
 | --- | --- |
-| `0` | success — for `inspect`, the collection would anonymize cleanly |
-| `1` | leak-gate abort, invalid mapping data, or I/O error — no output written; for `inspect`, the collection would abort |
+| `0` | success; for `inspect`, the collection would anonymize cleanly |
+| `1` | leak-gate abort, invalid mapping data, or I/O error, no output written; for `inspect`, the collection would abort |
 | `2` | pre-flight refusal (e.g. `--out` already holds a map, or conflicting flags) |
 
 ## What gets scrubbed
@@ -288,19 +288,19 @@ substitutes every component it recognizes.
 - Role, product, OS, and vendor fingerprints
 - Custom certificate templates, enterprise OIDs, CA names, and certificate material
 - Free text and opaque values → deterministic `[REDACTED:…]` mappings
-- The *names* of fields no rule models, not only their values — a custom AD
+- The *names* of fields no rule models, not only their values. A custom AD
   attribute is organization-bound in its key as much as its contents
 
 That last one currently catches a few standard SharpHound fields the rule table
 does not model yet, including `IsDeleted`, `IsACLProtected`,
 `Properties.whencreated` and `FailureReason`: they come back renamed rather than
 dropped. No graph edge depends on them, so the collection still loads and still
-reasons correctly — but it is not a byte-for-byte SharpHound document. `inspect`
+reasons correctly, but it is not a byte-for-byte SharpHound document. `inspect`
 lists exactly which paths a given collection hit.
 
 ## What is preserved
 
-Only catalog-proven, globally invariant constants are preserved — and only at the
+Only catalog-proven, globally invariant constants are preserved, and only at the
 specific object type and field path listed in the catalog. Examples:
 
 - `Domain Admins` retains RID 512 and its canonical account name; its SID
@@ -339,7 +339,7 @@ cargo test --workspace
 
 ## Contributing
 
-Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the build,
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the build,
 test, and PR workflow, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). A real
 identifier that survives a run is a **security bug**: report it privately per
 [SECURITY.md](SECURITY.md), never as a public issue.
