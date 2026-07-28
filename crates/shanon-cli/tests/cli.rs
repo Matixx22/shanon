@@ -16,6 +16,21 @@ fn help_lists_both_verbs() {
     assert!(text.contains("restore"), "{text}");
 }
 
+/// A downloaded binary must be able to identify itself, and the reported
+/// version must track the crate rather than a hand-maintained string.
+#[test]
+fn version_reports_the_crate_version() {
+    for flag in ["--version", "-V"] {
+        let out = Command::new(bin()).arg(flag).output().unwrap();
+        assert!(out.status.success(), "{flag} exited non-zero");
+        let text = String::from_utf8_lossy(&out.stdout);
+        assert!(
+            text.contains(env!("CARGO_PKG_VERSION")),
+            "{flag} did not report the crate version: {text}"
+        );
+    }
+}
+
 #[test]
 fn restore_mutually_exclusive_flags_rejected() {
     let out = Command::new(bin())
