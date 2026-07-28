@@ -31,6 +31,7 @@ use crate::policy::{
     array_path, canonical_path, object_path, redact_functional_level_number, DecisionRecord,
     FieldDecision, FieldOperation, FieldPolicy, ObjectContext,
 };
+use crate::progress::{self, ProgressSink};
 use crate::registry::Registry;
 
 // ---------------------------------------------------------------------------
@@ -330,6 +331,7 @@ fn projected_source(
     field_policy: &FieldPolicy,
     reg: &mut Registry,
     findings: &mut Vec<VerificationFinding>,
+    progress: Option<&ProgressSink>,
 ) -> (Map<String, Value>, IndexMap<String, SourceLeaf>) {
     let mut leaves: IndexMap<String, SourceLeaf> = IndexMap::new();
     let mut projected: Map<String, Value> = Map::new();
@@ -368,6 +370,9 @@ fn projected_source(
                 findings,
                 None,
             ));
+            // Mirrors the engine's per-object tick, so a member costs the same
+            // number of work units to verify as it did to transform.
+            progress::tick(progress);
         }
         projected.insert("data".to_string(), Value::Array(projected_data));
     } else if let Some(data) = source.get("data") {
@@ -1044,6 +1049,30 @@ pub fn verify_document(
     reg: &mut Registry,
     verification_context: &VerificationContext,
 ) -> Vec<VerificationFinding> {
+    verify_document_with_progress(
+        member,
+        source,
+        output,
+        records,
+        reg,
+        verification_context,
+        None,
+    )
+}
+
+/// [`verify_document`], ticking `progress` once per top-level `data` object.
+///
+/// The sink is write-only: no finding, decision, or comparison ever reads it
+/// back, so the returned findings are identical with or without one installed.
+pub fn verify_document_with_progress(
+    member: &str,
+    source: &Map<String, Value>,
+    output: &Map<String, Value>,
+    records: &[DecisionRecord],
+    reg: &mut Registry,
+    verification_context: &VerificationContext,
+    progress: Option<&ProgressSink>,
+) -> Vec<VerificationFinding> {
     let mut findings: Vec<VerificationFinding> = Vec::new();
 
     if reg.validate_trust_root().is_err() {
@@ -1066,7 +1095,8 @@ pub fn verify_document(
     let domain_rid_targets =
         validated_domain_rid_targets(member, verification_context, &mut findings);
     let field_policy = FieldPolicy::defaults_with(verification_context.policy.clone());
-    let (projected, leaves) = projected_source(member, source, &field_policy, reg, &mut findings);
+    let (projected, leaves) =
+        projected_source(member, source, &field_policy, reg, &mut findings, progress);
 
     let mut source_flat: IndexMap<String, Flat> = IndexMap::new();
     flat_values(&Value::Object(projected), "", &mut source_flat);

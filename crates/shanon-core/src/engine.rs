@@ -33,6 +33,7 @@ use crate::policy::{
     array_path, canonical_path, object_path, redact_functional_level_number, DecisionRecord,
     FieldDecision, FieldOperation, FieldPolicy, ObjectContext, PolicyAudit, PolicyConfig,
 };
+use crate::progress::{self, ProgressSink};
 use crate::registry::{Registry, RegistryError};
 
 // ---------------------------------------------------------------------------
@@ -266,6 +267,9 @@ pub struct AnonymizationEngine {
     catalog_domain_rid_targets: IndexMap<String, DomainRidTargetEvidence>,
     template_mappings_finalized: bool,
     verification_context: Option<VerificationContext>,
+    /// Optional write-only progress channel. Never read back, so installing one
+    /// cannot change a single output byte (invariants 1 and 3).
+    progress: Option<ProgressSink>,
 }
 
 impl AnonymizationEngine {
@@ -295,12 +299,22 @@ impl AnonymizationEngine {
             catalog_domain_rid_targets: IndexMap::new(),
             template_mappings_finalized: false,
             verification_context: None,
+            progress: None,
         }
     }
 
     /// Consume the engine, returning the underlying registry.
     pub fn into_registry(self) -> Registry {
         self.registry
+    }
+
+    /// Install a write-only progress channel, ticked once per top-level `data`
+    /// object in both discovery and transform.
+    ///
+    /// The engine only ever writes to the sink; it never reads one back, so the
+    /// documents this engine produces are byte-identical with or without it.
+    pub fn set_progress_sink(&mut self, sink: ProgressSink) {
+        self.progress = Some(sink);
     }
 
     fn template_key(value: &str) -> String {
@@ -1118,6 +1132,9 @@ impl AnonymizationEngine {
                 Some(&record_path),
                 None,
             )?);
+            // One work unit per top-level object, in both modes. Emitted after
+            // the visit so a tick always means completed work.
+            progress::tick(self.progress.as_ref());
         }
         output.insert("data".to_string(), Value::Array(data_out));
 

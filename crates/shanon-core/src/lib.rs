@@ -22,6 +22,7 @@ pub mod patterns;
 pub mod pipeline;
 pub mod platform;
 pub mod policy;
+pub mod progress;
 pub mod registry;
 pub mod restore;
 pub mod textutil;

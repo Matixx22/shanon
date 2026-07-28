@@ -35,7 +35,8 @@ cargo build --release
 ### `anonymize`
 
 ```
-shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH] [--verbose-failures]
+shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH]
+                 [--verbose-failures] [--progress | --no-progress]
 ```
 
 | flag | required | meaning |
@@ -45,6 +46,20 @@ shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH] [
 | `--map` | no | where to write the reversal map (default `<out>/collection.map.json`) |
 | `--reuse-map` | no | reuse salt + prior mappings so pseudonyms stay stable across collections |
 | `--verbose-failures` | no | on a leak-gate abort, print every finding before exiting |
+| `--progress` | no | draw the progress bar even when stderr is not a terminal |
+| `--no-progress` | no | never draw the progress bar |
+
+A run over a real collection takes minutes, so `anonymize` draws a progress bar
+on stderr showing each phase — discovery, transform+verify, publish — with a
+count and an ETA:
+
+```
+discovery        \  48,213 objects  0:41
+transform+verify [##########--------------]  43%  41,902/96,426  1:12  eta 1:33
+```
+
+It is drawn only when stderr is a terminal, so redirected or piped stderr is
+byte-identical to a run without it. Use the flags above to force either way.
 
 ```sh
 # one-shot: zip in, anonymized zip + map out
