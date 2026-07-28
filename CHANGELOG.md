@@ -71,6 +71,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `platform`'s test temp-directory helper derived its uniqueness from
+  `SystemTime::now().as_nanos()` on top of a shared pid. The three tests that
+  call it run on parallel threads, and macOS quantizes the realtime clock to a
+  microsecond, so two of them could land on the same directory; one then tore
+  the tree down with `remove_dir_all` while another was still creating files
+  inside it, failing the run with `EINVAL`. Linux resolves nanoseconds and never
+  collided, so this only ever surfaced on the `macos-latest` CI job, at random.
+  The helper now takes a per-test name, matching what `zip.rs`, `inspect.rs`,
+  `progress.rs` and `publish.rs` already do, which removes the shared path
+  rather than narrowing the window.
+
 - The User-Change-Password control access right was one hex digit short in
   `ACCESS_RIGHT_GUIDS` — 35 characters, an 11-digit final group. A catalog match
   needs the exact normalized value, so the row was not a typo but a *dead* row:
