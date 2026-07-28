@@ -45,7 +45,7 @@ shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH]
 | `--out` | yes | output directory (must not already contain the target) |
 | `--map` | no | where to write the reversal map (default `<out>/collection.map.json`) |
 | `--reuse-map` | no | reuse salt + prior mappings so pseudonyms stay stable across collections |
-| `--verbose-failures` | no | on a leak-gate abort, print every finding before exiting |
+| `--verbose-failures` | no | on an abort, print sanitized detail — every leak-gate finding, or the class, member, path and offender fingerprint of a mapping failure |
 | `--progress` | no | draw the progress bar even when stderr is not a terminal |
 | `--no-progress` | no | never draw the progress bar |
 

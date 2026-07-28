@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 
 use serde_json::{Map, Value};
 
-use crate::engine::{AnonymizationEngine, EngineError, VerificationContext};
+use crate::engine::{AbortLocator, AnonymizationEngine, EngineError, VerificationContext};
 use crate::platform;
 use crate::policy::{PolicyAudit, PolicyConfig};
 use crate::progress::{self, Phase, ProgressEvent, ProgressSink};
@@ -92,6 +92,29 @@ pub enum ShanonError {
     /// Non-fatal post-commit cleanup warning (exit 0, stderr note only).
     #[error("{0}")]
     CleanupWarning(String),
+    /// Any of the above with a sanitized abort locator attached. Renders
+    /// byte-identically to the error it wraps under [`ShanonError::stderr`];
+    /// only [`ShanonError::stderr_verbose`] expands it.
+    #[error("{0}")]
+    Located(Box<ShanonError>, AbortLocator),
+}
+
+impl ShanonError {
+    /// The wrapped error, with any locator peeled off.
+    pub fn unlocated(&self) -> &ShanonError {
+        match self {
+            ShanonError::Located(inner, _) => inner.unlocated(),
+            other => other,
+        }
+    }
+
+    /// The attached abort locator, if the failure was raised at a known leaf.
+    pub fn locator(&self) -> Option<&AbortLocator> {
+        match self {
+            ShanonError::Located(_, locator) => Some(locator),
+            _ => None,
+        }
+    }
 }
 
 fn verification_message(finding: Option<&VerificationFinding>) -> String {
@@ -154,14 +177,35 @@ impl ShanonError {
     /// `1`; the non-fatal cleanup warning does not abort (`0`).
     pub fn exit_code(&self) -> i32 {
         match self {
+            ShanonError::Located(inner, _) => inner.exit_code(),
             ShanonError::CleanupWarning(_) => 0,
             _ => 1,
         }
     }
 
+    /// The abort class shown in verbose diagnostics. Stable, kebab-case, and
+    /// never derived from input.
+    fn class(&self) -> &'static str {
+        match self.unlocated() {
+            ShanonError::Verification(_) | ShanonError::VerboseVerification(_) => "leak-gate",
+            ShanonError::PseudonymCollision(_) => "pseudonym-collision",
+            ShanonError::UnsafeMapping(_) => "unsafe-mapping",
+            ShanonError::PublicationIdentity(_) => "publication-identity",
+            ShanonError::Runtime(_) => "runtime",
+            ShanonError::Value(_) => "value",
+            ShanonError::Io(_) => "io",
+            ShanonError::FileExists(_) => "file-exists",
+            ShanonError::CleanupWarning(_) => "cleanup-warning",
+            ShanonError::Located(_, _) => unreachable!("unlocated() peels every locator"),
+        }
+    }
+
     /// The exact stderr text the CLI prints for this error.
+    ///
+    /// Frozen interop surface (invariant 2). A locator never reaches it.
     pub fn stderr(&self) -> String {
         match self {
+            ShanonError::Located(inner, _) => inner.stderr(),
             ShanonError::VerboseVerification(findings) => format_verbose_findings(findings),
             ShanonError::Verification(finding) => format!(
                 "ABORTED - leak check failed, no output written: {}",
@@ -180,6 +224,44 @@ impl ShanonError {
                 format!("post-commit publication cleanup warning: {details}")
             }
         }
+    }
+
+    /// The stderr text for a run started with `--verbose-failures`.
+    ///
+    /// Identical to [`ShanonError::stderr`] except for the mapping-abort
+    /// classes, which collapse to one fixed line there and so carried no
+    /// diagnostic at all. Everything added is sanitized: a stable class slug,
+    /// the engine's own value-free reason, the synthetic member name, the
+    /// record path, the classified node type, and a BLAKE2b-6 fingerprint of
+    /// the offender (invariant 7).
+    pub fn stderr_verbose(&self) -> String {
+        let headline = self.stderr();
+        if !matches!(
+            self.unlocated(),
+            ShanonError::PseudonymCollision(_)
+                | ShanonError::UnsafeMapping(_)
+                | ShanonError::PublicationIdentity(_)
+                | ShanonError::Runtime(_)
+        ) {
+            return headline;
+        }
+
+        let mut lines = vec![headline, String::new(), "mapping-abort:".to_string()];
+        match self.locator() {
+            Some(locator) => {
+                let member = locator.member.as_deref().unwrap_or("<unknown-member>");
+                lines.push(format!(
+                    "- {member} {} {} {}",
+                    locator.path,
+                    self.class(),
+                    locator.offender
+                ));
+                lines.push(format!("  node-type: {}", locator.node_type));
+            }
+            None => lines.push(format!("- {}", self.class())),
+        }
+        lines.push(format!("  reason: {}", self.unlocated()));
+        lines.join("\n")
     }
 }
 
@@ -265,6 +347,11 @@ pub fn sha256_of_file(path: &std::path::Path) -> std::io::Result<String> {
 impl From<EngineError> for ShanonError {
     fn from(e: EngineError) -> Self {
         use crate::registry::RegistryError as R;
+        // Classify the wrapped error, then re-attach the locator so the class
+        // and the leaf travel together to the CLI.
+        if let EngineError::Located(inner, locator) = e {
+            return ShanonError::Located(Box::new(ShanonError::from(*inner)), locator);
+        }
         match e {
             EngineError::PseudonymCollision(_) => ShanonError::PseudonymCollision(e.to_string()),
             EngineError::Registry(R::PseudonymCollision(_)) => {
@@ -277,6 +364,7 @@ impl From<EngineError> for ShanonError {
             EngineError::Registry(R::Frozen(_))
             | EngineError::Registry(R::Type(_))
             | EngineError::Runtime(_) => ShanonError::Runtime(e.to_string()),
+            EngineError::Located(_, _) => unreachable!("peeled above"),
         }
     }
 }

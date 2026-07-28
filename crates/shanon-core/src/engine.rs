@@ -145,6 +145,22 @@ pub struct VerificationContext {
 // Errors.
 // ---------------------------------------------------------------------------
 
+/// Where an abort fired, in sanitized form.
+///
+/// Holds no source value and no source filename (invariant 7): only the
+/// synthetic member name the pipeline already assigns, the classified node
+/// type, the record path, and a BLAKE2b-6 fingerprint of the offending value.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AbortLocator {
+    /// Synthetic member name (`member-00001.json`), never the source filename.
+    pub member: Option<String>,
+    pub node_type: String,
+    /// Record path into the member document, e.g. `data[0].Aces[0].PrincipalSID`.
+    pub path: String,
+    /// `blake2b(value, digest_size=6)` of the offender, as in a leak-gate finding.
+    pub offender: String,
+}
+
 /// Engine failure surface.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EngineError {
@@ -156,6 +172,28 @@ pub enum EngineError {
     PseudonymCollision(String),
     /// `RuntimeError` (discovery lifecycle violation).
     Runtime(String),
+    /// Any of the above with the leaf it fired on attached. Displays exactly
+    /// like the error it wraps, so no existing message text moves; the locator
+    /// is reachable only through [`EngineError::locator`].
+    Located(Box<EngineError>, AbortLocator),
+}
+
+impl EngineError {
+    /// The wrapped error, with any locator peeled off.
+    pub fn unlocated(&self) -> &EngineError {
+        match self {
+            EngineError::Located(inner, _) => inner.unlocated(),
+            other => other,
+        }
+    }
+
+    /// The attached locator, if this error was raised at a known leaf.
+    pub fn locator(&self) -> Option<&AbortLocator> {
+        match self {
+            EngineError::Located(_, locator) => Some(locator),
+            _ => None,
+        }
+    }
 }
 
 impl std::fmt::Display for EngineError {
@@ -165,6 +203,9 @@ impl std::fmt::Display for EngineError {
             EngineError::Value(m) => write!(f, "{m}"),
             EngineError::PseudonymCollision(m) => write!(f, "pseudonym collision: {m}"),
             EngineError::Runtime(m) => write!(f, "{m}"),
+            // Byte-identical to the wrapped error: the locator is additive
+            // diagnostic state, never part of the frozen stderr surface.
+            EngineError::Located(inner, _) => write!(f, "{inner}"),
         }
     }
 }
@@ -270,6 +311,11 @@ pub struct AnonymizationEngine {
     /// Optional write-only progress channel. Never read back, so installing one
     /// cannot change a single output byte (invariants 1 and 3).
     progress: Option<ProgressSink>,
+    /// Synthetic name of the member being walked, for abort locators only.
+    current_member: Option<String>,
+    /// Sanitized locator for the leaf currently being transformed. Diagnostic
+    /// state: read only when building an error, never when producing output.
+    abort_locator: Option<AbortLocator>,
 }
 
 impl AnonymizationEngine {
@@ -300,6 +346,8 @@ impl AnonymizationEngine {
             template_mappings_finalized: false,
             verification_context: None,
             progress: None,
+            current_member: None,
+            abort_locator: None,
         }
     }
 
@@ -321,11 +369,32 @@ impl AnonymizationEngine {
         casefold(value)
     }
 
+    /// Record where the walk currently is, so a deferred registry failure can
+    /// name its leaf. `value` is fingerprinted immediately and never retained.
+    fn mark_leaf(&mut self, context: &ObjectContext, record_path: &str, value: &str) {
+        self.abort_locator = Some(AbortLocator {
+            member: self.current_member.clone(),
+            node_type: context.node_type.clone(),
+            path: record_path.to_string(),
+            offender: crate::verify::fingerprint(value),
+        });
+    }
+
+    /// Attach the current leaf locator to an error, if one is known.
+    fn locate(&self, e: EngineError) -> EngineError {
+        match (&self.abort_locator, &e) {
+            // Never double-wrap: the innermost locator is the precise one.
+            (_, EngineError::Located(_, _)) => e,
+            (Some(locator), _) => EngineError::Located(Box::new(e), locator.clone()),
+            (None, _) => e,
+        }
+    }
+
     /// Drain a deferred registry error from the infallible transform bridge.
     fn check_registry(&mut self) -> Result<()> {
         match self.registry.take_trait_error() {
             None => Ok(()),
-            Some(e) => Err(EngineError::Registry(e)),
+            Some(e) => Err(self.locate(EngineError::Registry(e))),
         }
     }
 
@@ -905,9 +974,10 @@ impl AnonymizationEngine {
                 let policy_child_path = object_path(path, key);
                 let (projected_key, dynamic) = self.project_output_key(context, path, key)?;
                 if !projected_keys.insert(projected_key.clone()) {
-                    return Err(EngineError::PseudonymCollision(
+                    self.mark_leaf(context, &object_path(&source_path, key), key);
+                    return Err(self.locate(EngineError::PseudonymCollision(
                         "object key projection collision".into(),
-                    ));
+                    )));
                 }
                 let projected_path = object_path(&source_path, &projected_key);
                 let output_key = if mode == VisitMode::Discover {
@@ -963,6 +1033,8 @@ impl AnonymizationEngine {
                 return Ok(value.clone());
             }
         };
+
+        self.mark_leaf(context, &source_path, &value_str);
 
         let mut decision = self
             .field_policy
@@ -1045,7 +1117,9 @@ impl AnonymizationEngine {
             Some(t) if decision.operation == FieldOperation::PreserveConstant => {
                 t.source_value.clone()
             }
-            _ => self.apply_string_operation(context, path, &value_str, &decision)?,
+            _ => self
+                .apply_string_operation(context, path, &value_str, &decision)
+                .map_err(|e| self.locate(e))?,
         };
 
         if mode == VisitMode::Discover {
@@ -1092,6 +1166,8 @@ impl AnonymizationEngine {
         doc: &Map<String, Value>,
         mode: VisitMode,
     ) -> Result<(Map<String, Value>, Vec<DecisionRecord>)> {
+        self.current_member = Some(member.to_string());
+        self.abort_locator = None;
         let contexts = self.contexts_for_document(member, doc, mode == VisitMode::Discover)?;
         if mode == VisitMode::Discover {
             for context in &contexts {
@@ -1148,9 +1224,10 @@ impl AnonymizationEngine {
             let root_path = object_path("", key);
             let (projected_key, dynamic) = self.project_output_key(&document_context, "", key)?;
             if !projected_root_keys.insert(projected_key.clone()) {
-                return Err(EngineError::PseudonymCollision(
+                self.mark_leaf(&document_context, &root_path, key);
+                return Err(self.locate(EngineError::PseudonymCollision(
                     "object key projection collision".into(),
-                ));
+                )));
             }
             let projected_path = object_path("", &projected_key);
             let output_key = if mode == VisitMode::Discover {

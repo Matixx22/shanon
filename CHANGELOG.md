@@ -8,6 +8,20 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `--verbose-failures` now also expands the mapping-abort classes — pseudonym
+  collision, unsafe mapping, publication identity, and the generic runtime
+  abort. Previously the flag only affected leak-gate findings, so a run that
+  died with `ABORTED - invalid or conflicting mapping data` printed exactly that
+  and nothing else, with or without the flag. The engine's sanitized reason was
+  computed and then discarded. The expanded block names the abort class, the
+  synthetic member, the record path, the classified node type, and a BLAKE2b-6
+  fingerprint of the offender — the same digest a leak-gate finding uses, so no
+  source value and no source filename leaves the process (invariant 7).
+- `shanon_core::engine::AbortLocator`, the sanitized leaf locator behind that
+  block, plus `ShanonError::stderr_verbose`, `ShanonError::unlocated`, and
+  `ShanonError::locator`. Default `stderr()` and every exit code are unchanged
+  for every class, located or not; `tests/errors.rs` pins that byte for byte
+  (invariant 2).
 - `shanon -V` / `shanon --version`, reporting the crate version. Release
   binaries are published as standalone archives, so a user holding one
   previously had no way to identify which build it was.

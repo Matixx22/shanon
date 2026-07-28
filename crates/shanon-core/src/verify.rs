@@ -122,7 +122,10 @@ struct SourceLeaf {
 }
 
 /// `blake2b(value, digest_size=6).hexdigest()` (§3.1a leak-gate token).
-fn fingerprint(value: &str) -> String {
+///
+/// Shared with the engine so an abort locator fingerprints its offender exactly
+/// the way a leak-gate finding does.
+pub(crate) fn fingerprint(value: &str) -> String {
     use blake2::digest::consts::U6;
     use blake2::{Blake2b, Digest};
     let mut hasher = Blake2b::<U6>::new();

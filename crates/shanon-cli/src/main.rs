@@ -196,7 +196,13 @@ fn anonymize(
     let outcome = match result {
         Ok(o) => o,
         Err(e) => {
-            eprintln!("{}", e.stderr());
+            // Without the flag this is byte-identical to `e.stderr()`; with it,
+            // the mapping-abort classes gain their sanitized detail.
+            if verbose_failures {
+                eprintln!("{}", e.stderr_verbose());
+            } else {
+                eprintln!("{}", e.stderr());
+            }
             exit(e.exit_code());
         }
     };
