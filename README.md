@@ -71,7 +71,7 @@ Read what survived, because that is the point:
 from [Releases](https://github.com/Matixx22/shanon/releases):
 
 ```sh
-VERSION=v0.2.0
+VERSION=v0.3.0
 TARGET=x86_64-unknown-linux-gnu        # or aarch64-apple-darwin
 BASE="https://github.com/Matixx22/shanon/releases/download/$VERSION"
 

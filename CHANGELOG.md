@@ -6,6 +6,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-28
+
+Anonymizes BloodHound CE collections, which 0.2.0 aborted on, and adds
+`shanon inspect` to diagnose a collection that will not go through.
+
 ### Fixed
 
 - Standard SharpHound fields came back under a different name. A key no rule
@@ -133,5 +138,6 @@ First tagged release.
   `cargo audit` job — same RustSec database, plus license enforcement so an
   MIT-licensed binary cannot silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Matixx22/shanon/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Matixx22/shanon/releases/tag/v0.2.0
