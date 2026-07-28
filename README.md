@@ -14,15 +14,16 @@ cannot, because that file is your client's entire directory — every account,
 every hostname, every group name, in clear.
 
 **shanon** remaps every organization-bound identifier in the collection and
-leaves everything else exactly as it was. The output is still valid SharpHound
-JSON, still loads in BloodHound, and every graph cross-reference still points
-where it pointed. A local mapping file turns the model's answer back into real
-names when it comes back.
+leaves the structure alone. The output is still SharpHound JSON, still loads in
+BloodHound, and every graph cross-reference still points where it pointed — the
+edges are what you are asking the model about, and they all survive. A local
+mapping file turns its answer back into real names when it comes back.
 
 ## What it actually does
 
-An excerpt from a real run over the synthetic collection in
-[`demo/`](demo/) — you can reproduce it in two commands:
+An excerpt from a real run over the synthetic collection in [`demo/`](demo/).
+Every run picks a fresh random salt, so your pseudonyms will read differently —
+pass `--map` once and `--reuse-map` after it to pin them.
 
 **Before**
 
@@ -280,6 +281,15 @@ substitutes every component it recognizes.
 - Role, product, OS, and vendor fingerprints
 - Custom certificate templates, enterprise OIDs, CA names, and certificate material
 - Free text and opaque values → deterministic `[REDACTED:…]` mappings
+- The *names* of fields no rule models, not only their values — a custom AD
+  attribute is organization-bound in its key as much as its contents
+
+That last one currently catches a few standard SharpHound fields the rule table
+does not model yet, including `IsDeleted`, `IsACLProtected`,
+`Properties.whencreated` and `FailureReason`: they come back renamed rather than
+dropped. No graph edge depends on them, so the collection still loads and still
+reasons correctly — but it is not a byte-for-byte SharpHound document. `inspect`
+lists exactly which paths a given collection hit.
 
 ## What is preserved
 

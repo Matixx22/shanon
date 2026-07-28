@@ -19,16 +19,21 @@
         "FailureReason": null,
         "Results": []
       },
-      "LocalAdmins": {
-        "Collected": true,
-        "FailureReason": null,
-        "Results": [
-          {
-            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-512",
-            "ObjectType": "Group"
-          }
-        ]
-      },
+      "LocalGroups": [
+        {
+          "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1000-544",
+          "Name": "ADMINISTRATORS@DC01.CONTOSO.LOCAL",
+          "Collected": true,
+          "FailureReason": null,
+          "Results": [
+            {
+              "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-512",
+              "ObjectType": "Group"
+            }
+          ],
+          "LocalNames": []
+        }
+      ],
       "AllowedToDelegate": [],
       "HasSIDHistory": [],
       "Aces": [],
@@ -59,16 +64,21 @@
           }
         ]
       },
-      "LocalAdmins": {
-        "Collected": true,
-        "FailureReason": null,
-        "Results": [
-          {
-            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1108",
-            "ObjectType": "Group"
-          }
-        ]
-      },
+      "LocalGroups": [
+        {
+          "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1001-544",
+          "Name": "ADMINISTRATORS@SQL01.CONTOSO.LOCAL",
+          "Collected": true,
+          "FailureReason": null,
+          "Results": [
+            {
+              "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+              "ObjectType": "Group"
+            }
+          ],
+          "LocalNames": []
+        }
+      ],
       "AllowedToDelegate": [],
       "HasSIDHistory": [],
       "Aces": [],
