@@ -86,6 +86,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `pipeline::anonymize_collection` takes a trailing `Option<ProgressSink>`, and
   `verify::verify_document` gained a `verify_document_with_progress` sibling.
   The existing `verify_document` signature is unchanged.
+- The README leads with what a run actually produces — a before/after excerpt
+  taken from a real run over `demo/collection`, not written by hand — and with
+  how to install a prebuilt binary rather than how to compile one. `demo/` is a
+  new synthetic four-member collection anyone can reproduce that excerpt from;
+  the reference sections are unchanged.
 
 ## [0.2.0] - 2026-07-28
 

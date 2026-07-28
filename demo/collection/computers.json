@@ -1,0 +1,85 @@
+{
+  "data": [
+    {
+      "Properties": {
+        "domain": "CONTOSO.LOCAL",
+        "name": "DC01.CONTOSO.LOCAL",
+        "distinguishedname": "CN=DC01,OU=Domain Controllers,DC=CONTOSO,DC=LOCAL",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "samaccountname": "DC01$",
+        "operatingsystem": "Windows Server 2022 Datacenter",
+        "unconstraineddelegation": true,
+        "enabled": true,
+        "whencreated": 1600000000
+      },
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1000",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-516",
+      "Sessions": {
+        "Collected": false,
+        "FailureReason": null,
+        "Results": []
+      },
+      "LocalAdmins": {
+        "Collected": true,
+        "FailureReason": null,
+        "Results": [
+          {
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-512",
+            "ObjectType": "Group"
+          }
+        ]
+      },
+      "AllowedToDelegate": [],
+      "HasSIDHistory": [],
+      "Aces": [],
+      "IsDeleted": false,
+      "IsACLProtected": false
+    },
+    {
+      "Properties": {
+        "domain": "CONTOSO.LOCAL",
+        "name": "SQL01.CONTOSO.LOCAL",
+        "distinguishedname": "CN=SQL01,OU=Servers,DC=CONTOSO,DC=LOCAL",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "samaccountname": "SQL01$",
+        "operatingsystem": "Windows Server 2019 Standard",
+        "unconstraineddelegation": false,
+        "enabled": true,
+        "whencreated": 1600000000
+      },
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1001",
+      "PrimaryGroupSID": "S-1-5-21-1111111111-2222222222-3333333333-515",
+      "Sessions": {
+        "Collected": true,
+        "FailureReason": null,
+        "Results": [
+          {
+            "UserSID": "S-1-5-21-1111111111-2222222222-3333333333-1105",
+            "ComputerSID": "S-1-5-21-1111111111-2222222222-3333333333-1001"
+          }
+        ]
+      },
+      "LocalAdmins": {
+        "Collected": true,
+        "FailureReason": null,
+        "Results": [
+          {
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1108",
+            "ObjectType": "Group"
+          }
+        ]
+      },
+      "AllowedToDelegate": [],
+      "HasSIDHistory": [],
+      "Aces": [],
+      "IsDeleted": false,
+      "IsACLProtected": false
+    }
+  ],
+  "meta": {
+    "methods": 46067,
+    "type": "computers",
+    "count": 2,
+    "version": 6
+  }
+}

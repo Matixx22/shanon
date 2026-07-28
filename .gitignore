@@ -9,3 +9,6 @@ sharphound-samples/
 
 # The parity replay seed carries only a fixed synthetic salt — safe to track.
 !tests/parity/seed.map.json
+
+# demo/collection/ is synthetic and tracked; anything a demo run *writes* is not.
+/demo/out/

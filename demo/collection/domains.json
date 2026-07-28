@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "Properties": {
+        "domain": "CONTOSO.LOCAL",
+        "name": "CONTOSO.LOCAL",
+        "distinguishedname": "DC=CONTOSO,DC=LOCAL",
+        "domainsid": "S-1-5-21-1111111111-2222222222-3333333333",
+        "functionallevel": "2016",
+        "whencreated": 1600000000
+      },
+      "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333",
+      "Trusts": [],
+      "Links": [],
+      "ChildObjects": [
+        {
+          "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1000",
+          "ObjectType": "Computer"
+        }
+      ],
+      "Aces": [],
+      "IsDeleted": false,
+      "IsACLProtected": false
+    }
+  ],
+  "meta": {
+    "methods": 46067,
+    "type": "domains",
+    "count": 1,
+    "version": 6
+  }
+}
