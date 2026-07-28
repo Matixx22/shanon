@@ -715,7 +715,33 @@ impl FieldPolicy {
         )
     }
 
+    /// Whether any rule declares `path` for this object type.
+    ///
+    /// The engine needs this for a leaf [`resolve`](Self::resolve) never sees.
+    /// Only string leaves are routed through the policy; a number, boolean or
+    /// null is emitted verbatim, so an undeclared one is passed through with no
+    /// decision, no record and — without this — no trace in the audit. This is
+    /// the probe that lets the engine count what it is letting through. It
+    /// resolves nothing and allocates no decision, so it cannot influence
+    /// output.
+    pub fn declares(&self, context: &ObjectContext, path: &str) -> bool {
+        let lookup_path = canonical_path(path);
+        self.index
+            .get(&(context.node_type.clone(), lookup_path.clone()))
+            .or_else(|| self.index.get(&("*".to_string(), lookup_path)))
+            .is_some()
+    }
+
     /// Resolve the field decision for `value` at `path` (`resolve`).
+    ///
+    /// Reached for **string leaves only**. `engine::visit` returns every
+    /// number, boolean and null verbatim before calling this, so the
+    /// non-string branches below — `resolve_schema`'s `Bool`/`Number` arms and
+    /// the `fallback.unknown-value` tail — are unreachable from the pipeline
+    /// today. They are kept because they are the correct answers if that
+    /// changes, and because `resolve_schema` still needs to *reject* a string
+    /// that lands at a boolean or numeric path. See the note on
+    /// `fallback.unknown-value`.
     pub fn resolve(
         &self,
         context: &ObjectContext,
@@ -826,6 +852,17 @@ impl FieldPolicy {
             );
         }
 
+        // Unreachable from the pipeline: `engine::visit` returns non-string
+        // leaves verbatim before reaching the policy, so an undeclared number
+        // or boolean is passed through rather than replaced. That gap is real —
+        // a numeric attribute an ingestor emits at a path no rule models
+        // survives a run — and it is counted as `undeclared-numeric-value`
+        // by `PolicyAudit::record_undeclared_numeric`, surfaced by
+        // `shanon inspect`, and documented in SECURITY.md. Closing it means
+        // deciding what a redacted *number* is, since replacing one with a
+        // string changes the leaf's JSON type and a collection has to stay
+        // BloodHound-loadable. This arm is what to reach for when that decision
+        // is made.
         self.decision(
             context,
             "fallback.unknown-value",
@@ -903,6 +940,11 @@ fn source_shape_supports(
                         component.contains('=') && component.splitn(2, '=').all(|p| !p.is_empty())
                     })
                 })
+                // `transform_dn` maps RDN values but emits attribute types
+                // verbatim, so a schema-extended type would reach the output
+                // naming the organization however well its value was redacted.
+                // A DN shanon cannot decompose safely is redacted whole.
+                && crate::components::dn_attribute_types_are_standard(value)
         }
         FieldOperation::ParseSpn => {
             let components: Vec<&str> = value.split('/').collect();
@@ -952,6 +994,7 @@ pub struct PolicyAudit {
     rule_ids: HashMap<String, u64>,
     audit_codes: HashMap<String, u64>,
     unknown_paths: HashMap<String, u64>,
+    numeric_passthrough_paths: HashMap<String, u64>,
 }
 
 impl PolicyAudit {
@@ -981,6 +1024,30 @@ impl PolicyAudit {
             .or_insert(0) += 1;
         *self
             .unknown_paths
+            .entry(canonical_path(projected_path))
+            .or_insert(0) += 1;
+    }
+
+    /// Count a numeric leaf at a path no rule declares.
+    ///
+    /// These are passed through verbatim — `engine::visit` never routes a
+    /// number through the policy — so they produce no decision and no
+    /// verification record, and would otherwise leave no trace at all. Indexed
+    /// separately from [`record_unknown_key`](Self::record_unknown_key)'s
+    /// `unknown_paths` because the two mean different things: an unknown *path*
+    /// was anonymized and merely not modelled, while these were not anonymized.
+    /// Blurring them would let `shanon inspect`'s existing count absorb this
+    /// one.
+    ///
+    /// `projected_path` must be an output path, whose keys are already mapped
+    /// (invariant 7). The value itself is never recorded.
+    pub fn record_undeclared_numeric(&mut self, projected_path: &str) {
+        *self
+            .audit_codes
+            .entry("undeclared-numeric-value".to_string())
+            .or_insert(0) += 1;
+        *self
+            .numeric_passthrough_paths
             .entry(canonical_path(projected_path))
             .or_insert(0) += 1;
     }
@@ -1044,6 +1111,19 @@ impl PolicyAudit {
         top.insert("rule_ids".to_string(), str_map(&self.rule_ids));
         top.insert("audit_codes".to_string(), str_map(&self.audit_codes));
         top.insert("unknown_paths".to_string(), str_map(&self.unknown_paths));
+        // Appended last, and only when non-empty. The summary is compared
+        // whole against vectors the Python reference produced, and the
+        // reference has no concept of this counter — so an unconditional key
+        // would invalidate every one of them. It also cannot ever have a
+        // non-empty value there, which makes "absent" and "empty" the same
+        // claim. Emitting it only when there is something to report keeps the
+        // frozen surface intact and still surfaces the gap the moment it opens.
+        if !self.numeric_passthrough_paths.is_empty() {
+            top.insert(
+                "numeric_passthrough_paths".to_string(),
+                str_map(&self.numeric_passthrough_paths),
+            );
+        }
         Value::Object(top)
     }
 }

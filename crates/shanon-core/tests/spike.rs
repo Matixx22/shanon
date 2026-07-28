@@ -1,8 +1,16 @@
 //! S1 go/no-go spike proofs.
 //!
-//! Ground-truth files under `spike/` were produced during development as
-//! frozen reference fixtures. These tests replay
-//! the two parity contracts against the frozen fixtures.
+//! Ground-truth files under `spike/` are frozen reference fixtures: every
+//! `*_expected` file was produced by the Python reference serializer, so these
+//! tests are genuine cross-implementation checks rather than snapshots of our
+//! own output. Regenerate an expected file with the reference, never with
+//! `canonical_json`, or the contract silently becomes `Rust == Rust`.
+//!
+//! Every input fixture is synthetic. `sample.json` is a generated SharpHound
+//! `users` collection carrying the structural variety a real capture has —
+//! nested objects, empty arrays, a null-valued object slot, negative and zero
+//! integer tokens, absent keys on a reference-only member — with no
+//! organization-bound value in it.
 
 use serde_json::Value;
 use std::fs;
@@ -24,7 +32,7 @@ fn parse(bytes: &[u8]) -> Value {
 // --- Contract 1: byte-identical json.dumps round-trip -----------------------
 
 #[test]
-fn json_roundtrip_matches_reference_on_real_sample() {
+fn json_roundtrip_matches_reference_on_collection_sample() {
     let sample = fs::read(spike_dir().join("sample.json")).unwrap();
     let expected = fs::read_to_string(spike_dir().join("json_roundtrip_expected.txt")).unwrap();
 
@@ -33,7 +41,7 @@ fn json_roundtrip_matches_reference_on_real_sample() {
 
     assert_eq!(
         got, expected,
-        "Rust re-serialization diverged from the canonical JSON serialization on real SharpHound sample"
+        "Rust re-serialization diverged from the canonical JSON serialization on a full collection member"
     );
     // Sanity: it is genuinely a non-trivial document.
     assert!(expected.len() > 10_000);

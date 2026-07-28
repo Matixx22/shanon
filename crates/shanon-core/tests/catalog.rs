@@ -90,6 +90,49 @@ fn every_catalog_entry_matches_reference() {
     }
 }
 
+/// A malformed GUID in the catalog is a silently dead row, not a typo.
+///
+/// A catalog match requires the exact normalized value, so nothing can ever
+/// equal a GUID that is a digit short: the real identifier falls through to the
+/// `guids` namespace and loses its meaning to the model, while the stored value
+/// is unreachable as a `Guid` kind because it cannot match `guid_re` either.
+/// Nothing fails, nothing warns — which is exactly why this needs a test.
+/// The reference shipped one such row (User-Change-Password); shanon does not.
+#[test]
+fn access_right_guids_are_well_formed() {
+    let groups = [8usize, 4, 4, 4, 12];
+    for entry in catalog() {
+        if entry.kind != IdentifierKind::Guid {
+            continue;
+        }
+        let parts: Vec<&str> = entry.value.split('-').collect();
+        assert_eq!(
+            parts.len(),
+            groups.len(),
+            "catalog entry {} has a GUID with {} group(s): {}",
+            entry.rule_id,
+            parts.len(),
+            entry.value
+        );
+        for (part, want) in parts.iter().zip(groups) {
+            assert_eq!(
+                part.len(),
+                want,
+                "catalog entry {} has a malformed GUID (group {part:?} is {} chars, want {want}): {}",
+                entry.rule_id,
+                part.len(),
+                entry.value
+            );
+            assert!(
+                part.bytes().all(|b| b.is_ascii_hexdigit()),
+                "catalog entry {} has a non-hex GUID group {part:?}: {}",
+                entry.rule_id,
+                entry.value
+            );
+        }
+    }
+}
+
 #[test]
 fn classify_sid_matches_reference() {
     for pair in truth("catalog.json")["classify_sid"].as_array().unwrap() {

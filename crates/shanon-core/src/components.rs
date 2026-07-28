@@ -49,6 +49,43 @@ pub type PreserveRdn<'a> = &'a dyn Fn(&str, &str) -> bool;
 
 const SAFE_DOMAIN_SUFFIXES: &[&str] = &["local", "com", "net", "org"];
 
+/// RDN attribute types a transformed DN may carry through verbatim.
+///
+/// [`transform_dn`] maps every RDN *value* but emits the attribute *type* as it
+/// found it, because the type is schema, not data — `CN`, `OU` and `DC` say
+/// nothing about whose directory this is. That holds only for the standard
+/// types. A schema-extended directory can put an organization's own attribute
+/// in an RDN, and `CN=Bob,ACMEPAYROLLID=99,DC=corp,DC=local` names the
+/// organization in the attribute type no matter how thoroughly the value is
+/// redacted.
+///
+/// This is the RFC 4514 §3 set, which is everything Active Directory actually
+/// builds DNs from. Anything else makes the DN unparseable *for shanon's
+/// purposes* — see [`dn_attribute_types_are_standard`] — and the policy redacts
+/// the whole value opaquely instead. More anonymization, never less.
+const STANDARD_RDN_ATTRIBUTE_TYPES: &[&str] =
+    &["c", "cn", "dc", "l", "o", "ou", "st", "street", "uid"];
+
+/// Whether every RDN attribute type in `dn` is one shanon will emit verbatim.
+///
+/// Used by the policy to gate the *source* (an unknown type means the DN is
+/// redacted whole rather than partially transformed) and by the verifier to
+/// gate the *output* (so the gate stops being satisfiable by any string with an
+/// `=` in it). Both must agree, which is why they share this function.
+///
+/// An AVA with no `=` is not a well-formed RDN and answers `false`; the caller's
+/// existing emptiness checks already reject those, and agreeing here keeps the
+/// two gates from disagreeing about a malformed input.
+pub fn dn_attribute_types_are_standard(dn: &str) -> bool {
+    split_unescaped(dn, ',').iter().all(|rdn| {
+        split_unescaped(rdn, '+').iter().all(|ava| {
+            ava.split_once('=').is_some_and(|(attr, _)| {
+                STANDARD_RDN_ATTRIBUTE_TYPES.contains(&casefold(attr.trim()).as_str())
+            })
+        })
+    })
+}
+
 const STANDARD_SPN_SERVICE_CLASSES: &[&str] = &[
     "cifs",
     "dns",
@@ -356,7 +393,12 @@ pub fn transform_dn(
         let mut out_avas: Vec<String> = Vec::new();
         for ava in split_unescaped(rdn, '+') {
             let Some((attr, value)) = ava.split_once('=') else {
-                out_avas.push(ava);
+                // Not a well-formed AVA. Unreachable through the pipeline —
+                // `source_shape_supports` rejects such a DN and the policy
+                // redacts it whole — but copying the fragment through would be
+                // a verbatim leak if that gate ever moved, so redact it here
+                // too rather than rely on a caller.
+                out_avas.push(reg.map(OPAQUE, &ava));
                 continue;
             };
             let key = attr.trim().to_uppercase();
@@ -466,7 +508,22 @@ pub fn transform_spn(reg: &mut dyn RegistryOps, spn: &str) -> String {
         } else {
             transform_name_token(reg, parsed.service, false)
         };
-    let port_suffix = parsed.port.map(|p| format!(":{p}")).unwrap_or_default();
+    // The `<host>:<suffix>` tail is only a port when it is numeric. MS-ADTS also
+    // permits `MSSQLSvc/<fqdn>:<instancename>`, and a named SQL instance is the
+    // organization's own label — `MSSQLSvc/sql01.corp.local:SAGE_PROD`. Copying
+    // it through cleared the leak gate because the rest of the SPN did change,
+    // so the instance name reached the output. A port number identifies nobody
+    // and stays; anything else is a name and is remapped as one.
+    let port_suffix = parsed
+        .port
+        .map(|p| {
+            if p.bytes().all(|b| b.is_ascii_digit()) {
+                format!(":{p}")
+            } else {
+                format!(":{}", transform_name_token(reg, p, false))
+            }
+        })
+        .unwrap_or_default();
     let instance_suffix = parsed
         .instance
         .map(|i| format!("/{}", transform_dnshostname(reg, i)))

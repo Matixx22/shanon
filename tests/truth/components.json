@@ -18,10 +18,10 @@
   {
     "fn": "transform_sid",
     "args": [
-      "ESC1.LOCAL-S-1-5-32-544",
+      "CONTOSO.LOCAL-S-1-5-32-544",
       true
     ],
-    "output": "M<domains|esc1>.LOCAL-S-1-5-32-544"
+    "output": "M<domains|contoso>.LOCAL-S-1-5-32-544"
   },
   {
     "fn": "transform_sid",

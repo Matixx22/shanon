@@ -1,5 +1,5 @@
 {
-  "catalog_version": 1,
+  "catalog_version": 2,
   "entry_count": 149,
   "entries": {
     "guid.null": {
@@ -5713,7 +5713,7 @@
     },
     "access-right.predefined-02": {
       "kind": "guid",
-      "value": "ab721a53-1e2f-11d0-9819-00aa0040529",
+      "value": "ab721a53-1e2f-11d0-9819-00aa0040529b",
       "node_types": [
         "ADLocalGroup",
         "AIACA",
@@ -5741,19 +5741,19 @@
       ],
       "exact_values": {
         "Aces[].InheritedObjectTypeGuid": [
-          "ab721a53-1e2f-11d0-9819-00aa0040529"
+          "ab721a53-1e2f-11d0-9819-00aa0040529b"
         ],
         "Aces[].RightGuid": [
-          "ab721a53-1e2f-11d0-9819-00aa0040529"
+          "ab721a53-1e2f-11d0-9819-00aa0040529b"
         ],
         "Aces[].ObjectTypeGuid": [
-          "ab721a53-1e2f-11d0-9819-00aa0040529"
+          "ab721a53-1e2f-11d0-9819-00aa0040529b"
         ],
         "Aces[].ObjectType": [
-          "ab721a53-1e2f-11d0-9819-00aa0040529"
+          "ab721a53-1e2f-11d0-9819-00aa0040529b"
         ],
         "Aces[].InheritedObjectType": [
-          "ab721a53-1e2f-11d0-9819-00aa0040529"
+          "ab721a53-1e2f-11d0-9819-00aa0040529b"
         ]
       },
       "source": "Microsoft [MS-ADTS] predefined control access rights"

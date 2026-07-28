@@ -30,10 +30,17 @@ use indexmap::IndexMap;
 use crate::casefold::casefold;
 use crate::wellknown::WellKnownCatalog;
 
-/// Catalog schema version (`CATALOG_VERSION = 1`);
-/// stamped into the collection map, so its value and integer
-/// semantics are part of the output contract.
-pub const CATALOG_VERSION: u32 = 1;
+/// Catalog schema version; stamped into the collection map, so its value and
+/// integer semantics are part of the output contract.
+///
+/// Bumped to 2 when the truncated User-Change-Password right GUID in
+/// [`ACCESS_RIGHT_GUIDS`] was corrected. That changes what the catalog
+/// preserves, so a map produced under version 1 and reused under version 2 can
+/// disagree with its own sibling collection about that identifier. Nothing
+/// currently *reads* this back on `--reuse-map` — `Registry::from_value`
+/// discards the `policy` block — which is a gap this bump makes reachable and
+/// which is tracked separately.
+pub const CATALOG_VERSION: u32 = 2;
 
 /// Privacy classification of an identity. The string
 /// spellings are the serialized contract (audit summaries, map metadata).
@@ -633,9 +640,20 @@ const STANDARD_OIDS: &[&str] = &[
 ];
 
 /// `_ACCESS_RIGHT_GUIDS`.
+///
+/// Every entry must be a well-formed GUID; `access_right_guids_are_well_formed`
+/// in `tests/catalog.rs` asserts it. A truncated one is not a harmless typo — it
+/// is a silently dead row, because a match needs the exact normalized value and
+/// nothing can ever equal a 35-character GUID.
 const ACCESS_RIGHT_GUIDS: &[&str] = &[
     "00299570-246d-11d0-a768-00aa006e0529",
-    "ab721a53-1e2f-11d0-9819-00aa0040529",
+    // User-Change-Password. The reference truncates this to 35 characters,
+    // one hex digit short in the final group, which made the row unmatchable:
+    // the real right GUID fell through to the `guids` namespace and lost its
+    // meaning to the model, and the stored value could never match `guid_re`
+    // so it was unreachable as a `Guid` kind at all. shanon does not inherit
+    // the typo — see CHANGELOG, and note this is why CATALOG_VERSION is 2.
+    "ab721a53-1e2f-11d0-9819-00aa0040529b",
     "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2",
     "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2",
     "89e95b76-444d-4c62-991a-0facbeda640c",

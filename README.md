@@ -13,11 +13,18 @@ You want to ask an LLM about the attack paths in a SharpHound collection. You
 cannot, because that file is your client's entire directory — every account,
 every hostname, every group name, in clear.
 
-**shanon** remaps every organization-bound identifier in the collection and
-leaves the structure alone. The output is still SharpHound JSON, still loads in
-BloodHound, and every graph cross-reference still points where it pointed — the
-edges are what you are asking the model about, and they all survive. A local
-mapping file turns its answer back into real names when it comes back.
+**shanon** remaps the organization-bound identifiers in the collection — every
+string one, which is where identity actually lives — and leaves the structure
+alone. The output is still SharpHound JSON, still loads in BloodHound, and every
+graph cross-reference still points where it pointed — the edges are what you are
+asking the model about, and they all survive. A local mapping file turns its
+answer back into real names when it comes back.
+
+Numbers, booleans and nulls are passed through as they are. That is deliberate
+for the ones a rule declares — a flag or a timestamp carries no identity — but
+it also means a *custom numeric* attribute at a path shanon does not model goes
+out unchanged. `shanon inspect` reports exactly which paths those were; see
+[SECURITY.md](SECURITY.md#what-shanon-does-not-protect-against).
 
 ## What it actually does
 
