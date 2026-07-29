@@ -24,3 +24,6 @@ loot/
 
 # demo/collection/ is synthetic and tracked; anything a demo run *writes* is not.
 /demo/out/
+
+# Personal presentation notes. Kept in the working tree, never published.
+/demo/demo-script.md

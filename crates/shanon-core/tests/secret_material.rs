@@ -22,7 +22,7 @@ const DOMAIN_SID: &str = "S-1-5-21-1111111111-2222222222-3333333333";
 
 /// One secret per attribute spelling, each value unique so a survivor can be
 /// traced back to the attribute that leaked it.
-const SECRETS: [(&str, &str); 9] = [
+const SECRETS: [(&str, &str); 19] = [
     ("ms-mcs-admpwd", "L3gacyLapsPw!"),
     ("mslaps-password", "{\"n\":\"admin\",\"p\":\"W1nLapsPw!\"}"),
     ("mslaps-encryptedpassword", "AQAAAEncryptedLapsBlob=="),
@@ -42,14 +42,50 @@ const SECRETS: [(&str, &str); 9] = [
     // writes the cleartext into the map, so the redaction check has to run
     // ahead of the operation dispatch rather than inside one arm of it.
     ("unicodepwd", "8a2f4e10-9c3b-4d5e-8f70-112233445566"),
+    // Trust keys. A trust key forges tickets across a forest edge, which is
+    // precisely the edge the model is being asked about.
+    ("trustauthincoming", "AQAAAFRydXN0S2V5SW5jb21pbmc="),
+    ("trustauthoutgoing", "AQAAAFRydXN0S2V5T3V0Z29pbmc="),
+    ("initialauthincoming", "In1t1alTrustPwIncoming!"),
+    ("initialauthoutgoing", "In1t1alTrustPwOutgoing!"),
+    // BitLocker recovery material, stored on the computer object.
+    (
+        "msfve-recoverypassword",
+        "123456-654321-112233-445566-778899-101112-131415-161718",
+    ),
+    ("msfve-keypackage", "AQAAAEBitLockerKeyPackage=="),
+    // The LM hash lives in dBCSPwd.
+    ("dbcspwd", "aad3b435b51404eeaad3b435b51404ee"),
+    // Group Policy Preferences: AES-encrypted with a key Microsoft published,
+    // so cleartext in practice.
+    ("cpassword", "j1Uyj3Vx8TY9LtLZil2uAuZkFQA4latT76ZwgdHdhw"),
+    // The obvious spellings, for a collector that names a custom attribute the
+    // obvious way.
+    ("password", "Cu5t0mAttrPassw0rd!"),
+    ("pwd", "Sh0rtSpellingPwd!"),
 ];
 
-/// Present in the corpus and *not* secret: the LAPS expiry and the gMSA
-/// interval carry a timestamp, and an over-broad prefix match would swallow
-/// them.
-const NOT_SECRETS: [(&str, &str); 2] = [
+/// Present in the corpus and *not* secret: each is a near-miss for an entry
+/// above that an over-broad prefix match would swallow. The LAPS expiry and
+/// the gMSA interval carry a timestamp and an interval; the Windows LAPS
+/// expiry is the same trap one family over.
+const NOT_SECRETS: [(&str, &str); 3] = [
     ("ms-mcs-admpwdexpirationtime", "133012345678901234"),
     ("msds-managedpasswordinterval", "30"),
+    ("mslaps-passwordexpirationtime", "133112345678901234"),
+];
+
+/// Declared SharpHound fields whose names *begin* with one of the bare
+/// spellings. `password` and `pwd` are the two entries broad enough to do real
+/// damage, so the exact-leaf match is pinned against one standard field per
+/// spelling. Neither may be redacted.
+///
+/// Both are in the policy's declared-field table, which is what keeps their
+/// keys addressable in the output: an undeclared field has its *name* replaced
+/// by a fingerprint, so it could not be looked up here.
+const DECLARED_NEAR_MISSES: [(&str, &str); 2] = [
+    ("pwdlastset", "133012345678901111"),
+    ("passwordnotreqd", "false"),
 ];
 
 struct Scratch(PathBuf);
@@ -84,7 +120,11 @@ fn collection(root: &Path) -> PathBuf {
     properties.insert("name".into(), json!(format!("WS01.{DOMAIN}")));
     properties.insert("domainsid".into(), json!(DOMAIN_SID));
     properties.insert("samaccountname".into(), json!("WS01$"));
-    for (key, value) in SECRETS.into_iter().chain(NOT_SECRETS) {
+    for (key, value) in SECRETS
+        .into_iter()
+        .chain(NOT_SECRETS)
+        .chain(DECLARED_NEAR_MISSES)
+    {
         properties.insert(key.into(), json!(value));
     }
 
@@ -179,6 +219,32 @@ fn every_secret_spelling_is_redacted() {
     );
 }
 
+/// The bare `password` and `pwd` spellings do not swallow the standard fields
+/// that merely start the same way.
+///
+/// This is the assertion that makes those two entries safe to hold. Every other
+/// entry in the list is a full attribute name that nothing else collides with;
+/// these two are short enough that a prefix match would take `pwdlastset` and
+/// `passwordnotreqd` with them, which are ordinary graph fields.
+#[test]
+fn a_declared_field_that_merely_starts_with_a_secret_spelling_is_untouched() {
+    let scratch = Scratch::new("near-miss");
+    let (collection, _) = anonymize(&scratch);
+    let parsed: Value = serde_json::from_str(&collection).unwrap();
+    let properties = parsed["data"][0]["Properties"].as_object().unwrap().clone();
+    for (key, _) in DECLARED_NEAR_MISSES {
+        let value = properties
+            .get(key)
+            .unwrap_or_else(|| panic!("{key} is missing from the output"));
+        assert_ne!(
+            value.as_str(),
+            Some("[REDACTED]"),
+            "{key} was redacted, so the secret-material match is matching a \
+             prefix rather than the whole leaf"
+        );
+    }
+}
+
 /// The negative half: the match is on the whole leaf key, not a prefix of it,
 /// so an expiry timestamp and a rotation interval take the ordinary path. They
 /// are pseudonymized, which means they appear in the map as sources, and a
@@ -203,7 +269,7 @@ fn a_timestamp_attribute_is_not_treated_as_a_secret() {
         .count();
     assert_eq!(
         opaque,
-        NOT_SECRETS.len(),
+        NOT_SECRETS.len() + DECLARED_NEAR_MISSES.len(),
         "expected exactly the non-secret attributes to be pseudonymized: {properties:?}"
     );
 }

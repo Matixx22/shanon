@@ -13,7 +13,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use serde_json::{json, Value};
-use shanon_core::pipeline::{anonymize_collection, ShanonError};
+use shanon_core::pipeline::{anonymize_collection, inspect_collection, ShanonError};
 use shanon_core::policy::{PolicyAudit, PolicyConfig};
 use shanon_core::registry::{Registry, RegistryError};
 
@@ -132,17 +132,30 @@ fn a_map_that_maps_a_value_to_itself_is_refused_at_load() {
 
 /// The headline guarantee: a run that aborts publishes nothing at all.
 ///
-/// The abort is driven by a member that parses as a collection document but
-/// carries no `meta`, which the engine refuses. That is a real abort inside
-/// `anonymize_collection` rather than a pre-flight refusal, and it takes the
-/// valid sibling member down with it — see the note in
-/// `an_unparseable_member_aborts_the_whole_collection`.
+/// The abort is driven by a member the accept predicate lets through and the
+/// engine then refuses: it is a well-formed collection document except that a
+/// `data` element is a number rather than an object. That is a real abort
+/// inside `anonymize_collection` rather than a pre-flight refusal.
+///
+/// It deliberately is *not* driven by a missing `meta` any more. That case is
+/// now a skip, which is what `a_member_with_no_meta_is_skipped_not_fatal`
+/// pins.
 #[test]
 fn an_aborted_run_writes_no_output_no_map_and_no_staging() {
     let scratch = Scratch::new("abort");
     let input = scratch.collection("collection");
-    // Parses, has a `data` array, has no `meta`.
-    fs::write(input.join("stray.json"), br#"{"data":[]}"#).expect("stray member");
+    // Clears `parse_collection_member`: `data` array, `meta` object, non-empty
+    // `meta.type`. The engine still refuses it, because `data[0]` is not an
+    // object.
+    let malformed = json!({
+        "meta": {"methods": 0, "type": "users", "count": 1, "version": 6},
+        "data": [42]
+    });
+    fs::write(
+        input.join("malformed.json"),
+        serde_json::to_vec(&malformed).unwrap(),
+    )
+    .expect("malformed member");
     let out = scratch.path("out");
     let map = scratch.path("collection.map.json");
 
@@ -150,7 +163,7 @@ fn an_aborted_run_writes_no_output_no_map_and_no_staging() {
 
     assert!(
         result.is_err(),
-        "a member with no `meta` must abort the run"
+        "a `data` element that is not an object must abort the run"
     );
     assert_nothing_published(&out, &map);
 }
@@ -192,29 +205,67 @@ fn a_dangling_symlink_at_the_destination_is_refused_before_the_map_is_written() 
     );
 }
 
-/// A member that is not a SharpHound document aborts the entire collection
-/// rather than being skipped, taking every valid member with it.
+/// A member that is not a SharpHound document is skipped, and its valid
+/// siblings are still published.
 ///
-/// This pins current behavior, and current behavior is arguably wrong: the
-/// accept predicate (`parse_collection_member`, which asks only for a `data`
-/// array) and the skip path disagree with the engine, which additionally
-/// requires `meta`. A stray file in a collection directory therefore fails the
-/// whole run, and the message does not name the member. Fixing that means
-/// making the two predicates agree — at which point this test should be
-/// rewritten to assert a skip.
+/// The accept predicate (`parse_collection_member`) and the engine used to
+/// disagree: the predicate asked only for a `data` array, the engine
+/// additionally required `meta`. A stray file in a collection directory
+/// therefore cleared the predicate, reached the engine and failed the whole
+/// run — losing every valid member to one file that was never collection data
+/// in the first place. The two now ask for the same thing, so the stray takes
+/// the skip path that already existed for non-SharpHound members.
+///
+/// Skipping is not a hole in invariant 1. A skipped member is excluded from
+/// the output rather than published unverified, and the run says so on stderr.
 #[test]
-fn an_unparseable_member_aborts_the_whole_collection() {
+fn a_member_with_no_meta_is_skipped_not_fatal() {
     let scratch = Scratch::new("stray");
     let input = scratch.collection("collection");
     fs::write(input.join("stray.json"), br#"{"data":[]}"#).expect("stray member");
     let out = scratch.path("out");
 
-    let err = run(&input, &out, None, Registry::new("test-salt"))
-        .expect_err("a member with no `meta` currently aborts");
-    let rendered = format!("{err:?}");
+    run(&input, &out, None, Registry::new("test-salt"))
+        .expect("a stray member must be skipped, not abort the collection");
+
+    // Directory input publishes a directory. It must hold the one valid member
+    // and not the stray.
+    let dest = out.join("collection_anon");
+    let mut published: Vec<String> = fs::read_dir(&dest)
+        .expect("published collection")
+        .map(|e| e.expect("entry").file_name().to_string_lossy().into_owned())
+        .collect();
+    published.sort();
+    assert_eq!(
+        published,
+        ["member-00002.json"],
+        "the valid sibling should be published and the stray excluded"
+    );
+
+    // `inspect` shares the read and discovery path, so it is the surface that
+    // can state which of the two members was skipped.
+    let report = inspect_collection(
+        &input,
+        Registry::new("test-salt"),
+        PolicyConfig::default(),
+        PolicyAudit::new(),
+        None,
+    )
+    .expect("inspect");
+    assert_eq!(report.members_read, 2, "both files should be read");
+    assert_eq!(
+        report.members_accepted, 1,
+        "only the real member should be accepted"
+    );
+    assert_eq!(
+        report.members_skipped.len(),
+        1,
+        "the stray member should be reported as skipped, not silently dropped"
+    );
     assert!(
-        rendered.contains("meta"),
-        "the abort should at least say what was missing: {rendered}"
+        report.abort.is_none(),
+        "the collection should inspect cleanly: {:?}",
+        report.abort
     );
 }
 

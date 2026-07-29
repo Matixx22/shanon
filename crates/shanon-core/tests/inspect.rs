@@ -250,14 +250,23 @@ fn a_non_sharphound_member_is_counted_as_skipped() {
 
 /// When a collection would abort, the dry run says so and carries the sanitized
 /// reason rather than raising it.
+///
+/// The trigger has to be a document the accept predicate lets through and the
+/// engine then refuses, which since the two were aligned means a malformed
+/// `data` element rather than a malformed `meta`: a member with no usable
+/// `meta` is now skipped, not aborted on. The first element is a real object so
+/// the document still carries a value the reason must not leak.
 #[test]
 fn a_collection_that_would_abort_reports_instead_of_failing() {
     let scratch = Scratch::new("would-abort");
     scratch.write(
         "collection/users.json",
         &json!({
-            "data": [{"Properties": {"name": "x"}, "ObjectIdentifier": "S-1-5-21-1-2-3-1104"}],
-            "meta": {"methods": 0, "type": "", "count": 1, "version": 6},
+            "data": [
+                {"Properties": {"name": "x"}, "ObjectIdentifier": "S-1-5-21-1-2-3-1104"},
+                42,
+            ],
+            "meta": {"methods": 0, "type": "users", "count": 2, "version": 6},
         }),
     );
     let report = report(&scratch.path("collection"));
@@ -266,4 +275,32 @@ fn a_collection_that_would_abort_reports_instead_of_failing() {
     assert!(abort.contains("ABORTED"), "got {abort}");
     // Sanitized: the reason names the document shape, never a value.
     assert!(!abort.contains("S-1-5-21-1-2-3-1104"), "got {abort}");
+}
+
+/// A member with no usable `meta` is skipped, and a collection of nothing but
+/// such members is a refusal rather than a silent empty success.
+///
+/// The second half is what keeps the skip honest. Widening the skip path is
+/// safe only while "everything was skipped" still fails loudly; if it ever
+/// returned an empty report, a collection could inspect clean by virtue of
+/// having been entirely discarded.
+#[test]
+fn a_collection_of_only_meta_less_members_is_refused() {
+    let scratch = Scratch::new("all-skipped");
+    scratch.write(
+        "collection/stray.json",
+        &json!({"data": [], "meta": {"methods": 0, "type": "", "count": 0, "version": 6}}),
+    );
+    let err = inspect_collection(
+        &scratch.path("collection"),
+        Registry::new("test-salt"),
+        PolicyConfig::default(),
+        PolicyAudit::new(),
+        None,
+    )
+    .expect_err("a collection with no usable member must be refused");
+    assert!(
+        format!("{err:?}").contains("no SharpHound collection documents"),
+        "got {err:?}"
+    );
 }

@@ -51,15 +51,44 @@ type Blake2b128 = Blake2b<U16>;
 ///
 /// LAPS and gMSA spellings are here because a collector that reads them emits
 /// them as ordinary `Properties` strings that no rule declares, which lands
-/// them in the fallback path and therefore in the map. Attributes that carry a
-/// timestamp or an interval rather than a secret (`ms-mcs-admpwdexpirationtime`,
-/// `msds-managedpasswordinterval`) are deliberately absent.
-pub(crate) const SECRET_MATERIAL_KEYS: [&str; 18] = [
+/// them in the fallback path and therefore in the map. The same reasoning adds
+/// three more families, each a real directory attribute rather than a guess:
+///
+/// * **Trust keys.** `trustAuthIncoming` / `trustAuthOutgoing` hold the
+///   inter-domain trust key, and `initialAuthIncoming` / `initialAuthOutgoing`
+///   the legacy trust password. A trust key forges tickets across a forest
+///   edge, which is exactly the edge an attack-path question is about.
+/// * **BitLocker.** `msFVE-RecoveryPassword` and `msFVE-KeyPackage` are
+///   recovery material stored on the computer object.
+/// * **Legacy hashes and GPP.** `dBCSPwd` is where the LM hash lives, and
+///   `cpassword` is the Group Policy Preferences field whose AES key Microsoft
+///   published, making it cleartext in practice.
+///
+/// The bare `password` and `pwd` spellings are here for a collector that names
+/// a custom attribute the obvious way. Matching is exact on the whole leaf, not
+/// a prefix, so they cannot swallow `pwdlastset`, `passwordlastset` or
+/// `passwordnotreqd`.
+///
+/// Attributes that carry a timestamp or an interval rather than a secret
+/// (`ms-mcs-admpwdexpirationtime`, `msds-managedpasswordinterval`) are
+/// deliberately absent, and so is `msds-keycredentiallink`, which holds a
+/// public key.
+///
+/// This is name-based recognition, and that is a known gap rather than a
+/// complete defense: a credential under an attribute this list does not know is
+/// still pseudonymized like any other string. See CHANGELOG's known gaps.
+pub(crate) const SECRET_MATERIAL_KEYS: [&str; 28] = [
     "cleartextpassword",
+    "cpassword",
+    "dbcspwd",
+    "initialauthincoming",
+    "initialauthoutgoing",
     "lmhash",
     "lmpwdhistory",
     "ms-mcs-admpwd",
     "msds-managedpassword",
+    "msfve-keypackage",
+    "msfve-recoverypassword",
     "mslaps-encrypteddsrmpassword",
     "mslaps-encrypteddsrmpasswordhistory",
     "mslaps-encryptedpassword",
@@ -67,8 +96,12 @@ pub(crate) const SECRET_MATERIAL_KEYS: [&str; 18] = [
     "mslaps-password",
     "nthash",
     "ntpwdhistory",
+    "password",
+    "pwd",
     "sfupassword",
     "supplementalcredentials",
+    "trustauthincoming",
+    "trustauthoutgoing",
     "unicodepassword",
     "unicodepwd",
     "unixpassword",

@@ -297,8 +297,20 @@ pub fn ensure_reuse_map_compatible(registry: &Registry) -> Result<(), ShanonErro
 // ---------------------------------------------------------------------------
 
 /// Parse and shape-check one collection member (`_parse_collection_member`).
-/// Returns `None` (skip) when the bytes are not a JSON object with a `data`
-/// array — a non-SharpHound member, excluded from output.
+/// Returns `None` (skip) when the bytes are not a SharpHound collection
+/// document — a non-SharpHound member, excluded from output.
+///
+/// The shape check must accept exactly what `Engine::contexts_for_document`
+/// accepts. It asks for three things, and so does this: a `data` array, a
+/// `meta` object, and a non-empty `meta.type`. When the two predicates
+/// disagreed, a stray file that cleared the looser one reached the engine,
+/// which refused it and aborted the whole collection — taking every valid
+/// sibling member with it. Widening this check is therefore a correctness
+/// change on both sides: loosening it resurrects that abort, tightening it
+/// silently drops members the engine would have handled.
+///
+/// This diverges from the reference `_parse_collection_member`, which checks
+/// only `data` and carries the defect.
 pub fn parse_collection_member(raw: &[u8]) -> Option<Map<String, Value>> {
     let text = std::str::from_utf8(raw).ok()?;
     let parsed: Value = serde_json::from_str(text).ok()?;
@@ -306,7 +318,15 @@ pub fn parse_collection_member(raw: &[u8]) -> Option<Map<String, Value>> {
     if !obj.get("data").map(|d| d.is_array()).unwrap_or(false) {
         return None;
     }
-    Some(obj.clone())
+    let meta_type = obj
+        .get("meta")
+        .and_then(|v| v.as_object())
+        .and_then(|m| m.get("type"))
+        .and_then(|v| v.as_str());
+    match meta_type {
+        Some(s) if !s.is_empty() => Some(obj.clone()),
+        _ => None,
+    }
 }
 
 /// Retain the last duplicate while preserving its first-name position
@@ -1540,10 +1560,29 @@ contextual verification failed: m.json data[0].x identity-not-transformed abcd"
 
     #[test]
     fn parse_member_skips_non_sharphound() {
-        assert!(parse_collection_member(b"{\"data\": []}").is_some());
+        assert!(
+            parse_collection_member(b"{\"meta\": {\"type\": \"users\"}, \"data\": []}").is_some()
+        );
         assert!(parse_collection_member(b"{\"data\": 7}").is_none());
         assert!(parse_collection_member(b"[]").is_none());
         assert!(parse_collection_member(b"not json").is_none());
+    }
+
+    /// The accept predicate asks for everything `contexts_for_document` asks
+    /// for. Each case below cleared the old `data`-only check, reached the
+    /// engine, and aborted the whole collection.
+    #[test]
+    fn parse_member_requires_the_same_meta_the_engine_does() {
+        // No `meta` at all.
+        assert!(parse_collection_member(b"{\"data\": []}").is_none());
+        // `meta` present but not an object.
+        assert!(parse_collection_member(b"{\"meta\": 6, \"data\": []}").is_none());
+        // `meta` object with no `type`.
+        assert!(parse_collection_member(b"{\"meta\": {\"version\": 6}, \"data\": []}").is_none());
+        // `meta.type` present but empty, which the engine also refuses.
+        assert!(parse_collection_member(b"{\"meta\": {\"type\": \"\"}, \"data\": []}").is_none());
+        // `meta.type` present but not a string.
+        assert!(parse_collection_member(b"{\"meta\": {\"type\": 6}, \"data\": []}").is_none());
     }
 
     #[test]
