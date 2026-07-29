@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Known gaps
 
 Recorded here so that closing any of them is a deliberate act, not a discovery.
-Every one of these is open as of 0.4.1.
+Every one of these is open as of 0.5.0.
 
 - **Windows directory input is not descriptor-anchored.** There is no `openat`,
   so the check for a reparse point and the open of the member are two
@@ -22,14 +22,15 @@ Every one of these is open as of 0.4.1.
   `create_new` still refuses to clobber. SECURITY.md tells Windows users to keep
   the map under their user profile; closing this properly means building a DACL
   and calling `SetSecurityInfo`.
-- **Undeclared numeric leaves are published.** `engine::visit` returns every
-  number, boolean and null verbatim before `FieldPolicy::resolve` runs, so a
-  collector emitting an organization-bound value as a JSON number at a path no
-  rule declares (a custom `employeeNumber` or `uidNumber` under
-  `CollectAllProperties`) has its key anonymized and its value published.
-  Redacting it would change the leaf's JSON type and the output has to stay
-  BloodHound-loadable, so closing this means first deciding what a redacted
-  *number* is. `shanon inspect` now makes every occurrence visible.
+- **Undeclared numeric recognition is path-based, not value-based.** 0.5.0
+  redacts numbers at paths no rule declares, which covers `ParseAllProperties`
+  spill. A collector that emits an organization-bound number at a path shanon
+  *does* declare would still publish it, and the fix is to keep `NUMERIC_PATHS`
+  tracking the collector rather than to widen the redaction.
+- **Booleans at undeclared paths are still published.** One bit cannot identify
+  anyone, and a real collection has enough undeclared booleans to bury the
+  numeric signal `inspect` exists to surface. Recorded so the asymmetry with
+  numbers is a decision rather than an oversight.
 - **Secret material is recognized by attribute name.** 0.4.1 widened the list,
   but it is still a list. A credential under an attribute it does not know is
   pseudonymized like any other string, so a collector that renames one, or a
@@ -48,6 +49,49 @@ The SPN, DN and catalog fixes diverge deliberately from the Python reference,
 which carries all three defects. Their new cases live in the Rust test files, so
 `tests/truth/` stays what it claims to be: a record of what the reference
 produces.
+
+## [0.5.0] - 2026-07-29
+
+Closes the numeric passthrough gap, which was the last one that leaked a real
+value. A collection run before this release and one run after it differ only at
+numeric leaves the policy does not declare.
+
+### Security
+
+- A numeric leaf at a path no rule declares is replaced with a type-stable
+  sentinel instead of being published verbatim. `-1`, or `-2` where the source
+  was already `-1`, and a float stays a float so the output is still
+  BloodHound-loadable.
+- This matters because of how the collector behaves, not just the schema.
+  SharpHound's `BestGuessConvert` turns any attribute whose string value parses
+  as an integer into a JSON number, so under `--collectallproperties` a custom
+  `employeeNumber` or `uidNumber` arrives as one.
+- The severity is re-identification, not one leaked field. Matching a numeric
+  employee ID against an HR roster recovers the account behind a pseudonym, and
+  its name, UPN, DN and every edge fall with it.
+- The value is destroyed rather than pseudonymized. Nothing in BloodHound's
+  analysis reads these attributes, so distinctness buys no reasoning and would
+  preserve exactly the correlation that re-identifies. Nothing is written to the
+  mapping file and the map format is unchanged.
+- `verify` re-derives the sentinel from the frozen policy rather than trusting
+  the engine, so an engine that skipped one aborts the run.
+
+### Added
+
+- Ten numeric properties the collector emits are now declared and preserved
+  verbatim: `authorizedsignatures`, `basicconstraintpathlength`, `flags`,
+  `lockoutobservationwindow`, `lockoutthreshold`, `machineaccountquota`,
+  `minpwdlength`, `pwdhistorylength`, `pwdproperties`, `schemaversion`. Each is
+  a configuration value identical across every domain that never changed it.
+- Declaring them is what makes the redaction above safe: everything still
+  undeclared is `ParseAllProperties` spill rather than a standard field.
+- `--keep-undeclared-numbers` on `anonymize` and `inspect` restores verbatim
+  passthrough for operators who want the extra context.
+
+### Changed
+
+- `inspect` counts `undeclared-numeric-value` whether or not the redaction is
+  on, so the report says what the collection contained either way.
 
 ## [0.4.1] - 2026-07-29
 
@@ -376,7 +420,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Matixx22/shanon/releases/tag/v0.5.0
 [0.4.1]: https://github.com/Matixx22/shanon/releases/tag/v0.4.1
 [0.4.0]: https://github.com/Matixx22/shanon/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Matixx22/shanon/releases/tag/v0.3.0
