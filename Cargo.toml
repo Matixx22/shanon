@@ -24,13 +24,15 @@ caseless = "0.2" # Unicode full case folding (CaseFolding.txt C+F mappings)
 fancy-regex = "0.18"
 proptest = "1"   # path-grammar round-trip + cross-impl fuzz (P1)
 thiserror = "2"  # §3.4 error/exit-code contract (ShanonError enum)
-# §3.5 platform layer: openat-anchored traversal + renameat_with(NOREPLACE).
+# §3.5 platform layer, Unix only: openat-anchored traversal +
+# renameat_with(NOREPLACE). Windows has no openat, so its backend calls Win32.
 rustix = { version = "1", features = ["fs"] }
 # Zip DEFLATE output must be byte-stable against the system zlib, so flate2 is
 # pinned to the C `zlib` backend (miniz_oxide diverges). §4 parity.
 flate2 = { version = "1", default-features = false, features = ["zlib"] }
 getrandom = "0.4"  # OsRng salt for Registry::new_random (P2-deferred, wired P4)
-# macOS atomic no-replace publish uses renamex_np(RENAME_EXCL); rustix's
-# renameat_with(RENAME_NOREPLACE) is Linux-only. Scoped to non-Linux in §3.5.
+# macOS/BSD atomic no-replace publish uses renamex_np(RENAME_EXCL); rustix's
+# renameat_with(RENAME_NOREPLACE) is Linux-only. Scoped to non-Linux Unix in
+# §3.5; Windows publishes with MoveFileExW and needs no crate for it.
 libc = "0.2"
 clap = { version = "4", features = ["derive"] }

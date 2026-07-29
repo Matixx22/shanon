@@ -23,6 +23,8 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: macos-latest
             target: aarch64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
     # Release binaries must be built by current stable, not by the MSRV.
     # rust-toolchain.toml pins the repository to 1.97 and outranks
@@ -47,7 +49,8 @@ jobs:
       - name: Build release binary
         run: cargo build --release --locked -p shanon-cli --target ${{ matrix.target }}
 
-      - name: Package
+      - name: Package (tar.gz)
+        if: runner.os != 'Windows'
         env:
           REF_NAME: ${{ github.ref_name }}
           TARGET: ${{ matrix.target }}
@@ -56,12 +59,31 @@ jobs:
           tar -C "target/${TARGET}/release" -czf "$archive" shanon
           shasum -a 256 "$archive" > "$archive.sha256"
 
+      # Windows gets a zip because that is what unpacks without extra tooling,
+      # and PowerShell's own hasher because git-bash's coreutils are not
+      # guaranteed on a runner image. The `.sha256` line keeps the
+      # `<hash>  <file>` shape the other two targets emit, so one checksum
+      # format documents all three.
+      - name: Package (zip)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          $archive = "shanon-$env:REF_NAME-$env:TARGET.zip"
+          Compress-Archive -Path "target/$env:TARGET/release/shanon.exe" -DestinationPath $archive
+          $hash = (Get-FileHash -Algorithm SHA256 -Path $archive).Hash.ToLower()
+          "$hash  $archive`n" | Out-File -FilePath "$archive.sha256" -Encoding ascii -NoNewline
+
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: shanon-${{ matrix.target }}
           path: |
             shanon-*.tar.gz
             shanon-*.tar.gz.sha256
+            shanon-*.zip
+            shanon-*.zip.sha256
 
   release:
     needs: build
@@ -78,4 +100,6 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.tar.gz.sha256
+            dist/*.zip
+            dist/*.zip.sha256
           generate_release_notes: true

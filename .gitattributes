@@ -1,0 +1,19 @@
+# Everything in this repository is stored and checked out with LF endings.
+#
+# This is not a style preference. `tests/truth/` and `tests/parity/` hold
+# byte-exact vectors the reference implementation produced, and invariant 2
+# makes those bytes a contract. Git's `core.autocrlf` defaults to true on
+# Windows, so without this file a Windows checkout rewrites them to CRLF and the
+# interop assertions compare shanon's correct output against a corrupted
+# fixture. That is exactly what happened the first time CI ran on
+# `windows-latest`.
+#
+# `eol=lf` and not `text=auto` alone: normalization has to reach the working
+# tree, not just the index.
+* text=auto eol=lf
+
+# Fixtures and golden vectors are data, not text: never convert them under any
+# setting, on any platform, in either direction.
+*.json -text
+tests/truth/** -text
+tests/parity/** -text

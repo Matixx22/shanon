@@ -161,6 +161,13 @@ fn an_aborted_run_writes_no_output_no_map_and_no_staging() {
 /// does not exist, so a plain `exists()` answers false and the run would
 /// proceed to write a mapping file for a collection whose publish is going to
 /// fail anyway.
+///
+/// Unix-only: creating a symlink on Windows needs either developer mode or
+/// `SeCreateSymbolicLinkPrivilege`, so the test would report a privilege failure
+/// rather than a publish failure. The behaviour it pins is covered on Windows by
+/// `MoveFileExW` refusing an occupied destination, which does not resolve
+/// reparse points either.
+#[cfg(unix)]
 #[test]
 fn a_dangling_symlink_at_the_destination_is_refused_before_the_map_is_written() {
     let scratch = Scratch::new("dangling");

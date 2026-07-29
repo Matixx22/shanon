@@ -13,8 +13,12 @@ SharpHound JSON format (still BloodHound-loadable) and every graph
 cross-reference intact. It writes a local reversal map so the model's output can
 be de-anonymized.
 
-Non-goals, permanently: network access, LLM calls, mutating the input collection,
-Windows support.
+Non-goals, permanently: network access, LLM calls, mutating the input
+collection.
+
+Runs on Linux, macOS and Windows. The anonymization is byte-identical across
+all three; two local-filesystem guarantees are weaker on Windows (see
+`platform` below and SECURITY.md).
 
 ## Commands
 
@@ -57,7 +61,7 @@ Two-crate workspace:
    `verify.rs` does *not* trust the engine's transform records: it re-resolves
    policy and re-derives the expected output for every string leaf, then
    compares.
-5. **Publish** by no-replace atomic rename (`platform.rs`, openat-anchored) only
+5. **Publish** by no-replace atomic rename (`platform.rs`) only
    after all members pass. An existing destination is refused.
 
 Any divergence becomes a sanitized finding (BLAKE2b-6 fingerprint of the
@@ -101,9 +105,19 @@ offender, never the real value) that aborts the run with no output written.
   one (invariants 1 and 3). Rendering lives in `shanon-cli/src/progress.rs` and
   is suppressed unless stderr is a terminal, which is what keeps the frozen
   stdout/stderr surface intact.
-- **`platform`**: openat-anchored traversal and atomic no-replace publish.
-  Linux and macOS only. macOS uses `renamex_np(RENAME_EXCL)` through a scoped
-  `libc` FFI call, the one `unsafe` block in the crate.
+- **`platform`**: anchored traversal, private file creation, and atomic
+  no-replace publish, behind one platform-neutral surface. `DirRoot` is opaque,
+  so no fd or `HANDLE` type reaches `pipeline`. Three backends: Linux is
+  `openat` + `renameat2(RENAME_NOREPLACE)` via `rustix` and entirely safe;
+  macOS/BSD shares the traversal but publishes through a scoped `libc`
+  `renamex_np(RENAME_EXCL)` FFI call; Windows has no `openat`, so it refuses a
+  reparse point at every path component and publishes with `MoveFileExW`
+  (no `MOVEFILE_REPLACE_EXISTING`). Those two FFI calls are the only `unsafe`
+  blocks in the crate. `paths_equal` / `path_within` also live here: path
+  identity is case-insensitive on Windows, and `pipeline`'s containment guards
+  must not be byte comparisons. The Windows traversal guarantee is *weaker* than
+  the other two by design and is documented in SECURITY.md; do not describe it
+  as equivalent.
 
 ## Invariants
 
