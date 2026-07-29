@@ -32,6 +32,11 @@ what that boundary covers, what it does not, and how to report a leak.
   label, a collision-safe path, a policy code, and an offender fingerprint,
   never the original secret or the source filename. Policy audit summaries
   contain counts and canonical paths, not source values.
+- **Findings are safe to paste.** The offender fingerprint is keyed on the run
+  salt, so it cannot be recovered by hashing a candidate list, and the same
+  value produces a different token in every run. Two sets of findings from two
+  engagements cannot be correlated by anyone who does not hold both mapping
+  files.
 - **No network. No LLM calls. Never mutates your input.** The tool itself
   transmits nothing, anywhere.
 

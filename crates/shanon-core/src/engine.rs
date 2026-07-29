@@ -376,7 +376,7 @@ impl AnonymizationEngine {
             member: self.current_member.clone(),
             node_type: context.node_type.clone(),
             path: record_path.to_string(),
-            offender: crate::verify::fingerprint(value),
+            offender: crate::verify::fingerprint(&self.registry.salt, value),
         });
     }
 

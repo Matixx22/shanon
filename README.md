@@ -236,8 +236,11 @@ verdict: this collection would anonymize cleanly
 ```
 
 Every line is a count, a synthetic `member-NNNNN.json` label, a canonical field
-path or a BLAKE2b-6 fingerprint, never a source value and never a source
-filename, so the report can be shared for a collection that cannot be. That
+path or a salt-keyed BLAKE2b-6 fingerprint, never a source value and never a
+source filename, so the report can be shared for a collection that cannot be.
+Keyed matters: the token is stable within a run and reversible by whoever holds
+the mapping file, and it is not the digest of a guessable value, so nobody can
+recover it from a candidate list or use it to link two collections. That
 also means the *names* of unmodeled fields appear as fingerprints rather than
 in clear: the path tells you where the drift is, the digest tells you it is the
 same field each time.

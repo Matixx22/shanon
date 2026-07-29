@@ -3,7 +3,7 @@
 //! The verifier re-resolves policy and re-derives the exact expected output for
 //! every string leaf **without trusting the engine's transform records**, then
 //! compares. Any divergence is reported as a sanitized [`VerificationFinding`]
-//! whose `offender` is a BLAKE2b-6 fingerprint (§3.1a) —
+//! whose `offender` is a salt-keyed BLAKE2b-6 fingerprint (§3.1a) —
 //! real source/output values are never retained. The finding's textual shape
 //! (`gate`, `member`, `path`, `policy_code`, `offender`) is part of the
 //! byte-parity/error contract: the CLI formats it into the aborted-leak block.
@@ -121,14 +121,34 @@ struct SourceLeaf {
     reference_node_type: Option<String>,
 }
 
-/// `blake2b(value, digest_size=6).hexdigest()` (§3.1a leak-gate token).
+/// `blake2b(salt || "finding" || value, digest_size=6).hexdigest()`
+/// (§3.1a leak-gate token, keyed).
 ///
 /// Shared with the engine so an abort locator fingerprints its offender exactly
 /// the way a leak-gate finding does.
-pub(crate) fn fingerprint(value: &str) -> String {
+///
+/// The reference's token was unkeyed, which made 48 bits over a guessable
+/// domain (hostnames, sAMAccountNames, a few thousand candidates) trivially
+/// recoverable by anyone who could enumerate the domain, and made the same
+/// value produce the same token in every run on every machine, so two
+/// collections that were never meant to be linkable could be correlated
+/// through the findings alone. Keying it with the run salt leaves the token
+/// deterministic for whoever holds the mapping file and meaningless to
+/// everyone else. It is a diagnostic, never collection bytes, so no frozen
+/// output surface depends on the value.
+///
+/// The `finding` label is domain separation: a token can never collide with a
+/// `Registry::_seed_int` input, which hashes `salt || category || value` over
+/// the same salt.
+pub(crate) fn fingerprint(salt: &str, value: &str) -> String {
     use blake2::digest::consts::U6;
     use blake2::{Blake2b, Digest};
+    const US: &[u8] = b"\x1f";
     let mut hasher = Blake2b::<U6>::new();
+    hasher.update(salt.as_bytes());
+    hasher.update(US);
+    hasher.update(b"finding");
+    hasher.update(US);
     hasher.update(value.as_bytes());
     let digest = hasher.finalize();
     let mut s = String::with_capacity(12);
@@ -140,13 +160,19 @@ pub(crate) fn fingerprint(value: &str) -> String {
     s
 }
 
-fn finding(member: &str, path: &str, policy_code: &str, source_value: &str) -> VerificationFinding {
+fn finding(
+    salt: &str,
+    member: &str,
+    path: &str,
+    policy_code: &str,
+    source_value: &str,
+) -> VerificationFinding {
     VerificationFinding {
         gate: "contextual-verification".to_string(),
         member: member.to_string(),
         path: path.to_string(),
         policy_code: policy_code.to_string(),
-        offender: fingerprint(source_value),
+        offender: fingerprint(salt, source_value),
     }
 }
 
@@ -226,6 +252,7 @@ fn object_contexts(member: &str, source: &Map<String, Value>) -> Vec<ObjectConte
 
 #[allow(clippy::too_many_arguments)]
 fn project_contextual_source(
+    salt: &str,
     member: &str,
     value: &Value,
     context: &ObjectContext,
@@ -264,6 +291,7 @@ fn project_contextual_source(
                         Ok(k) => k,
                         Err(_) => {
                             findings.push(finding(
+                                salt,
                                 member,
                                 record_path,
                                 "registry-mapping-missing",
@@ -274,11 +302,18 @@ fn project_contextual_source(
                     }
                 };
                 if projected.contains_key(&projected_key) {
-                    findings.push(finding(member, record_path, "output-key-collision", key));
+                    findings.push(finding(
+                        salt,
+                        member,
+                        record_path,
+                        "output-key-collision",
+                        key,
+                    ));
                     continue;
                 }
                 let projected_child = join(record_path, &projected_key);
                 let child_value = project_contextual_source(
+                    salt,
                     member,
                     child,
                     context,
@@ -298,6 +333,7 @@ fn project_contextual_source(
             let mut projected_list = Vec::with_capacity(items.len());
             for (index, child) in items.iter().enumerate() {
                 projected_list.push(project_contextual_source(
+                    salt,
                     member,
                     child,
                     context,
@@ -329,6 +365,7 @@ fn project_contextual_source(
 }
 
 fn projected_source(
+    salt: &str,
     member: &str,
     source: &Map<String, Value>,
     field_policy: &FieldPolicy,
@@ -342,6 +379,7 @@ fn projected_source(
 
     if let Some(meta) = source.get("meta") {
         let meta_projected = project_contextual_source(
+            salt,
             member,
             meta,
             &doc_context,
@@ -362,6 +400,7 @@ fn projected_source(
         for (index, item) in data.iter().enumerate() {
             let context = contexts.get(index).unwrap_or(&doc_context);
             projected_data.push(project_contextual_source(
+                salt,
                 member,
                 item,
                 context,
@@ -394,18 +433,19 @@ fn projected_source(
             match reg.map(OPAQUE, key) {
                 Ok(k) => k,
                 Err(_) => {
-                    findings.push(finding(member, "", "registry-mapping-missing", key));
+                    findings.push(finding(salt, member, "", "registry-mapping-missing", key));
                     continue;
                 }
             }
         };
         if projected_root_keys.contains(&projected_key) {
-            findings.push(finding(member, "", "output-key-collision", key));
+            findings.push(finding(salt, member, "", "output-key-collision", key));
             continue;
         }
         projected_root_keys.insert(projected_key.clone());
         let record_path = object_path("", &projected_key);
         let child = project_contextual_source(
+            salt,
             member,
             value,
             &doc_context,
@@ -508,6 +548,7 @@ fn flat_values(value: &Value, path: &str, out: &mut IndexMap<String, Flat>) {
 // ---------------------------------------------------------------------------
 
 fn validated_template_targets(
+    salt: &str,
     member: &str,
     ctx: &VerificationContext,
     findings: &mut Vec<VerificationFinding>,
@@ -551,10 +592,11 @@ fn validated_template_targets(
             valid.insert(key.clone(), evidence.clone());
         } else {
             findings.push(finding(
+                salt,
                 member,
                 &format!(
                     "verification_context.catalog_template_targets[{}]",
-                    fingerprint(key)
+                    fingerprint(salt, key)
                 ),
                 "invalid-target-evidence",
                 &evidence.source_value,
@@ -565,6 +607,7 @@ fn validated_template_targets(
 }
 
 fn validated_domain_rid_targets(
+    salt: &str,
     member: &str,
     ctx: &VerificationContext,
     findings: &mut Vec<VerificationFinding>,
@@ -591,10 +634,11 @@ fn validated_domain_rid_targets(
             valid.insert(key.clone(), evidence.clone());
         } else {
             findings.push(finding(
+                salt,
                 member,
                 &format!(
                     "verification_context.catalog_domain_rid_targets[{}]",
-                    fingerprint(key)
+                    fingerprint(salt, key)
                 ),
                 "invalid-target-evidence",
                 &evidence.source_identifier,
@@ -999,27 +1043,40 @@ fn output_shape_valid(
 // ---------------------------------------------------------------------------
 
 fn source_validation_findings(
+    salt: &str,
     member: &str,
     source: &Map<String, Value>,
 ) -> Vec<VerificationFinding> {
     let mut findings = Vec::new();
     let meta = match source.get("meta").and_then(|v| v.as_object()) {
         Some(m) => m,
-        None => return vec![finding(member, "meta", "source-invalid-meta", "")],
+        None => return vec![finding(salt, member, "meta", "source-invalid-meta", "")],
     };
     match meta.get("type") {
         Some(Value::String(s)) if !s.is_empty() => {}
         Some(Value::String(s)) => {
-            findings.push(finding(member, "meta.type", "source-invalid-meta-type", s));
+            findings.push(finding(
+                salt,
+                member,
+                "meta.type",
+                "source-invalid-meta-type",
+                s,
+            ));
         }
         _ => {
-            findings.push(finding(member, "meta.type", "source-invalid-meta-type", ""));
+            findings.push(finding(
+                salt,
+                member,
+                "meta.type",
+                "source-invalid-meta-type",
+                "",
+            ));
         }
     }
     let data = match source.get("data").and_then(|v| v.as_array()) {
         Some(d) => d,
         None => {
-            findings.push(finding(member, "data", "source-invalid-data", ""));
+            findings.push(finding(salt, member, "data", "source-invalid-data", ""));
             return findings;
         }
     };
@@ -1031,6 +1088,7 @@ fn source_validation_findings(
     };
     if !count_ok {
         findings.push(finding(
+            salt,
             member,
             "meta.count",
             "source-invalid-meta-count",
@@ -1041,6 +1099,7 @@ fn source_validation_findings(
         if !item.is_object() {
             let offender = item.as_str().unwrap_or("");
             findings.push(finding(
+                salt,
                 member,
                 &array_path("data", index),
                 "source-invalid-data-item",
@@ -1090,29 +1149,41 @@ pub fn verify_document_with_progress(
     progress: Option<&ProgressSink>,
 ) -> Vec<VerificationFinding> {
     let mut findings: Vec<VerificationFinding> = Vec::new();
+    // Findings are keyed on the run salt, so a token is only correlatable by
+    // whoever holds the mapping file. Cloned because `reg` is borrowed mutably
+    // for the length of the re-derivation below.
+    let salt = reg.salt.clone();
+    let salt = salt.as_str();
 
     if reg.validate_trust_root().is_err() {
-        findings.push(finding(member, "", "unsafe-registry", ""));
+        findings.push(finding(salt, member, "", "unsafe-registry", ""));
         return findings;
     }
     if !reg.is_frozen() {
-        findings.push(finding(member, "", "registry-not-frozen", ""));
+        findings.push(finding(salt, member, "", "registry-not-frozen", ""));
         return findings;
     }
 
-    let source_findings = source_validation_findings(member, source);
+    let source_findings = source_validation_findings(salt, member, source);
     if !source_findings.is_empty() {
         return source_findings;
     }
 
     let before = reg.verification_snapshot();
 
-    let targets = validated_template_targets(member, verification_context, &mut findings);
+    let targets = validated_template_targets(salt, member, verification_context, &mut findings);
     let domain_rid_targets =
-        validated_domain_rid_targets(member, verification_context, &mut findings);
+        validated_domain_rid_targets(salt, member, verification_context, &mut findings);
     let field_policy = FieldPolicy::defaults_with(verification_context.policy.clone());
-    let (projected, leaves) =
-        projected_source(member, source, &field_policy, reg, &mut findings, progress);
+    let (projected, leaves) = projected_source(
+        salt,
+        member,
+        source,
+        &field_policy,
+        reg,
+        &mut findings,
+        progress,
+    );
 
     let mut source_flat: IndexMap<String, Flat> = IndexMap::new();
     flat_values(&Value::Object(projected), "", &mut source_flat);
@@ -1131,6 +1202,7 @@ pub fn verify_document_with_progress(
                 _ => String::new(),
             };
             findings.push(finding(
+                salt,
                 member,
                 if in_source { path } else { "" },
                 "source-output-topology-mismatch",
@@ -1145,7 +1217,13 @@ pub fn verify_document_with_progress(
                 Flat::Str(v) => v.clone(),
                 _ => String::new(),
             };
-            findings.push(finding(member, path, "value-type-mismatch", &offender));
+            findings.push(finding(
+                salt,
+                member,
+                path,
+                "value-type-mismatch",
+                &offender,
+            ));
         } else if canonical_path(path).ends_with("properties.functionallevel")
             && matches!(s, Flat::Int(_) | Flat::Float(_))
         {
@@ -1161,12 +1239,18 @@ pub fn verify_document_with_progress(
             let out_val: Value = serde_json::from_str(out_token).unwrap_or(Value::Null);
             let expected = redact_functional_level_number(&src_val).ok();
             if expected.as_ref() != Some(&out_val) {
-                findings.push(finding(member, path, "schema-value-mismatch", ""));
+                findings.push(finding(salt, member, path, "schema-value-mismatch", ""));
             }
         } else if !matches!(s, Flat::Str(_) | Flat::Mapping(_) | Flat::List(_)) && s != o {
-            findings.push(finding(member, path, "schema-value-mismatch", ""));
+            findings.push(finding(salt, member, path, "schema-value-mismatch", ""));
         } else if matches!(s, Flat::Mapping(_) | Flat::List(_)) && s != o {
-            findings.push(finding(member, path, "source-output-topology-mismatch", ""));
+            findings.push(finding(
+                salt,
+                member,
+                path,
+                "source-output-topology-mismatch",
+                "",
+            ));
         }
     }
 
@@ -1187,6 +1271,7 @@ pub fn verify_document_with_progress(
                 .unwrap_or(true)
         {
             findings.push(finding(
+                salt,
                 member,
                 if source_flat.contains_key(path) {
                     path
@@ -1202,18 +1287,24 @@ pub fn verify_document_with_progress(
     for (path, leaf) in &leaves {
         let path_records = records_by_path.get(path).cloned().unwrap_or_default();
         if path_records.is_empty() {
-            findings.push(finding(member, path, "record-missing", &leaf.value));
+            findings.push(finding(salt, member, path, "record-missing", &leaf.value));
             continue;
         }
         if path_records.len() != 1 {
-            findings.push(finding(member, path, "record-duplicate", &leaf.value));
+            findings.push(finding(salt, member, path, "record-duplicate", &leaf.value));
             continue;
         }
         let record = path_records[0];
         let (expected_decision_value, target) =
             expected_decision(&field_policy, leaf, &targets, &domain_rid_targets);
         if record.context != leaf.context || record.decision != expected_decision_value {
-            findings.push(finding(member, path, "policy-record-mismatch", &leaf.value));
+            findings.push(finding(
+                salt,
+                member,
+                path,
+                "policy-record-mismatch",
+                &leaf.value,
+            ));
         }
         let actual = output_flat.get(path);
         let actual_str = match actual {
@@ -1221,7 +1312,13 @@ pub fn verify_document_with_progress(
             _ => None,
         };
         if record.source_value != leaf.value || Some(&record.output_value) != actual_str.as_ref() {
-            findings.push(finding(member, path, "policy-record-mismatch", &leaf.value));
+            findings.push(finding(
+                salt,
+                member,
+                path,
+                "policy-record-mismatch",
+                &leaf.value,
+            ));
         }
         reg.take_trait_error();
         let expected = match expected_output(
@@ -1235,6 +1332,7 @@ pub fn verify_document_with_progress(
             Ok(s) if reg.take_trait_error().is_none() => s,
             _ => {
                 findings.push(finding(
+                    salt,
                     member,
                     path,
                     "registry-mapping-missing",
@@ -1246,6 +1344,7 @@ pub fn verify_document_with_progress(
         let actual_matches = actual_str.as_deref() == Some(expected.as_str());
         if !actual_matches {
             findings.push(finding(
+                salt,
                 member,
                 path,
                 &output_mismatch_code(&expected_decision_value, actual, &leaf.value),
@@ -1253,7 +1352,13 @@ pub fn verify_document_with_progress(
             ));
         }
         if !output_shape_valid(leaf, &expected_decision_value, actual) {
-            findings.push(finding(member, path, "output-shape-mismatch", &leaf.value));
+            findings.push(finding(
+                salt,
+                member,
+                path,
+                "output-shape-mismatch",
+                &leaf.value,
+            ));
         }
     }
 
@@ -1263,13 +1368,13 @@ pub fn verify_document_with_progress(
                 .first()
                 .map(|r| r.source_value.as_str())
                 .unwrap_or("");
-            findings.push(finding(member, "", "record-extra", source_value));
+            findings.push(finding(salt, member, "", "record-extra", source_value));
         }
     }
 
     let after = reg.verification_snapshot();
     if after.changed_from(&before) {
-        findings.push(finding(member, "", "registry-state-changed", ""));
+        findings.push(finding(salt, member, "", "registry-state-changed", ""));
     }
     findings
 }
