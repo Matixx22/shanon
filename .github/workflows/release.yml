@@ -26,20 +26,30 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
-    # Release binaries must be built by current stable, not by the MSRV.
-    # rust-toolchain.toml pins the repository to 1.97 and outranks
-    # `rustup default`, so without this the shipped artifacts would silently be
-    # MSRV builds. An environment variable outranks the file.
+    # The compiler that builds a published artifact is pinned to an exact
+    # version, not to a moving channel. `stable` would resolve to whatever it
+    # meant at tag time, which made the toolchain the last non-deterministic
+    # input to a release: re-running this workflow for the same tag could ship
+    # different bytes. The build is already `--locked`, so with this pin the
+    # whole input set is fixed.
+    #
+    # This must stay an environment variable rather than a `rustup default`,
+    # because rust-toolchain.toml pins the repository to the MSRV (1.97) and
+    # outranks `rustup default`. Without it the artifacts would silently be MSRV
+    # builds, and `channel = "1.97"` itself floats across 1.97.x patches.
+    #
+    # Bumping this is a deliberate act: change it in its own commit, let CI's
+    # `test` job (which still tracks stable) prove the new version first.
     env:
-      RUSTUP_TOOLCHAIN: stable
+      RUSTUP_TOOLCHAIN: "1.97.1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Rust toolchain
         run: |
-          rustup toolchain install stable --profile minimal
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
           rustup target add ${{ matrix.target }}
-          rustup default stable
+        shell: bash
 
       - name: Show active toolchain
         run: rustc --version --verbose
