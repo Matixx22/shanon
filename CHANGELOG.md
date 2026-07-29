@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Known gaps
 
 Recorded here so that closing any of them is a deliberate act, not a discovery.
-Every one of these is open as of 0.4.0.
+Every one of these is open as of 0.4.1.
 
 - **Windows directory input is not descriptor-anchored.** There is no `openat`,
   so the check for a reparse point and the open of the member are two
@@ -30,17 +30,12 @@ Every one of these is open as of 0.4.0.
   Redacting it would change the leaf's JSON type and the output has to stay
   BloodHound-loadable, so closing this means first deciding what a redacted
   *number* is. `shanon inspect` now makes every occurrence visible.
-- **Secret material is recognized by attribute name.** A credential under an
-  attribute the list does not know is pseudonymized like any other string, so a
-  collector that renames one, or a custom attribute holding a password, still
-  puts the cleartext in the mapping file.
-- **A member that parses but carries no `meta` aborts the whole collection**
-  instead of being skipped, taking valid siblings with it. `tests/publish.rs`
-  pins the current behavior and states what a fix would look like.
-- **The release job's toolchain is unpinned:** it resolves whatever
-  `rustup toolchain install stable` means at tag time. The build is already
-  `--locked`, so this is the last non-deterministic input to a published
-  artifact.
+- **Secret material is recognized by attribute name.** 0.4.1 widened the list,
+  but it is still a list. A credential under an attribute it does not know is
+  pseudonymized like any other string, so a collector that renames one, or a
+  custom attribute holding a password, still puts the cleartext in the mapping
+  file. Closing this properly means recognizing secrets by shape or entropy
+  rather than by name.
 - **Three high-entropy domain SID authorities of unverified provenance remain**
   in `tests/parity/` and `tests/truth/`, frozen into vectors the Python
   reference produced. They are allowlisted explicitly rather than silently
@@ -53,6 +48,36 @@ The SPN, DN and catalog fixes diverge deliberately from the Python reference,
 which carries all three defects. Their new cases live in the Rust test files, so
 `tests/truth/` stays what it claims to be: a record of what the reference
 produces.
+
+## [0.4.1] - 2026-07-29
+
+Closes three of the gaps 0.4.0 recorded. No change to the anonymization of a
+collection that already ran clean: same pseudonyms, same output bytes.
+
+### Security
+
+- Secret-material redaction covers ten more credential attributes: forest trust
+  keys (`trustAuthIncoming`, `trustAuthOutgoing`, `initialAuthIncoming`,
+  `initialAuthOutgoing`), BitLocker recovery material (`msFVE-RecoveryPassword`,
+  `msFVE-KeyPackage`), the legacy LM store (`dBCSPwd`), the Group Policy
+  Preferences `cpassword` field, and the bare `password` and `pwd` spellings.
+- A trust key is the one worth calling out. It forges tickets across a forest
+  edge, which is the edge an attack-path question is usually about.
+- Matching stays exact on the whole leaf name, so `pwdlastset` and
+  `passwordnotreqd` still take the ordinary path. A test pins that.
+
+### Fixed
+
+- A member that parses but carries no usable `meta` is skipped instead of
+  aborting the whole collection. It no longer takes its valid siblings with it.
+- The accept predicate now asks for exactly what the engine asks for: a `data`
+  array, a `meta` object, and a non-empty `meta.type`. The two disagreeing is
+  what caused that abort.
+- A collection whose members are *all* skipped is still refused, so nothing can
+  inspect clean by virtue of having been entirely discarded.
+- The release workflow builds with a pinned compiler version instead of whatever
+  `stable` resolved to at tag time. With the existing `--locked`, a tagged build
+  now has no floating inputs.
 
 ## [0.4.0] - 2026-07-29
 
@@ -351,7 +376,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/Matixx22/shanon/releases/tag/v0.4.1
 [0.4.0]: https://github.com/Matixx22/shanon/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Matixx22/shanon/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Matixx22/shanon/releases/tag/v0.2.0
