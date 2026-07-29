@@ -266,6 +266,34 @@ impl ShanonError {
 }
 
 // ---------------------------------------------------------------------------
+// Reuse gate.
+// ---------------------------------------------------------------------------
+
+/// Refuse a reuse mapping whose catalog version is not this build's.
+///
+/// A registry reused across collections carries pseudonyms that were minted
+/// under the catalog the mapping file records. When that catalog differs from
+/// [`CATALOG_VERSION`](crate::catalog::CATALOG_VERSION), the two collections
+/// disagree about which values the catalog preserves, so the reused mapping
+/// says one thing and the new collection says another.
+///
+/// Fail-closed (invariant 1): a mapping that does not state its catalog version
+/// is refused as well, because an unknown version is a disagreement that cannot
+/// be ruled out. `shanon restore` does not run this gate; reversal reads the
+/// mapping's own entries and does not depend on catalog agreement.
+pub fn ensure_reuse_map_compatible(registry: &Registry) -> Result<(), ShanonError> {
+    match registry.source_catalog_version() {
+        Some(v) if v == crate::catalog::CATALOG_VERSION => Ok(()),
+        Some(_) => Err(ShanonError::UnsafeMapping(
+            "mapping file was written under a different catalog version".into(),
+        )),
+        None => Err(ShanonError::UnsafeMapping(
+            "mapping file does not record a catalog version".into(),
+        )),
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Platform-independent helpers.
 // ---------------------------------------------------------------------------
 
