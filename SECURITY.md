@@ -69,6 +69,30 @@ what that boundary covers, what it does not, and how to report a leak.
   unless you specifically want the collections linked.
 - **Your prompt.** shanon scrubs the collection, not the sentences you type
   around it. Do not paste real names into the chat yourself.
+- **Two filesystem guarantees on Windows.** The anonymization itself is
+  identical on all three platforms: same classification, same pseudonyms, same
+  independent verification, same byte output. Two things around it are weaker on
+  Windows, both of them local-filesystem properties rather than anything the LLM
+  sees.
+
+  First, *directory input is not descriptor-anchored*. Linux and macOS walk a
+  directory collection through `openat` hops from a pinned root, so a component
+  swapped mid-run cannot redirect the read. Windows has no `openat`, so the
+  backend instead refuses a reparse point at every component and opens the member
+  with `FILE_FLAG_OPEN_REPARSE_POINT`. That still blocks a symlink or junction
+  escape, but the check and the open are two operations, so an attacker who can
+  write into your input directory *while a run is in progress* has a race the
+  other platforms do not give them. ZIP input is unaffected, and so is the output
+  side: publication is still an atomic no-replace `MoveFileExW`.
+
+  Second, *the mapping file is created with the parent directory's ACL*, because
+  Windows has no `umask` and no cheap owner-only creation mode. On Linux and
+  macOS it is `0o600` from the moment it exists. Write it somewhere already
+  restricted, under your user profile rather than `C:\Temp` or a share.
+
+  If your threat model includes a hostile local user on the box you run shanon
+  on, run it on Linux or macOS, or feed it the ZIP rather than an extracted
+  directory.
 - **Policy overrides.** The default CLI does not support raw substring, vendor,
   or unscoped name exemptions. Do not patch around a verification failure with
   a global allowlist; preservation requires exact catalog evidence for the node

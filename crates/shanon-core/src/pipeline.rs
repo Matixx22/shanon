@@ -16,7 +16,6 @@
 //! Anchored reads and no-replace publication come from [`crate::platform`].
 
 use std::io::Write;
-use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt};
 use std::path::{Path, PathBuf};
 
 use serde_json::{Map, Value};
@@ -789,13 +788,13 @@ fn safe_directory_members(input_path: &Path) -> Result<Vec<PathBuf>, ShanonError
 fn dir_input_hash(
     input_path: &Path,
     paths: &[PathBuf],
-    root_fd: std::os::fd::BorrowedFd<'_>,
+    root: &platform::DirRoot,
 ) -> Result<String, ShanonError> {
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     let mut total: u64 = 0;
     for path in paths {
-        let raw = platform::read_directory_member_anchored(input_path, path, root_fd)
+        let raw = platform::read_directory_member_anchored(input_path, path, root)
             .map_err(|e| ShanonError::Value(e.0))?;
         total += raw.len() as u64;
         if total > MAX_TOTAL_UNCOMPRESSED {
@@ -843,12 +842,12 @@ struct Accepted {
 fn read_collection_input(
     input_path: &Path,
     is_dir: bool,
-    root_fd: Option<&std::os::fd::OwnedFd>,
+    root_dir: Option<&platform::DirRoot>,
 ) -> Result<(Vec<(String, Vec<u8>)>, Option<Vec<u8>>), ShanonError> {
     let mut members: Vec<(String, Vec<u8>)> = Vec::new();
 
     if is_dir {
-        let root = root_fd.expect("dir root fd");
+        let root = root_dir.expect("dir root handle");
         let paths = safe_directory_members(input_path)?;
         if paths.is_empty() {
             return Err(ShanonError::Value(
@@ -856,12 +855,8 @@ fn read_collection_input(
             ));
         }
         for (index, path) in paths.iter().enumerate() {
-            let raw = platform::read_directory_member_anchored(
-                input_path,
-                path,
-                std::os::fd::AsFd::as_fd(root),
-            )
-            .map_err(|e| ShanonError::Value(e.0))?;
+            let raw = platform::read_directory_member_anchored(input_path, path, root)
+                .map_err(|e| ShanonError::Value(e.0))?;
             members.push((format!("member-{:05}.json", index + 1), raw));
         }
         return Ok((members, None));
@@ -964,13 +959,13 @@ pub fn inspect_collection(
 ) -> Result<InspectReport, ShanonError> {
     let progress = progress.as_ref();
     let is_dir = input_path.is_dir();
-    let root_fd = if is_dir {
+    let root_dir = if is_dir {
         Some(platform::open_directory_root(input_path).map_err(|e| ShanonError::Value(e.0))?)
     } else {
         None
     };
 
-    let (raw_members, _) = read_collection_input(input_path, is_dir, root_fd.as_ref())?;
+    let (raw_members, _) = read_collection_input(input_path, is_dir, root_dir.as_ref())?;
 
     let mut engine = AnonymizationEngine::new(reg, Some(policy), Some(audit));
     if let Some(sink) = progress {
@@ -1133,7 +1128,7 @@ pub fn anonymize_collection(
 ) -> Result<AnonymizeOutcome, ShanonError> {
     let progress = progress.as_ref();
     let is_dir = input_path.is_dir();
-    let root_fd = if is_dir {
+    let root_dir = if is_dir {
         Some(platform::open_directory_root(input_path).map_err(|e| ShanonError::Value(e.0))?)
     } else {
         None
@@ -1141,7 +1136,7 @@ pub fn anonymize_collection(
 
     let resolved_input = resolve(input_path);
     let resolved_out = resolve(out_dir);
-    if is_dir && (resolved_out == resolved_input || resolved_out.starts_with(&resolved_input)) {
+    if is_dir && platform::path_within(&resolved_out, &resolved_input) {
         return Err(ShanonError::Value(
             "output directory must not be inside the input directory".to_string(),
         ));
@@ -1167,12 +1162,16 @@ pub fn anonymize_collection(
         }
         let resolved_map = resolve(map_path);
         let resolved_dest = resolve(&dest);
-        if resolved_map == resolved_input || (is_dir && resolved_map.starts_with(&resolved_input)) {
+        if platform::paths_equal(&resolved_map, &resolved_input)
+            || (is_dir && platform::path_within(&resolved_map, &resolved_input))
+        {
             return Err(ShanonError::Value(
                 "mapping path must not modify the input collection".to_string(),
             ));
         }
-        if resolved_map == resolved_dest || (is_dir && resolved_map.starts_with(&resolved_dest)) {
+        if platform::paths_equal(&resolved_map, &resolved_dest)
+            || (is_dir && platform::path_within(&resolved_map, &resolved_dest))
+        {
             return Err(ShanonError::Value(
                 "mapping path must not be inside the output collection".to_string(),
             ));
@@ -1195,15 +1194,15 @@ pub fn anonymize_collection(
     // once by the engine and once, independently, by the verifier.
     let mut total_objects: u64 = 0;
 
-    let (raw_members, zip_raw) = read_collection_input(input_path, is_dir, root_fd.as_ref())?;
+    let (raw_members, zip_raw) = read_collection_input(input_path, is_dir, root_dir.as_ref())?;
 
     let input_hash: Option<String> = if map_path.is_some() {
         Some(if let Some(raw) = &zip_raw {
             sha256_hex(raw)
         } else {
-            let root = root_fd.as_ref().expect("dir root fd");
+            let root = root_dir.as_ref().expect("dir root handle");
             let paths = safe_directory_members(input_path)?;
-            dir_input_hash(input_path, &paths, std::os::fd::AsFd::as_fd(root))?
+            dir_input_hash(input_path, &paths, root)?
         })
     } else {
         None
@@ -1371,11 +1370,7 @@ fn sha256_hex(data: &[u8]) -> String {
 }
 
 fn write_private_file(path: &Path, data: &[u8]) -> Result<(), ShanonError> {
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .mode(0o600)
-        .open(path)
+    let mut file = platform::create_private_file(path)
         .map_err(|e| ShanonError::Io(format!("cannot create private file: {e}")))?;
     file.write_all(data)
         .map_err(|e| ShanonError::Io(format!("cannot write private file: {e}")))?;
@@ -1383,9 +1378,7 @@ fn write_private_file(path: &Path, data: &[u8]) -> Result<(), ShanonError> {
 }
 
 fn stage_directory(stage: &Path, blobs: &[(String, Vec<u8>)]) -> Result<(), ShanonError> {
-    std::fs::DirBuilder::new()
-        .mode(0o700)
-        .create(stage)
+    platform::create_private_dir(stage)
         .map_err(|e| ShanonError::Io(format!("cannot create staging directory: {e}")))?;
     for (name, blob) in blobs {
         write_private_file(&stage.join(name), blob)?;

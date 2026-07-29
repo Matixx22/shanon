@@ -8,6 +8,24 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Windows support. `shanon.exe` runs on Windows x86_64, and the anonymization is
+  byte-identical to Linux and macOS: same classification, same pseudonyms, same
+  verification, same output.
+- A Windows backend in `platform`: reparse-point refusal at every path component
+  in place of `openat` hops, and `MoveFileExW` without
+  `MOVEFILE_REPLACE_EXISTING` as the atomic no-replace publish.
+- `platform::DirRoot`, an opaque directory-root handle. No file descriptor or
+  `HANDLE` type reaches `pipeline` any more.
+- `platform::paths_equal` / `path_within`, the containment-guard comparisons.
+  Windows filenames are case-insensitive, so the byte-wise comparison would have
+  let a mapping file be written into the output collection under a different
+  spelling of the same directory.
+- `windows-latest` in the CI test matrix, and `x86_64-pc-windows-msvc` in the
+  release matrix, shipped as a `.zip` with the same `<hash>  <file>` checksum
+  line as the other targets.
+- A `windows-binary` CI job that attaches an unsigned release build to every
+  run, so a Windows machine can be handed a binary without cutting a tag.
+
 - `shanon inspect` now reports *numeric values passed through unchanged*, each
   with its canonical path and an `undeclared-numeric-value` audit code. Booleans
   and nulls are deliberately excluded: a null carries nothing, a boolean one bit,
@@ -45,6 +63,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Pattern matching is the convenience; `check-fixtures.sh` is the guarantee.
 
 ### Changed
+
+- Windows is no longer a permanent non-goal in `CLAUDE.md`.
+- `rustix` is now a `cfg(unix)` dependency and `libc` a
+  `cfg(all(unix, not(target_os = "linux")))` one. Neither builds on Windows.
+- Private file and staging-directory creation moved out of `pipeline` and behind
+  `platform::create_private_file` / `create_private_dir`, which is what removed
+  the last `std::os::unix` import from portable code.
+- The dangling-symlink publish test is `cfg(unix)`. Creating a symlink on
+  Windows needs developer mode or `SeCreateSymbolicLinkPrivilege`, so it would
+  report a privilege failure rather than the publish refusal it exists to pin.
 
 - `--verbose-failures` now also expands a refused `--reuse-map` load, the same
   split between the frozen line and the sanitized reason the pipeline's own
@@ -146,6 +174,18 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Known gaps
 
 Recorded here so that closing any of them is a deliberate act, not a discovery.
+
+- **Windows directory input is not descriptor-anchored.** There is no `openat`,
+  so the check for a reparse point and the open of the member are two
+  operations. A symlink or junction escape is still refused, but an attacker who
+  can write into the input directory mid-run has a race that Linux and macOS do
+  not give them. Closing it means dropping to `NtCreateFile` with a relative
+  root handle. ZIP input and the publish path are unaffected.
+- **Windows mapping files inherit the parent directory ACL.** Windows has no
+  `umask`, so the `0o600`-from-creation guarantee has no equivalent.
+  `create_new` still refuses to clobber. SECURITY.md tells Windows users to keep
+  the map under their user profile; closing this properly means building a DACL
+  and calling `SetSecurityInfo`.
 
 - **Undeclared numeric leaves are published.** `engine::visit` returns every
   number, boolean and null verbatim before `FieldPolicy::resolve` runs, so a

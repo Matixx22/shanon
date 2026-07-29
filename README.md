@@ -6,7 +6,7 @@
   <a href="https://github.com/Matixx22/shanon/actions/workflows/ci.yml"><img src="https://github.com/Matixx22/shanon/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rustc-1.97%2B-orange.svg" alt="MSRV 1.97"></a>
-  <a href="#install"><img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-lightgrey.svg" alt="Linux | macOS"></a>
+  <a href="#install"><img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg" alt="Linux | macOS | Windows"></a>
 </p>
 
 You want to ask an LLM about the attack paths in a SharpHound collection. You
@@ -74,8 +74,8 @@ Read what survived, because that is the point:
 
 ## Install
 
-**Prebuilt binary** (Linux x86_64, macOS Apple Silicon). Pick the current tag
-from [Releases](https://github.com/Matixx22/shanon/releases):
+**Prebuilt binary** (Linux x86_64, macOS Apple Silicon, Windows x86_64). Pick the
+current tag from [Releases](https://github.com/Matixx22/shanon/releases):
 
 ```sh
 VERSION=v0.3.0
@@ -88,6 +88,24 @@ shasum -a 256 -c "shanon-$VERSION-$TARGET.tar.gz.sha256"
 
 tar xzf "shanon-$VERSION-$TARGET.tar.gz"
 ./shanon --version
+```
+
+Windows ships a `.zip` instead, with the same `<hash>  <file>` checksum line:
+
+```powershell
+$VERSION = "v0.3.0"
+$TARGET  = "x86_64-pc-windows-msvc"
+$BASE    = "https://github.com/Matixx22/shanon/releases/download/$VERSION"
+
+Invoke-WebRequest "$BASE/shanon-$VERSION-$TARGET.zip" -OutFile "shanon-$VERSION-$TARGET.zip"
+Invoke-WebRequest "$BASE/shanon-$VERSION-$TARGET.zip.sha256" -OutFile "shanon-$VERSION-$TARGET.zip.sha256"
+
+# compare against the published checksum before unpacking
+(Get-FileHash -Algorithm SHA256 "shanon-$VERSION-$TARGET.zip").Hash.ToLower()
+Get-Content "shanon-$VERSION-$TARGET.zip.sha256"
+
+Expand-Archive "shanon-$VERSION-$TARGET.zip" -DestinationPath .
+.\shanon.exe --version
 ```
 
 **With cargo:**
@@ -324,6 +342,16 @@ the source secret or filename.
 
 See [SECURITY.md](SECURITY.md) for the full threat model and what shanon does
 **not** protect against.
+
+### Platforms
+
+Linux, macOS and Windows. The anonymization is the same everywhere: same
+classification, same pseudonyms, same verification, same output bytes. Two
+*local filesystem* guarantees are weaker on Windows, because it has no `openat`
+and no `umask`: directory input is not descriptor-anchored (ZIP input is
+unaffected), and the mapping file inherits its parent directory's ACL instead of
+being owner-only from creation. Keep the map under your user profile.
+[SECURITY.md](SECURITY.md) spells both out.
 
 ## Development
 

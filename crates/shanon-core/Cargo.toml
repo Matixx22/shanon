@@ -17,12 +17,17 @@ regex.workspace = true
 caseless.workspace = true
 fancy-regex.workspace = true
 thiserror.workspace = true
-rustix.workspace = true
 flate2.workspace = true
 getrandom.workspace = true
 
-# renamex_np FFI for the macOS no-replace publish path (§3.5); Linux uses rustix.
-[target.'cfg(not(target_os = "linux"))'.dependencies]
+# openat-anchored traversal (§3.5). rustix's `fs` backend is POSIX-only, so the
+# Windows platform backend uses Win32 directly instead.
+[target.'cfg(unix)'.dependencies]
+rustix.workspace = true
+
+# renamex_np FFI for the macOS/BSD no-replace publish path (§3.5); Linux uses
+# rustix's renameat_with, Windows uses MoveFileExW.
+[target.'cfg(all(unix, not(target_os = "linux")))'.dependencies]
 libc.workspace = true
 
 [dev-dependencies]
