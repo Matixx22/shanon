@@ -74,6 +74,13 @@ pub struct PolicyConfig {
     pub preserve_third_party_defaults: bool,
     pub unknown_fields: String,
     pub strict: bool,
+    /// Replace a numeric leaf at a path no rule declares with a type-stable
+    /// sentinel. On by default: such a leaf is `--collectallproperties` spill,
+    /// and a custom numeric attribute is a re-identification key.
+    ///
+    /// Turning it off restores verbatim passthrough and is a deliberate
+    /// widening of what leaves the machine.
+    pub redact_undeclared_numbers: bool,
 }
 
 impl Default for PolicyConfig {
@@ -84,6 +91,7 @@ impl Default for PolicyConfig {
             preserve_third_party_defaults: false,
             unknown_fields: "anonymize_and_warn".to_string(),
             strict: true,
+            redact_undeclared_numbers: true,
         }
     }
 }
@@ -321,6 +329,31 @@ pub fn key_path_prefixes(path: &str) -> Vec<String> {
 /// Return a type-stable sentinel for a legacy numeric functional level
 /// (`redact_functional_level_number`). `int` stays `int`, `float` stays `float`.
 pub fn redact_functional_level_number(value: &Value) -> Result<Value, PolicyError> {
+    numeric_sentinel(value)
+}
+
+/// Return a type-stable sentinel for a numeric leaf at a path no rule declares.
+///
+/// A number cannot become `[REDACTED]`: the output has to stay
+/// BloodHound-loadable, and changing a leaf's JSON type breaks that. So the
+/// value is replaced by a number rather than removed, and the substitution is
+/// type-stable, `int` for `int` and `float` for `float`.
+///
+/// The value is destroyed rather than pseudonymized, which is deliberate.
+/// Everything that reaches here came from `ParseAllProperties`, so no
+/// BloodHound query reads it and nothing in the graph depends on telling two of
+/// them apart. Preserving distinctness would preserve exactly the correlation
+/// that re-identifies a principal: match one custom `employeeNumber` against an
+/// HR roster and the pseudonyms for that account's name, UPN and DN all fall
+/// with it. Destroying the value also means nothing is written to the mapping
+/// file, so the map format is untouched.
+pub fn redact_undeclared_number(value: &Value) -> Result<Value, PolicyError> {
+    numeric_sentinel(value)
+}
+
+/// `-1`, or `-2` when the source is already `-1` so the sentinel is never the
+/// value it replaces. Shared by both redactions above.
+fn numeric_sentinel(value: &Value) -> Result<Value, PolicyError> {
     match value {
         Value::Number(n) => {
             let token = n.to_string();
@@ -1372,15 +1405,45 @@ const OBJECT_TYPE_PATHS: &[&str] = &[
     "UserRights[].Results[].ObjectType",
 ];
 
+/// Numeric leaves the collector is known to emit, preserved verbatim.
+///
+/// Declaring a path here is what keeps it out of the undeclared-numeric
+/// redaction in `engine::visit`, so the table has to track the collector or a
+/// standard field starts coming back as a sentinel. Everything below was read
+/// off SharpHound CE's `LdapPropertyProcessor`: each one is a *configuration*
+/// value (a password policy setting, a certificate template parameter) that is
+/// identical across every domain that never changed it, so none of them carries
+/// organization identity and preserving them is safe.
+///
+/// The distinction that matters: these come from the collector's fixed
+/// emitter, whereas an attribute collected by `ParseAllProperties` under
+/// `--collectallproperties` is by construction *not* in this table. That is
+/// exactly the set the sentinel is for, because `BestGuessConvert` turns any
+/// attribute whose value parses as an integer into a JSON number, custom
+/// employee and POSIX ID attributes included.
+///
+/// `Properties.gpostatus` is numeric too and is deliberately absent: it already
+/// has its own `schema.gpo-status` rule, and a second declaration is a
+/// `DuplicateRule`. Check the whole table, not just this list, before adding.
 const NUMERIC_PATHS: &[&str] = &[
     "meta.version",
     "meta.count",
     "meta.methods",
     "Properties.admincount",
+    "Properties.authorizedsignatures",
+    "Properties.basicconstraintpathlength",
+    "Properties.flags",
     "Properties.lastlogon",
     "Properties.lastlogontimestamp",
+    "Properties.lockoutobservationwindow",
+    "Properties.lockoutthreshold",
+    "Properties.machineaccountquota",
+    "Properties.minpwdlength",
+    "Properties.pwdhistorylength",
     "Properties.pwdlastset",
+    "Properties.pwdproperties",
     "Properties.samaccounttype",
+    "Properties.schemaversion",
     "Properties.useraccountcontrol",
     "Properties.whencreated",
     "Properties.whenchanged",

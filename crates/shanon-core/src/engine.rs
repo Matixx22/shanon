@@ -1073,26 +1073,33 @@ impl AnonymizationEngine {
                     return redact_functional_level_number(value)
                         .map_err(|e| EngineError::Value(e.to_string()));
                 }
-                // Numbers, booleans and nulls are emitted verbatim: they never
-                // reach the policy, so nothing anonymizes them and no decision
-                // records that. Where a rule declares the path that is the
-                // intended answer — a schema flag or a count carries no
-                // identity. Where no rule declares it, the value is passed
-                // through on the assumption that it carries none, and for a
-                // number that assumption is not always true: an ingestor
-                // collecting a custom numeric attribute (an employee or uid
-                // number, an asset tag) lands exactly here. Count those so the
-                // gap is visible in `shanon inspect` rather than silent.
+                // Booleans and nulls are emitted verbatim: they never reach the
+                // policy, so nothing anonymizes them. That is correct for both.
+                // A null carries nothing by construction, and a boolean carries
+                // one bit that cannot identify anyone.
                 //
-                // Only numbers. A null carries nothing by construction, and a
-                // boolean carries one bit that cannot identify anyone — while
-                // a real collection has enough undeclared booleans to bury the
-                // numeric signal this exists to surface.
-                if mode == VisitMode::Transform
-                    && matches!(value, Value::Number(_))
-                    && !self.field_policy.declares(context, path)
-                {
-                    self.audit.record_undeclared_numeric(&source_path);
+                // Numbers are verbatim only where a rule declares the path — a
+                // schema flag, a count, a password-policy setting carries no
+                // identity, and `NUMERIC_PATHS` says which those are. Where no
+                // rule declares it, the number is `--collectallproperties`
+                // spill: SharpHound's `BestGuessConvert` turns any attribute
+                // whose value parses as an integer into a JSON number, so a
+                // custom `employeeNumber` or `uidNumber` lands exactly here. It
+                // is replaced with a type-stable sentinel, because publishing it
+                // hands over a re-identification key: match one against an HR
+                // roster and the pseudonyms for that account's name, UPN and DN
+                // fall with it.
+                //
+                // Counted either way, so `shanon inspect` reports the same paths
+                // whether or not the redaction is on.
+                if matches!(value, Value::Number(_)) && !self.field_policy.declares(context, path) {
+                    if mode == VisitMode::Transform {
+                        self.audit.record_undeclared_numeric(&source_path);
+                    }
+                    if self.field_policy.config().redact_undeclared_numbers {
+                        return crate::policy::redact_undeclared_number(value)
+                            .map_err(|e| EngineError::Value(e.to_string()));
+                    }
                 }
                 return Ok(value.clone());
             }

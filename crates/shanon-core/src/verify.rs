@@ -28,8 +28,9 @@ use crate::engine::{
     VerificationContext,
 };
 use crate::policy::{
-    array_path, canonical_path, object_path, redact_functional_level_number, DecisionRecord,
-    FieldDecision, FieldOperation, FieldPolicy, ObjectContext,
+    array_path, canonical_path, object_path, redact_functional_level_number,
+    redact_undeclared_number, DecisionRecord, FieldDecision, FieldOperation, FieldPolicy,
+    ObjectContext,
 };
 use crate::progress::{self, ProgressSink};
 use crate::registry::Registry;
@@ -477,6 +478,28 @@ impl Flat {
 
 fn number_is_float(token: &str) -> bool {
     token.contains('.') || token.contains('e') || token.contains('E')
+}
+
+/// The policy path for a flat comparison path.
+///
+/// [`flat_values`] walks the whole document, so its paths carry the `data[N].`
+/// prefix that `engine::visit` never sees: the engine visits each `data`
+/// element with an empty base path and tracks the record path separately. Strip
+/// it back off here, or `declares` is asked about a path no rule can match and
+/// every standard numeric leaf reads as undeclared.
+///
+/// `meta.*` and root-level keys are already in policy form and pass through.
+fn policy_path_of(flat_path: &str) -> &str {
+    flat_path
+        .strip_prefix("data[")
+        .and_then(|rest| rest.split_once("]."))
+        .map(|(_, tail)| tail)
+        .unwrap_or(flat_path)
+}
+
+/// Parse a flat numeric token back into a `Value` for re-derivation.
+fn number_from_token(token: &str) -> Value {
+    serde_json::from_str(token).unwrap_or(Value::Null)
 }
 
 fn flat_scalar(value: &Value) -> Flat {
@@ -1168,6 +1191,24 @@ pub fn verify_document_with_progress(
     let mut output_flat: IndexMap<String, Flat> = IndexMap::new();
     flat_values(&Value::Object(output.clone()), "", &mut output_flat);
 
+    // `declares` reads only `node_type`, and a document has exactly one:
+    // `contexts_for_document` derives it from `meta.type` and stamps the same
+    // value into every `data` element's context. The remaining fields are
+    // filler and must stay unread by the lookup.
+    let numeric_ctx = ObjectContext {
+        node_type: normalize_node_type(
+            source
+                .get("meta")
+                .and_then(|v| v.as_object())
+                .and_then(|m| m.get("type")),
+        ),
+        member: member.to_string(),
+        index: 0,
+        object_identifier: None,
+        privacy: PrivacyClass::Custom,
+        catalog_rule_id: None,
+    };
+
     let mut union: BTreeSet<String> = BTreeSet::new();
     union.extend(source_flat.keys().cloned());
     union.extend(output_flat.keys().cloned());
@@ -1213,11 +1254,38 @@ pub fn verify_document_with_progress(
                 Flat::Int(t) | Flat::Float(t) => t.as_str(),
                 _ => unreachable!(),
             };
-            let src_val: Value = serde_json::from_str(src_token).unwrap_or(Value::Null);
-            let out_val: Value = serde_json::from_str(out_token).unwrap_or(Value::Null);
+            let src_val = number_from_token(src_token);
+            let out_val = number_from_token(out_token);
             let expected = redact_functional_level_number(&src_val).ok();
             if expected.as_ref() != Some(&out_val) {
                 findings.push(finding(salt, member, path, "schema-value-mismatch", ""));
+            }
+        } else if matches!(s, Flat::Int(_) | Flat::Float(_))
+            && verification_context.policy.redact_undeclared_numbers
+            && !field_policy.declares(&numeric_ctx, policy_path_of(path))
+        {
+            // Re-derived, not trusted. The engine claims it redacted every
+            // numeric leaf at a path no rule declares; this asks the frozen
+            // policy the same question and recomputes the sentinel. An engine
+            // that skipped one publishes a custom `employeeNumber` in the
+            // clear, so it has to fail here.
+            let src_token = match s {
+                Flat::Int(t) | Flat::Float(t) => t.as_str(),
+                _ => unreachable!(),
+            };
+            let out_token = match o {
+                Flat::Int(t) | Flat::Float(t) => t.as_str(),
+                _ => unreachable!(),
+            };
+            let expected = redact_undeclared_number(&number_from_token(src_token)).ok();
+            if expected.as_ref() != Some(&number_from_token(out_token)) {
+                findings.push(finding(
+                    salt,
+                    member,
+                    path,
+                    "undeclared-numeric-not-redacted",
+                    "",
+                ));
             }
         } else if !matches!(s, Flat::Str(_) | Flat::Mapping(_) | Flat::List(_)) && s != o {
             findings.push(finding(salt, member, path, "schema-value-mismatch", ""));

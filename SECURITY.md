@@ -106,21 +106,33 @@ what that boundary covers, what it does not, and how to report a leak.
   shape and otherwise replaced as opaque values, with their canonical paths
   counted in the audit. If a new structure cannot be handled without preserving
   confidentiality and schema shape, the run fails rather than publishing it.
-- **Numbers.** The policy classifies string leaves. A number, boolean or null is
-  emitted verbatim, and its *key* is anonymized like any other. For the paths
-  shanon models this is the intended answer: a schema flag, a count or a
-  timestamp carries no identity, and BloodHound needs them intact. But a
-  collector that emits an organization-bound value as a JSON number at a path no
-  rule declares (a custom `employeeNumber`, `uidNumber`, or asset tag under
-  `CollectAllProperties`) is passed straight through.
+- **Numbers.** Booleans and nulls are emitted verbatim: a null carries nothing
+  by construction and a boolean carries one bit that cannot identify anyone.
+  Numbers are emitted verbatim only at paths the policy declares, where that is
+  the intended answer: a schema flag, a count, a timestamp or a password-policy
+  setting carries no identity and BloodHound needs it intact.
 
-  This is a real gap, not a theoretical one, and it is not closed by simply
-  redacting: replacing a number with a redaction string changes the leaf's JSON
-  type, and the output has to stay BloodHound-loadable. Until it is closed,
-  `shanon inspect` counts every occurrence as `undeclared-numeric-value` and
-  lists the canonical paths under *numeric values passed through unchanged*.
-  **Read that section before sending a collection anywhere**, and confirm the
-  paths it names are ones you are willing to disclose.
+  A number at a path no rule declares is replaced with a type-stable sentinel
+  (`-1`, or `-2` where the source was already `-1`; a float stays a float). The
+  value is destroyed rather than pseudonymized, so it appears in neither the
+  collection nor the mapping file.
+
+  This is deliberate rather than conservative. SharpHound's `BestGuessConvert`
+  turns any attribute whose string value parses as an integer into a JSON
+  number, so under `--collectallproperties` a custom `employeeNumber`,
+  `uidNumber` or asset tag arrives as one. Publishing it hands over a
+  re-identification key: match a single numeric employee ID against an HR roster
+  and the pseudonyms for that account's name, UPN, DN and every edge it sits on
+  fall with it. Nothing in BloodHound's own analysis reads those attributes, so
+  destroying them costs no reasoning.
+
+  `shanon inspect` still counts every occurrence as `undeclared-numeric-value`
+  and lists the canonical paths, whether or not the redaction is on, so the
+  report tells you what the collection contained.
+
+  `--keep-undeclared-numbers` restores verbatim passthrough. It is a deliberate
+  widening of what leaves the machine; if you use it, read the `inspect` report
+  and confirm every path it names is one you are willing to disclose.
 
 ## Before you send anything to an LLM
 

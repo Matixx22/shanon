@@ -12,6 +12,7 @@ use std::path::PathBuf;
 use serde_json::{Map, Value};
 use shanon_core::canonical_json;
 use shanon_core::engine::{classify_object, normalize_node_type, AnonymizationEngine};
+use shanon_core::policy::PolicyConfig;
 use shanon_core::registry::Registry;
 
 fn parity(name: &str) -> PathBuf {
@@ -85,15 +86,17 @@ fn normalize_node_type_maps_known_and_unknown() {
     );
 }
 
-/// Pins the numeric pass-through gap so it is a contract rather than an
-/// accident, and so closing it has to be a deliberate change to this test.
+/// A numeric leaf at a path no rule declares is redacted to a sentinel, and
+/// counted.
 ///
-/// `engine::visit` returns every non-string leaf verbatim before the policy is
-/// consulted. For a declared path that is intended. For an undeclared one the
-/// value is *not* anonymized — only its key is — and the only trace is the
-/// audit counter asserted here. See SECURITY.md, "Numbers".
+/// `engine::visit` returns booleans and nulls verbatim, and numbers verbatim
+/// *only* where a rule declares the path. An undeclared number is
+/// `--collectallproperties` spill: SharpHound's `BestGuessConvert` turns any
+/// attribute whose value parses as an integer into a JSON number, so a custom
+/// `employeeNumber` lands there. Publishing it hands over a re-identification
+/// key, so it is replaced rather than passed through.
 #[test]
-fn undeclared_numeric_leaf_passes_through_and_is_counted() {
+fn undeclared_numeric_leaf_is_redacted_and_counted() {
     let doc: Value = serde_json::json!({
         "data": [{
             "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1104",
@@ -103,8 +106,14 @@ fn undeclared_numeric_leaf_passes_through_and_is_counted() {
                 "whencreated": 1690104000,
                 // Declared boolean. Not counted, and not a number anyway.
                 "enabled": true,
-                // Undeclared: no rule names this path. Passed through in clear.
-                "employeeNumber": 987654321
+                // Undeclared: no rule names this path. Redacted to a sentinel.
+                "employeeNumber": 987654321,
+                // Undeclared and already -1, so the sentinel must move to -2
+                // rather than silently leaving the value as it found it.
+                "customCounter": -1,
+                // Undeclared float: the substitution has to stay type-stable,
+                // or the output stops being loadable.
+                "customRatio": 2.5
             }
         }],
         "meta": {"type": "users", "count": 1, "version": 6}
@@ -127,27 +136,81 @@ fn undeclared_numeric_leaf_passes_through_and_is_counted() {
         !props.contains_key("employeeNumber"),
         "an undeclared key must be anonymized"
     );
-    // ...but its value is somewhere in the output, verbatim. That is the gap.
+    // ...and its value is gone too. This is the assertion that matters: the
+    // real number must appear nowhere in the serialized output.
+    let rendered = serde_json::to_string(&output).unwrap();
     assert!(
-        props.values().any(|v| v.as_u64() == Some(987654321)),
-        "undeclared numeric leaf is currently passed through unchanged; \
-         if this now fails because it is redacted, that is the fix landing — \
-         update SECURITY.md's \"Numbers\" section and the README caveat"
+        !rendered.contains("987654321"),
+        "an undeclared numeric value survived into the output: {rendered}"
     );
 
-    // And it is counted, with a path that names no real key.
+    // Type-stable substitution, checked per source type.
+    let numbers: Vec<&Value> = props.values().filter(|v| v.is_number()).collect();
+    assert!(
+        numbers.contains(&&Value::from(-1)),
+        "employeeNumber should be the integer sentinel: {props:?}"
+    );
+    assert!(
+        numbers.contains(&&Value::from(-2)),
+        "a source of -1 must move to -2, not stay -1: {props:?}"
+    );
+    assert!(
+        numbers
+            .iter()
+            .any(|v| v.as_f64() == Some(-1.0) && v.to_string().contains('.')),
+        "a float must be replaced by a float, not an integer: {props:?}"
+    );
+
+    // Counting is unchanged, so `inspect` reports the same paths either way.
     let summary = engine.audit.summary();
     assert_eq!(
         summary["audit_codes"]["undeclared-numeric-value"],
-        Value::from(1),
-        "exactly the undeclared numeric is counted, not the declared ones"
+        Value::from(3),
+        "exactly the undeclared numerics are counted, not the declared ones"
     );
     let paths = summary["numeric_passthrough_paths"].as_object().unwrap();
-    assert_eq!(paths.len(), 1);
-    let path = paths.keys().next().unwrap();
+    assert_eq!(paths.len(), 3);
+    for path in paths.keys() {
+        assert!(
+            !path.contains("employeeNumber")
+                && !path.contains("customCounter")
+                && !path.contains("customRatio"),
+            "audit path leaked the real key name: {path}"
+        );
+    }
+}
+
+/// The opt-out restores verbatim passthrough, and says so by leaving the value
+/// in the clear. Kept adjacent to the test above so the two behaviors are read
+/// together.
+#[test]
+fn the_opt_out_restores_numeric_passthrough() {
+    let doc: Value = serde_json::json!({
+        "data": [{
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1104",
+            "Properties": {
+                "name": "ALICE@CONTOSO.LOCAL",
+                "employeeNumber": 987654321
+            }
+        }],
+        "meta": {"type": "users", "count": 1, "version": 6}
+    });
+    let member = "users.json";
+
+    let config = PolicyConfig {
+        redact_undeclared_numbers: false,
+        ..PolicyConfig::default()
+    };
+    let mut engine =
+        AnonymizationEngine::new(Registry::new("0123456789abcdef"), Some(config), None);
+    engine.discover_document(member, &obj(&doc)).unwrap();
+    engine.finalize_discovery().unwrap();
+    let (output, _records) = engine.transform_document(member, &obj(&doc)).unwrap();
+
+    let rendered = serde_json::to_string(&output).unwrap();
     assert!(
-        !path.contains("employeeNumber"),
-        "audit path leaked the real key name: {path}"
+        rendered.contains("987654321"),
+        "the opt-out must restore verbatim passthrough: {rendered}"
     );
 }
 
