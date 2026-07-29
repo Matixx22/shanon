@@ -25,7 +25,9 @@ use clap::{Parser, Subcommand};
 use serde_json::json;
 
 use shanon_core::catalog::CATALOG_VERSION;
-use shanon_core::pipeline::{anonymize_collection, resolve, ShanonError};
+use shanon_core::pipeline::{
+    anonymize_collection, ensure_reuse_map_compatible, resolve, ShanonError,
+};
 use shanon_core::policy::{PolicyAudit, PolicyConfig};
 use shanon_core::registry::Registry;
 use shanon_core::restore::{bulk_restore, forward as forward_lookup, lookup};
@@ -273,9 +275,13 @@ fn inspect(input: PathBuf, render_progress: bool) {
     }
 }
 
-/// Load an untrusted restoration map without propagating sensitive details.
+/// Load an untrusted restoration map without propagating sensitive details,
+/// and refuse one minted under a different catalog version.
 fn load_reuse_registry(path: &Path) -> Result<Registry, ShanonError> {
-    Registry::load(path).map_err(|_| ShanonError::UnsafeMapping("mapping file is invalid".into()))
+    let registry = Registry::load(path)
+        .map_err(|_| ShanonError::UnsafeMapping("mapping file is invalid".into()))?;
+    ensure_reuse_map_compatible(&registry)?;
+    Ok(registry)
 }
 
 fn anonymize(
@@ -327,7 +333,13 @@ fn anonymize(
     let reg = match reg {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("{}", e.stderr());
+            // Same split as the pipeline's own aborts below: the frozen line
+            // by default, the sanitized reason under `--verbose-failures`.
+            if verbose_failures {
+                eprintln!("{}", e.stderr_verbose());
+            } else {
+                eprintln!("{}", e.stderr());
+            }
             exit(e.exit_code());
         }
     };

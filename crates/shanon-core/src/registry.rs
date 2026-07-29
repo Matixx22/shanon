@@ -321,6 +321,11 @@ pub struct Registry {
     pub salt: String,
     /// Original load-time format version (1 or 2). `save` always writes 2.
     pub format_version: i64,
+    /// The `policy` block of the mapping file this registry was loaded from,
+    /// retained verbatim so a reuse gate can read it back. Never serialized:
+    /// [`Registry::save_to_string`] takes the policy block it writes as an
+    /// argument, so the on-disk bytes are unaffected.
+    source_policy: Option<serde_json::Value>,
     categories: Categories,
     owners: Categories,
     normalized_owners: Categories,
@@ -424,6 +429,7 @@ impl Registry {
         Ok(Registry {
             salt,
             format_version,
+            source_policy: None,
             categories: validated,
             owners,
             normalized_owners,
@@ -463,7 +469,28 @@ impl Registry {
             .unwrap_or(1);
         let categories = value_to_categories(data.get("categories"));
         let legacy = value_to_categories(data.get("legacy_reverse_aliases"));
-        Registry::build(salt, categories, format_version, legacy)
+        let mut registry = Registry::build(salt, categories, format_version, legacy)?;
+        registry.source_policy = data.get("policy").cloned();
+        Ok(registry)
+    }
+
+    /// The `policy` block of the mapping file this registry was loaded from,
+    /// or `None` for a registry that was constructed rather than loaded, or
+    /// loaded from a mapping file that carries no policy block.
+    pub fn source_policy(&self) -> Option<&serde_json::Value> {
+        self.source_policy.as_ref()
+    }
+
+    /// `policy.catalog_version` of the mapping file this registry was loaded
+    /// from. `None` when the block, the field, or a numeric value is missing,
+    /// which the reuse gate treats exactly like a disagreement.
+    pub fn source_catalog_version(&self) -> Option<u32> {
+        self.source_policy
+            .as_ref()?
+            .get("catalog_version")?
+            .as_u64()?
+            .try_into()
+            .ok()
     }
 
     /// Serialize the mapping payload exactly as
