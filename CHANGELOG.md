@@ -6,6 +6,60 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Known gaps
+
+Recorded here so that closing any of them is a deliberate act, not a discovery.
+Every one of these is open as of 0.4.0.
+
+- **Windows directory input is not descriptor-anchored.** There is no `openat`,
+  so the check for a reparse point and the open of the member are two
+  operations. A symlink or junction escape is still refused, but an attacker who
+  can write into the input directory mid-run has a race that Linux and macOS do
+  not give them. Closing it means dropping to `NtCreateFile` with a relative
+  root handle. ZIP input and the publish path are unaffected.
+- **Windows mapping files inherit the parent directory ACL.** Windows has no
+  `umask`, so the `0o600`-from-creation guarantee has no equivalent.
+  `create_new` still refuses to clobber. SECURITY.md tells Windows users to keep
+  the map under their user profile; closing this properly means building a DACL
+  and calling `SetSecurityInfo`.
+- **Undeclared numeric leaves are published.** `engine::visit` returns every
+  number, boolean and null verbatim before `FieldPolicy::resolve` runs, so a
+  collector emitting an organization-bound value as a JSON number at a path no
+  rule declares (a custom `employeeNumber` or `uidNumber` under
+  `CollectAllProperties`) has its key anonymized and its value published.
+  Redacting it would change the leaf's JSON type and the output has to stay
+  BloodHound-loadable, so closing this means first deciding what a redacted
+  *number* is. `shanon inspect` now makes every occurrence visible.
+- **Secret material is recognized by attribute name.** A credential under an
+  attribute the list does not know is pseudonymized like any other string, so a
+  collector that renames one, or a custom attribute holding a password, still
+  puts the cleartext in the mapping file.
+- **A member that parses but carries no `meta` aborts the whole collection**
+  instead of being skipped, taking valid siblings with it. `tests/publish.rs`
+  pins the current behavior and states what a fix would look like.
+- **The release job's toolchain is unpinned:** it resolves whatever
+  `rustup toolchain install stable` means at tag time. The build is already
+  `--locked`, so this is the last non-deterministic input to a published
+  artifact.
+- **Three high-entropy domain SID authorities of unverified provenance remain**
+  in `tests/parity/` and `tests/truth/`, frozen into vectors the Python
+  reference produced. They are allowlisted explicitly rather than silently
+  tolerated, and the allowlist says to replace each one the next time its
+  fixture is regenerated.
+- **The removed `spike/sample.json` remains in git history.** Rewriting that
+  history is a separate decision, which no release so far has made.
+
+The SPN, DN and catalog fixes diverge deliberately from the Python reference,
+which carries all three defects. Their new cases live in the Rust test files, so
+`tests/truth/` stays what it claims to be: a record of what the reference
+produces.
+
+## [0.4.0] - 2026-07-29
+
+Runs on Windows, so a collection can be scrubbed on the machine that produced
+it. Also closes the LAPS and gMSA gap, which wrote collected cleartext passwords
+into the mapping file as lookup keys.
+
 ### Added
 
 - Windows support. `shanon.exe` runs on Windows x86_64, and the anonymization is
@@ -176,54 +230,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `scripts/check-fixtures.sh`: a value removed once should not be able to come
   back in any file.
 
-### Known gaps
-
-Recorded here so that closing any of them is a deliberate act, not a discovery.
-
-- **Windows directory input is not descriptor-anchored.** There is no `openat`,
-  so the check for a reparse point and the open of the member are two
-  operations. A symlink or junction escape is still refused, but an attacker who
-  can write into the input directory mid-run has a race that Linux and macOS do
-  not give them. Closing it means dropping to `NtCreateFile` with a relative
-  root handle. ZIP input and the publish path are unaffected.
-- **Windows mapping files inherit the parent directory ACL.** Windows has no
-  `umask`, so the `0o600`-from-creation guarantee has no equivalent.
-  `create_new` still refuses to clobber. SECURITY.md tells Windows users to keep
-  the map under their user profile; closing this properly means building a DACL
-  and calling `SetSecurityInfo`.
-
-- **Undeclared numeric leaves are published.** `engine::visit` returns every
-  number, boolean and null verbatim before `FieldPolicy::resolve` runs, so a
-  collector emitting an organization-bound value as a JSON number at a path no
-  rule declares (a custom `employeeNumber` or `uidNumber` under
-  `CollectAllProperties`) has its key anonymized and its value published.
-  Redacting it would change the leaf's JSON type and the output has to stay
-  BloodHound-loadable, so closing this means first deciding what a redacted
-  *number* is. `shanon inspect` now makes every occurrence visible.
-- **Secret material is recognized by attribute name.** A credential under an
-  attribute the list does not know is pseudonymized like any other string, so a
-  collector that renames one, or a custom attribute holding a password, still
-  puts the cleartext in the mapping file.
-- **A member that parses but carries no `meta` aborts the whole collection**
-  instead of being skipped, taking valid siblings with it. `tests/publish.rs`
-  pins the current behavior and states what a fix would look like.
-- **The release job's toolchain is unpinned:** it resolves whatever
-  `rustup toolchain install stable` means at tag time. The build is already
-  `--locked`, so this is the last non-deterministic input to a published
-  artifact.
-- **Three high-entropy domain SID authorities of unverified provenance remain**
-  in `tests/parity/` and `tests/truth/`, frozen into vectors the Python
-  reference produced. They are allowlisted explicitly rather than silently
-  tolerated, and the allowlist says to replace each one the next time its
-  fixture is regenerated.
-- **The removed `spike/sample.json` remains in git history.** Rewriting that
-  history is a separate decision, which this release does not make.
-
-The SPN, DN and catalog fixes diverge deliberately from the Python reference,
-which carries all three defects. Their new cases live in the Rust test files, so
-`tests/truth/` stays what it claims to be: a record of what the reference
-produces.
-
 ## [0.3.0] - 2026-07-28
 
 Anonymizes BloodHound CE collections, which 0.2.0 aborted on, and adds
@@ -345,6 +351,7 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Matixx22/shanon/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Matixx22/shanon/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Matixx22/shanon/releases/tag/v0.2.0
