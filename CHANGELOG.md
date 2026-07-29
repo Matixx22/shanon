@@ -25,6 +25,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   line as the other targets.
 - A `windows-binary` CI job that attaches an unsigned release build to every
   run, so a Windows machine can be handed a binary without cutting a tag.
+- `.gitattributes` pinning the whole tree to LF, and the truth and parity
+  fixtures to no conversion at all. `core.autocrlf` defaults to true on Windows,
+  which rewrote the byte-exact reference vectors at checkout and failed
+  `save_bytes_match_reference_interop` against shanon's correct output. Fixture
+  bytes are invariant 2's contract and git must not touch them.
 
 - `shanon inspect` now reports *numeric values passed through unchanged*, each
   with its canonical path and an `undeclared-numeric-value` audit code. Booleans
