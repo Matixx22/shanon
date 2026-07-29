@@ -15,6 +15,15 @@ what that boundary covers, what it does not, and how to report a leak.
   different pseudonyms and cannot be correlated with each other. `--reuse-map`
   is the deliberate exception: it reuses a prior salt and mapping so pseudonyms
   stay stable across collections.
+- **Credential material is redacted, not pseudonymized.** A leaf whose name is a
+  known credential attribute is replaced with `[REDACTED]`, so its value is not
+  recorded anywhere, including the mapping file. Pseudonymizing one would store
+  the cleartext as a lookup key in the map. The list covers the classic
+  password and hash attributes plus LAPS (`ms-mcs-admpwd`, the `msLAPS-*`
+  attributes) and gMSA (`msDS-ManagedPassword`), and the check runs before the
+  field's transform is chosen, so a secret that happens to look like a SID,
+  GUID or OID is still redacted. It is a name-based list: a credential under an
+  attribute it does not know is pseudonymized like any other string.
 - **Contextual preservation.** Only catalog-proven core constants are preserved,
   and only at explicitly permitted object types and field paths. Microsoft
   feature defaults, operating-system/product values, third-party defaults, and

@@ -89,20 +89,6 @@ fn oid_re() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^[0-9]+(?:\.[0-9]+){2,}$").unwrap())
 }
 
-const SECRET_MATERIAL_KEYS: [&str; 11] = [
-    "cleartextpassword",
-    "lmhash",
-    "lmpwdhistory",
-    "nthash",
-    "ntpwdhistory",
-    "sfupassword",
-    "supplementalcredentials",
-    "unicodepassword",
-    "unicodepwd",
-    "unixpassword",
-    "userpassword",
-];
-
 /// `_VisitMode`.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum VisitMode {
@@ -157,7 +143,8 @@ pub struct AbortLocator {
     pub node_type: String,
     /// Record path into the member document, e.g. `data[0].Aces[0].PrincipalSID`.
     pub path: String,
-    /// `blake2b(value, digest_size=6)` of the offender, as in a leak-gate finding.
+    /// Salt-keyed `blake2b(..., digest_size=6)` of the offender, as in a
+    /// leak-gate finding.
     pub offender: String,
 }
 
@@ -934,6 +921,13 @@ impl AnonymizationEngine {
         value: &str,
         decision: &FieldDecision,
     ) -> Result<String> {
+        // Ahead of the dispatch, not inside `ReplaceOpaque`: a secret is a
+        // secret whichever operation the policy resolved for its path. The
+        // empty-value case keeps the old `ReplaceOpaque` behavior of returning
+        // the value unchanged, so no output byte moves for an empty leaf.
+        if !value.is_empty() && crate::is_secret_material_path(path) {
+            return Ok(crate::REDACTED.to_string());
+        }
         match decision.operation {
             FieldOperation::PreserveConstant | FieldOperation::PreserveSchemaValue => {
                 Ok(value.to_string())
@@ -983,14 +977,7 @@ impl AnonymizationEngine {
                 if value.is_empty() {
                     return Ok(value.to_string());
                 }
-                let leaf_key = path.rsplit('.').next().unwrap_or(path);
-                let leaf_key = strip_array_suffix(leaf_key);
-                let leaf_key = casefold(&leaf_key);
-                if SECRET_MATERIAL_KEYS.contains(&leaf_key.as_str()) {
-                    Ok("[REDACTED]".to_string())
-                } else {
-                    Ok(self.registry.map(OPAQUE, value)?)
-                }
+                Ok(self.registry.map(OPAQUE, value)?)
             }
         }
     }
@@ -1402,18 +1389,4 @@ impl AnonymizationEngine {
         }
         self.process_document(member, doc, VisitMode::Transform)
     }
-}
-
-/// Drop a trailing `[<digits>]` array-index suffix from a leaf key
-/// (`re.sub(r"\[[0-9]+\]$", "", leaf_key)`).
-fn strip_array_suffix(leaf_key: &str) -> String {
-    if let Some(open) = leaf_key.rfind('[') {
-        if leaf_key.ends_with(']') {
-            let inner = &leaf_key[open + 1..leaf_key.len() - 1];
-            if !inner.is_empty() && inner.bytes().all(|b| b.is_ascii_digit()) {
-                return leaf_key[..open].to_string();
-            }
-        }
-    }
-    leaf_key.to_string()
 }

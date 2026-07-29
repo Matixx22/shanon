@@ -38,6 +38,69 @@ use serde_json::Value;
 type Blake2b128 = Blake2b<U16>;
 
 // ---------------------------------------------------------------------------
+// Secret material.
+// ---------------------------------------------------------------------------
+
+/// Leaf key names whose value is credential material, casefolded.
+///
+/// A value under one of these is replaced with a constant rather than
+/// pseudonymized, because pseudonymizing it would record the cleartext secret
+/// as a key in the mapping file. The list is shared by [`engine`] and
+/// [`verify`]: the verifier re-derives every leaf independently, so two copies
+/// of this list would let a run abort on a field only one side redacts.
+///
+/// LAPS and gMSA spellings are here because a collector that reads them emits
+/// them as ordinary `Properties` strings that no rule declares, which lands
+/// them in the fallback path and therefore in the map. Attributes that carry a
+/// timestamp or an interval rather than a secret (`ms-mcs-admpwdexpirationtime`,
+/// `msds-managedpasswordinterval`) are deliberately absent.
+pub(crate) const SECRET_MATERIAL_KEYS: [&str; 18] = [
+    "cleartextpassword",
+    "lmhash",
+    "lmpwdhistory",
+    "ms-mcs-admpwd",
+    "msds-managedpassword",
+    "mslaps-encrypteddsrmpassword",
+    "mslaps-encrypteddsrmpasswordhistory",
+    "mslaps-encryptedpassword",
+    "mslaps-encryptedpasswordhistory",
+    "mslaps-password",
+    "nthash",
+    "ntpwdhistory",
+    "sfupassword",
+    "supplementalcredentials",
+    "unicodepassword",
+    "unicodepwd",
+    "unixpassword",
+    "userpassword",
+];
+
+/// The constant a secret-material leaf is replaced with.
+pub(crate) const REDACTED: &str = "[REDACTED]";
+
+/// Whether the last segment of `path` names secret material.
+///
+/// Applied ahead of the operation the policy resolved, not inside one arm of
+/// it: a secret whose value happens to look like a SID, GUID or OID is routed
+/// to a structured identifier transform, and pseudonymizing it would put the
+/// cleartext in the mapping file just the same.
+pub(crate) fn is_secret_material_path(path: &str) -> bool {
+    let leaf = path.rsplit('.').next().unwrap_or(path);
+    let leaf = match leaf.rfind('[') {
+        Some(open) if leaf.ends_with(']') => {
+            let inner = &leaf[open + 1..leaf.len() - 1];
+            if !inner.is_empty() && inner.bytes().all(|b| b.is_ascii_digit()) {
+                &leaf[..open]
+            } else {
+                leaf
+            }
+        }
+        _ => leaf,
+    };
+    SECRET_MATERIAL_KEYS.contains(&casefold::casefold(leaf).as_str())
+}
+
+// ---------------------------------------------------------------------------
 // Contract 1: canonical JSON serialization, compact-mode defaults.
 //
 //   canonical_json(output)

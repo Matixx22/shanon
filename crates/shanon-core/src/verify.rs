@@ -72,32 +72,6 @@ fn redacted_re() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^\[REDACTED(?::[a-z2-7]+)?\]$").unwrap())
 }
 
-fn array_suffix_re() -> &'static Regex {
-    static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"\[[0-9]+\]$").unwrap())
-}
-
-fn secret_material_keys() -> &'static HashSet<&'static str> {
-    static SET: OnceLock<HashSet<&'static str>> = OnceLock::new();
-    SET.get_or_init(|| {
-        [
-            "cleartextpassword",
-            "lmhash",
-            "lmpwdhistory",
-            "nthash",
-            "ntpwdhistory",
-            "sfupassword",
-            "supplementalcredentials",
-            "unicodepassword",
-            "unicodepwd",
-            "unixpassword",
-            "userpassword",
-        ]
-        .into_iter()
-        .collect()
-    })
-}
-
 // ---------------------------------------------------------------------------
 // Finding + leaf.
 // ---------------------------------------------------------------------------
@@ -898,6 +872,12 @@ fn expected_output(
     target: &Option<TemplateTargetEvidence>,
     targets: &IndexMap<String, TemplateTargetEvidence>,
 ) -> Result<String, ()> {
+    // Mirrors `engine::apply_string_operation`: the same hoisted check, ahead
+    // of the same dispatch. The two must move together, since the verifier
+    // re-derives this independently and any disagreement aborts the run.
+    if !leaf.value.is_empty() && crate::is_secret_material_path(&leaf.policy_path) {
+        return Ok(crate::REDACTED.to_string());
+    }
     match decision.operation {
         FieldOperation::PreserveConstant | FieldOperation::PreserveSchemaValue => Ok(target
             .as_ref()
@@ -950,15 +930,6 @@ fn expected_output(
             if leaf.value.is_empty() {
                 return Ok(leaf.value.clone());
             }
-            let last_segment = leaf
-                .policy_path
-                .rsplit_once('.')
-                .map(|(_, b)| b)
-                .unwrap_or(&leaf.policy_path);
-            let leaf_key = casefold(&array_suffix_re().replace(last_segment, ""));
-            if secret_material_keys().contains(leaf_key.as_str()) {
-                return Ok("[REDACTED]".to_string());
-            }
             reg.map(OPAQUE, &leaf.value).map_err(|_| ())
         }
     }
@@ -988,6 +959,13 @@ fn output_shape_valid(
         _ => return false,
     };
     let source = &leaf.value;
+    // Secret material is redacted ahead of the operation dispatch, so the
+    // shape a structured operation would demand no longer applies: a
+    // GUID-shaped password is not required to come out GUID-shaped. The
+    // constant is the only output accepted for such a leaf.
+    if !source.is_empty() && crate::is_secret_material_path(&leaf.policy_path) {
+        return output == crate::REDACTED;
+    }
     match decision.operation {
         FieldOperation::MapCustomIdentifier | FieldOperation::MapReference => {
             if sid_re().is_match(source) {
