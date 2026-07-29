@@ -125,3 +125,106 @@ fn verify_rejects_unfrozen_registry() {
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].policy_code, "registry-not-frozen");
 }
+
+/// One document carrying an undeclared numeric leaf, transformed under
+/// `policy`. Returns everything `verify_document` needs.
+fn transform_with(policy: shanon_core::policy::PolicyConfig) -> Transformed2 {
+    let doc: Value = serde_json::json!({
+        "data": [{
+            "ObjectIdentifier": "S-1-5-21-1111111111-2222222222-3333333333-1104",
+            "Properties": {
+                "name": "ALICE@CONTOSO.LOCAL",
+                // Declared, so it must survive verbatim under either policy.
+                "whencreated": 1690104000,
+                // Undeclared: the leaf the sentinel exists for.
+                "employeeNumber": 987654321
+            }
+        }],
+        "meta": {"type": "users", "count": 1, "version": 6}
+    });
+    let member = "users.json".to_string();
+    let mut engine =
+        AnonymizationEngine::new(Registry::new("0123456789abcdef"), Some(policy), None);
+    engine.discover_document(&member, &obj(&doc)).unwrap();
+    let vctx = engine.finalize_discovery().unwrap();
+    let (output, records) = engine.transform_document(&member, &obj(&doc)).unwrap();
+    Transformed2 {
+        member,
+        source: obj(&doc),
+        output,
+        records,
+        reg: engine.registry,
+        vctx,
+    }
+}
+
+struct Transformed2 {
+    member: String,
+    source: Map<String, Value>,
+    output: Map<String, Value>,
+    records: Vec<shanon_core::policy::DecisionRecord>,
+    reg: Registry,
+    vctx: shanon_core::engine::VerificationContext,
+}
+
+/// The verifier re-derives the sentinel rather than trusting the engine.
+///
+/// This is the assertion that makes the redaction load-bearing. An engine that
+/// forgot to redact one undeclared number publishes a custom `employeeNumber`
+/// in the clear while every other check still passes, so verification has to
+/// catch it independently. Simulated by transforming with the redaction off and
+/// verifying against a policy that has it on.
+#[test]
+fn verify_rejects_an_undeclared_number_the_engine_left_in_the_clear() {
+    let mut t = transform_with(shanon_core::policy::PolicyConfig {
+        redact_undeclared_numbers: false,
+        ..Default::default()
+    });
+
+    // The engine did leave it verbatim, which is what the opt-out asks for.
+    assert!(
+        serde_json::to_string(&t.output)
+            .unwrap()
+            .contains("987654321"),
+        "fixture is wrong: the opt-out should have passed the value through"
+    );
+
+    // Now hold that output to a policy that requires redaction.
+    t.vctx.policy.redact_undeclared_numbers = true;
+    let findings = verify_document(
+        &t.member, &t.source, &t.output, &t.records, &mut t.reg, &t.vctx,
+    );
+    assert!(
+        findings
+            .iter()
+            .any(|f| f.policy_code == "undeclared-numeric-not-redacted"),
+        "verifier accepted an unredacted undeclared number: {findings:?}"
+    );
+}
+
+/// The other half: authentic redacted output verifies clean, and the declared
+/// numeric beside it is not disturbed.
+#[test]
+fn verify_accepts_a_properly_redacted_undeclared_number() {
+    let mut t = transform_with(shanon_core::policy::PolicyConfig::default());
+
+    assert!(
+        !serde_json::to_string(&t.output)
+            .unwrap()
+            .contains("987654321"),
+        "the undeclared number should have been redacted"
+    );
+    assert_eq!(
+        t.output["data"][0]["Properties"]["whencreated"],
+        Value::from(1690104000),
+        "a declared numeric must not be redacted"
+    );
+
+    let findings = verify_document(
+        &t.member, &t.source, &t.output, &t.records, &mut t.reg, &t.vctx,
+    );
+    assert!(
+        findings.is_empty(),
+        "verifier rejected authentic redacted output: {findings:?}"
+    );
+}

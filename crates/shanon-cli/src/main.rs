@@ -64,6 +64,9 @@ enum Command {
         /// print every verification-gate finding before aborting
         #[arg(long = "verbose-failures")]
         verbose_failures: bool,
+        /// publish numbers at undeclared paths verbatim instead of redacting
+        #[arg(long = "keep-undeclared-numbers")]
+        keep_undeclared_numbers: bool,
         /// draw a progress bar even when stderr is not a terminal
         #[arg(long, conflicts_with = "no_progress")]
         progress: bool,
@@ -76,6 +79,9 @@ enum Command {
         /// SharpHound zip or dir
         #[arg(long)]
         input: PathBuf,
+        /// publish numbers at undeclared paths verbatim instead of redacting
+        #[arg(long = "keep-undeclared-numbers")]
+        keep_undeclared_numbers: bool,
         /// draw a progress bar even when stderr is not a terminal
         #[arg(long, conflicts_with = "no_progress")]
         progress: bool,
@@ -109,6 +115,7 @@ fn main() {
             map,
             reuse_map,
             verbose_failures,
+            keep_undeclared_numbers,
             progress,
             no_progress,
         } => anonymize(
@@ -117,13 +124,19 @@ fn main() {
             map,
             reuse_map,
             verbose_failures,
+            policy_config(keep_undeclared_numbers),
             progress::should_render(progress, no_progress),
         ),
         Command::Inspect {
             input,
+            keep_undeclared_numbers,
             progress,
             no_progress,
-        } => inspect(input, progress::should_render(progress, no_progress)),
+        } => inspect(
+            input,
+            policy_config(keep_undeclared_numbers),
+            progress::should_render(progress, no_progress),
+        ),
         Command::Restore {
             map,
             lookup_value,
@@ -133,18 +146,30 @@ fn main() {
     }
 }
 
+/// The run's policy, which differs from the default in exactly one place.
+///
+/// `--keep-undeclared-numbers` widens what leaves the machine, so it is spelled
+/// as an opt-out rather than a mode: the safe value is what you get by saying
+/// nothing.
+fn policy_config(keep_undeclared_numbers: bool) -> PolicyConfig {
+    PolicyConfig {
+        redact_undeclared_numbers: !keep_undeclared_numbers,
+        ..PolicyConfig::default()
+    }
+}
+
 /// Dry-run a collection: same discovery, transform and verification as a real
 /// run, then stop. Nothing is written, and every line printed is a count, a
 /// synthetic member label, a canonical path or a fingerprint — so a report can
 /// be shared for a collection that cannot be.
-fn inspect(input: PathBuf, render_progress: bool) {
+fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool) {
     let reporter = render_progress.then(progress::Reporter::new);
     let sink = reporter.as_ref().map(|(_, sink)| sink.clone());
 
     let report = shanon_core::pipeline::inspect_collection(
         &input,
         Registry::new_random(),
-        PolicyConfig::default(),
+        policy,
         PolicyAudit::new(),
         sink,
     );
@@ -290,6 +315,7 @@ fn anonymize(
     map: Option<PathBuf>,
     reuse_map: Option<PathBuf>,
     verbose_failures: bool,
+    policy: PolicyConfig,
     render_progress: bool,
 ) {
     let out = resolve(&out);
@@ -317,8 +343,11 @@ fn anonymize(
         exit(2);
     }
 
-    let policy = PolicyConfig::default();
     let audit = PolicyAudit::new();
+    // Deliberately not recorded in the map: the sentinel writes no registry
+    // entry, so `--keep-undeclared-numbers` changes the collection and nothing
+    // about the reversal keys. Adding a field here would change the frozen map
+    // format for a setting the map does not need.
     let map_policy = json!({
         "profile": "core-global-defaults",
         "catalog_version": CATALOG_VERSION,

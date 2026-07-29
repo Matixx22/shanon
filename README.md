@@ -20,10 +20,14 @@ graph cross-reference still points where it pointed. The edges are what you are
 asking the model about, and they all survive. A local mapping file turns its
 answer back into real names when it comes back.
 
-Numbers, booleans and nulls are passed through as they are. That is deliberate
-for the ones a rule declares (a flag or a timestamp carries no identity), but
-it also means a *custom numeric* attribute at a path shanon does not model goes
-out unchanged. `shanon inspect` reports exactly which paths those were; see
+Booleans and nulls are passed through as they are, and so are numbers at the
+paths shanon models (a flag or a timestamp carries no identity). A number at a
+path no rule declares is a different animal: SharpHound turns any attribute
+whose value parses as an integer into a JSON number, so under
+`--collectallproperties` a custom `employeeNumber` arrives as one, and a numeric
+employee ID matched against an HR roster re-identifies the account and every
+edge it sits on. Those are replaced with a type-stable sentinel. `shanon
+inspect` reports exactly which paths were affected; see
 [SECURITY.md](SECURITY.md#what-shanon-does-not-protect-against).
 
 ## What it actually does
@@ -78,7 +82,7 @@ Read what survived, because that is the point:
 current tag from [Releases](https://github.com/Matixx22/shanon/releases):
 
 ```sh
-VERSION=v0.4.1
+VERSION=v0.5.0
 TARGET=x86_64-unknown-linux-gnu        # or aarch64-apple-darwin
 BASE="https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
@@ -93,7 +97,7 @@ tar xzf "shanon-$VERSION-$TARGET.tar.gz"
 Windows ships a `.zip` instead, with the same `<hash>  <file>` checksum line:
 
 ```powershell
-$VERSION = "v0.4.1"
+$VERSION = "v0.5.0"
 $TARGET  = "x86_64-pc-windows-msvc"
 $BASE    = "https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
@@ -184,7 +188,8 @@ client-sensitive: keep it local, never ship it.
 
 ```
 shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH]
-                 [--verbose-failures] [--progress | --no-progress]
+                 [--verbose-failures] [--keep-undeclared-numbers]
+                 [--progress | --no-progress]
 ```
 
 | flag | required | meaning |
@@ -194,6 +199,7 @@ shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH]
 | `--map` | no | where to write the reversal map (default `<out>/collection.map.json`) |
 | `--reuse-map` | no | reuse salt + prior mappings so pseudonyms stay stable across collections |
 | `--verbose-failures` | no | on an abort, print sanitized detail: every leak-gate finding, or the class, member, path and offender fingerprint of a mapping failure |
+| `--keep-undeclared-numbers` | no | publish numbers at undeclared paths verbatim instead of replacing them. Widens what leaves the machine; read the `inspect` report first |
 | `--progress` | no | draw the progress bar even when stderr is not a terminal |
 | `--no-progress` | no | never draw the progress bar |
 
@@ -221,7 +227,8 @@ themselves organization-bound, so they do not survive either.
 ### `inspect`
 
 ```
-shanon inspect --input <zip|dir> [--progress | --no-progress]
+shanon inspect --input <zip|dir> [--keep-undeclared-numbers]
+               [--progress | --no-progress]
 ```
 
 A dry run: same discovery, transform and leak-gate verification as `anonymize`,
@@ -311,6 +318,8 @@ substitutes every component it recognizes.
 - Free text and opaque values → deterministic `[REDACTED:…]` mappings
 - The *names* of fields no rule models, not only their values. A custom AD
   attribute is organization-bound in its key as much as its contents
+- Numeric values at those same unmodeled paths → a type-stable sentinel, because
+  a custom `employeeNumber` or `uidNumber` is a re-identification key
 
 That last one currently catches a few standard SharpHound fields the rule table
 does not model yet, including `IsDeleted`, `IsACLProtected`,
