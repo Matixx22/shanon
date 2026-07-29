@@ -17,6 +17,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   directory entries ignored, `.JSON` matched case-insensitively, six traversal
   shapes refused, an oversized declared member refused, and five malformed
   archives rejected without a panic.
+- `crates/shanon-core/tests/reuse_map.rs`: the catalog gate accepts this
+  build's version and refuses an older one, a newer one, and a mapping that
+  states none.
+- `crates/shanon-core/tests/finding_fingerprint.rs`: one value yields different
+  tokens under different salts, the same token under one salt, and never the
+  unkeyed digest of any value in the corpus.
+- `crates/shanon-core/tests/secret_material.rs`: no secret spelling reaches the
+  output collection or the mapping file, a GUID-shaped secret is still redacted,
+  and the LAPS expiry attribute is not.
 - `crates/shanon-core/tests/publish.rs`: invariant 1 asserted through
   `anonymize_collection` rather than through `platform`'s rename primitive alone.
   An aborted run leaves no collection, no map and no staging directory; an
@@ -37,6 +46,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- `--verbose-failures` now also expands a refused `--reuse-map` load, the same
+  split between the frozen line and the sanitized reason the pipeline's own
+  aborts already used.
 - `CATALOG_VERSION` is now `2`, because the catalog fix below changes what gets
   preserved.
 - Docs stop overstating the guarantee: the README drops its "every
@@ -94,6 +106,26 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Security
 
+- A collected LAPS or gMSA secret was pseudonymized rather than redacted, which
+  writes the cleartext password into the mapping file as a lookup key.
+  `ms-mcs-admpwd`, the `msLAPS-*` attributes and `msDS-ManagedPassword` are now
+  secret material. The expiry and interval attributes are deliberately not.
+- The secret-material check now runs before the field's transform is chosen, so
+  a secret whose value happens to be SID-, GUID- or OID-shaped is redacted
+  instead of being routed to a structured identifier transform and mapped.
+- The two copies of the secret-material list, one in `engine` and one in
+  `verify`, are now one list in `lib.rs`. The verifier re-derives every leaf
+  independently, so a one-sided edit would have aborted every run carrying such
+  a field.
+- The offender fingerprint in a verification finding is keyed on the run salt.
+  It was an unkeyed 48-bit digest: recoverable from a candidate list for a value
+  drawn from a guessable domain, and identical across runs and machines, so
+  findings from two unrelated collections could be correlated. The docs
+  meanwhile presented the tokens as safe to share.
+- `--reuse-map` now refuses a mapping minted under a different
+  `CATALOG_VERSION`, or one that records no version at all. `from_value`
+  discarded the map's `policy` block, so nothing read the version back, and the
+  bump to `2` made the disagreement reachable.
 - `spike/sample.json` was a real SharpHound capture of a lab domain (live domain
   SID, account names, distinguished names, logon timestamps), and
   `crates/shanon-core/tests/spike.rs` described it as one. Replaced by a
@@ -123,11 +155,10 @@ Recorded here so that closing any of them is a deliberate act, not a discovery.
   Redacting it would change the leaf's JSON type and the output has to stay
   BloodHound-loadable, so closing this means first deciding what a redacted
   *number* is. `shanon inspect` now makes every occurrence visible.
-- **`CATALOG_VERSION` is not read back on `--reuse-map`.**
-  `Registry::from_value` discards the map's whole `policy` block, so a version-1
-  map reused under version 2 can silently disagree with its own sibling
-  collection about the corrected User-Change-Password GUID. The bump makes the
-  gap reachable rather than hypothetical.
+- **Secret material is recognized by attribute name.** A credential under an
+  attribute the list does not know is pseudonymized like any other string, so a
+  collector that renames one, or a custom attribute holding a password, still
+  puts the cleartext in the mapping file.
 - **A member that parses but carries no `meta` aborts the whole collection**
   instead of being skipped, taking valid siblings with it. `tests/publish.rs`
   pins the current behavior and states what a fix would look like.
