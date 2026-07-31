@@ -62,7 +62,7 @@
           }
         ]
       },
-      "expected_output": "{\"meta\": {\"type\": \"computers\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"S-1-5-21-3723053582-1902173673-2667344224-1195298833\", \"Properties\": {\"name\": \"HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.LOCAL\", \"dnshostname\": \"HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local\", \"samaccountname\": \"mgrantfnkhav76co2p4$\", \"operatingsystem\": \"[REDACTED:h6grkipcxsry2]\", \"serviceprincipalnames\": [\"HOST/HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local\", \"MSSQLSvc/HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local:1433\"]}}]}"
+      "expected_output": "{\"meta\": {\"type\": \"computers\", \"count\": 1, \"version\": 6}, \"data\": [{\"ObjectIdentifier\": \"S-1-5-21-3723053582-1902173673-2667344224-1195298833\", \"Properties\": {\"name\": \"HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.LOCAL\", \"dnshostname\": \"HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local\", \"samaccountname\": \"mgrantfnkhav76co2p4$\", \"operatingsystem\": \"Windows Server 2019\", \"serviceprincipalnames\": [\"HOST/HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local\", \"MSSQLSvc/HOST-76-SA7LQGKU7RG3Y.alpine-3bq5ihjfteg2u.local:1433\"]}}]}"
     },
     {
       "member": "domains.json",
@@ -179,8 +179,8 @@
       "parse_dn": 2,
       "parse_spn": 2,
       "preserve_constant": 1,
-      "preserve_schema_value": 8,
-      "replace_opaque": 4
+      "preserve_schema_value": 9,
+      "replace_opaque": 3
     },
     "rule_ids": {
       "common.properties-name": 4,
@@ -199,12 +199,12 @@
       "identity.user-principal-name": 1,
       "opaque.functional-level": 1,
       "opaque.path-url.properties.description": 1,
-      "opaque.path-url.properties.operatingsystem": 1,
       "reference.sid.aces[].principalsid": 1,
       "reference.sid.primarygroupsid": 1,
       "schema.ace-right-name": 1,
       "schema.meta-type": 6,
       "schema.object-type.aces[].principaltype": 1,
+      "schema.operating-system": 1,
       "spn.service-principal-name": 2,
       "template.internal-name": 1
     },

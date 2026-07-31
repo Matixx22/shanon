@@ -534,6 +534,19 @@ struct ZipEntry {
     is_dir: bool,
 }
 
+/// Whether the bytes open with a PKZIP signature: a local file header, an
+/// empty archive's bare end-of-central-directory, a ZIP64 record, or a spanning
+/// marker. Used only to keep an archive off the single-document path; a zip
+/// that opens with something else (a self-extracting prefix, say) is still
+/// parsed from its trailing central directory as before.
+fn looks_like_zip(raw: &[u8]) -> bool {
+    raw.starts_with(b"PK\x03\x04")
+        || raw.starts_with(b"PK\x05\x06")
+        || raw.starts_with(b"PK\x06\x06")
+        || raw.starts_with(b"PK\x07\x08")
+        || raw.starts_with(b"PK\x30\x30")
+}
+
 /// Parse the central directory (`ZipFile.infolist()` order).
 fn parse_zip_central(raw: &[u8]) -> Result<Vec<ZipEntry>, ShanonError> {
     if raw.len() < 22 {
@@ -678,6 +691,14 @@ fn safe_zip_members(entries: Vec<ZipEntry>) -> Result<Vec<ZipEntry>, ShanonError
 /// Build a ZIP byte-for-byte identical to `zipfile.ZipFile(..., ZIP_DEFLATED)`
 /// over `writestr(name, data)` (modulo the wall-clock DOS timestamp, which the
 /// parity replay normalizes).
+///
+/// Deliberately serial. Compressing the members across a worker pool is
+/// byte-safe (each entry has its own encoder and no shared dictionary), but it
+/// was measured against transform+verify and did not rise above run-to-run
+/// noise: the phase is a rounding error next to the two passes before it, and
+/// the work only splits across members, of which a collection has a handful
+/// with one usually dominant. Thread machinery in the publish path is not worth
+/// carrying for that.
 fn build_zip(entries: &[(String, Vec<u8>)]) -> Vec<u8> {
     let (dtime, ddate) = dos_now();
     let mut out: Vec<u8> = Vec::new();
@@ -856,8 +877,13 @@ struct Accepted {
 /// sees exactly the members a real run would: the same size bounds, the same
 /// openat-anchored traversal, the same latest-duplicate-wins rule, and the same
 /// `member-00001.json` labels — real filenames never leave this function
-/// (invariant 7). Also returns the raw archive bytes for a zip input, which the
-/// mapping's input hash needs.
+/// (invariant 7). Also returns the raw input bytes for a non-directory input,
+/// which the mapping's input hash needs.
+///
+/// A non-directory input is a ZIP unless it is not archive-shaped *and* parses
+/// whole as a single SharpHound document, in which case it is read as a
+/// one-member collection. Anything else stays on the archive path and fails
+/// exactly where it fails today.
 #[allow(clippy::type_complexity)]
 fn read_collection_input(
     input_path: &Path,
@@ -894,6 +920,22 @@ fn read_collection_input(
     }
     let raw =
         std::fs::read(input_path).map_err(|_| ShanonError::Io("File is not a zip file".into()))?;
+
+    // A bare `.json` collection: not archive-shaped, and the whole file is one
+    // SharpHound document. Anything that fails either test falls through to the
+    // archive path unchanged, so a zip carrying a prefix still parses from its
+    // trailing central directory and a genuinely broken input still reports
+    // "File is not a zip file".
+    if !looks_like_zip(&raw) && parse_collection_member(&raw).is_some() {
+        if raw.len() as u64 > MAX_MEMBER_UNCOMPRESSED {
+            return Err(ShanonError::Value(
+                "input contains an oversized JSON member".to_string(),
+            ));
+        }
+        members.push(("member-00001.json".to_string(), raw.clone()));
+        return Ok((members, Some(raw)));
+    }
+
     let entries = parse_zip_central(&raw)?;
     let entries = safe_zip_members(entries)?;
     if entries.is_empty() {
@@ -945,6 +987,17 @@ pub struct InspectReport {
     pub findings: Vec<VerificationFinding>,
     /// A mapping-class abort, rendered as `stderr_verbose` would render it.
     pub abort: Option<String>,
+    /// Members whose `meta.count` disagrees with their `data` length, in member
+    /// order. Advisory: a truncated or hand-edited collection still anonymizes.
+    pub meta_count_mismatches: Vec<MetaCountMismatch>,
+    /// Core SharpHound collection types absent from the input, sorted.
+    /// Advisory: a partial collection still anonymizes, but the graph it
+    /// produces will have holes.
+    pub missing_core_types: Vec<String>,
+    /// Casefolded `meta.type` values declared by more than one member, sorted
+    /// and deduplicated. Advisory, and the filename-free signal that several
+    /// collection runs were merged into one input.
+    pub duplicate_collection_types: Vec<String>,
 }
 
 /// One `(meta.type, node type, meta.version)` row of an [`InspectReport`].
@@ -955,6 +1008,20 @@ pub struct CollectionTypeRow {
     pub version: String,
     pub objects: u64,
 }
+
+/// A member whose declared `meta.count` disagrees with the length of its `data`
+/// array. Sanitized: the member is a synthetic label, never a source filename,
+/// and both counts are cardinalities rather than content (invariant 7).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MetaCountMismatch {
+    pub member: String,
+    pub declared: u64,
+    pub actual: u64,
+}
+
+/// The collection types a complete SharpHound run produces, casefolded. The
+/// subset missing from an input is reported by [`InspectReport`].
+const CORE_COLLECTION_TYPES: [&str; 4] = ["computers", "domains", "groups", "users"];
 
 impl InspectReport {
     /// Whether a real run over this input would publish.
@@ -1004,6 +1071,7 @@ pub fn inspect_collection(
     let mut objects: u64 = 0;
     // Keyed on the row identity so counts aggregate across members.
     let mut types: indexmap::IndexMap<(String, String, String), u64> = indexmap::IndexMap::new();
+    let mut preflight = Preflight::default();
 
     for (label, raw) in &raw_members {
         let doc = match parse_collection_member(raw) {
@@ -1026,6 +1094,7 @@ pub fn inspect_collection(
         let node_type = crate::engine::normalize_node_type(meta.and_then(|m| m.get("type")));
         let count = data_len(&doc);
         objects += count;
+        preflight.observe(label, meta, &meta_type, count);
         *types.entry((meta_type, node_type, version)).or_insert(0) += count;
 
         // A discovery failure is itself the finding; report it rather than
@@ -1041,6 +1110,9 @@ pub fn inspect_collection(
                 audit: engine.audit.summary(),
                 findings: Vec::new(),
                 abort: Some(e.stderr_verbose()),
+                meta_count_mismatches: preflight.mismatches(),
+                missing_core_types: preflight.missing_core(),
+                duplicate_collection_types: preflight.duplicates(),
             });
         }
         accepted.push(Accepted {
@@ -1070,6 +1142,9 @@ pub fn inspect_collection(
                 audit: engine.audit.summary(),
                 findings: Vec::new(),
                 abort: Some(e.stderr_verbose()),
+                meta_count_mismatches: preflight.mismatches(),
+                missing_core_types: preflight.missing_core(),
+                duplicate_collection_types: preflight.duplicates(),
             });
         }
     };
@@ -1113,7 +1188,76 @@ pub fn inspect_collection(
         audit: engine.audit.summary(),
         findings,
         abort,
+        meta_count_mismatches: preflight.mismatches(),
+        missing_core_types: preflight.missing_core(),
+        duplicate_collection_types: preflight.duplicates(),
     })
+}
+
+/// Advisory preflight signals gathered while a dry run reads members.
+///
+/// Nothing here can fail a run: [`InspectReport::would_publish`] ignores all of
+/// it. It answers the questions an operator asks *before* handing a collection
+/// over — is this collection complete, is it internally consistent, is it
+/// actually two collections in a trench coat — from counts and collection-type
+/// names alone, so the report stays as pasteable as the leak-gate findings.
+#[derive(Default)]
+struct Preflight {
+    mismatches: Vec<MetaCountMismatch>,
+    /// Members per casefolded `meta.type`, in first-seen order.
+    seen: indexmap::IndexMap<String, u64>,
+}
+
+impl Preflight {
+    /// Record one member. `actual` is its `data` length.
+    fn observe(
+        &mut self,
+        label: &str,
+        meta: Option<&Map<String, Value>>,
+        meta_type: &str,
+        actual: u64,
+    ) {
+        // Only an integral, non-negative `count` is comparable; anything else
+        // is a shape the collector never emits and is left unreported rather
+        // than guessed at.
+        if let Some(declared) = meta.and_then(|m| m.get("count")).and_then(|v| v.as_u64()) {
+            if declared != actual {
+                self.mismatches.push(MetaCountMismatch {
+                    member: label.to_string(),
+                    declared,
+                    actual,
+                });
+            }
+        }
+        *self
+            .seen
+            .entry(crate::casefold::casefold(meta_type))
+            .or_insert(0) += 1;
+    }
+
+    fn mismatches(&self) -> Vec<MetaCountMismatch> {
+        self.mismatches.clone()
+    }
+
+    fn missing_core(&self) -> Vec<String> {
+        // `CORE_COLLECTION_TYPES` is declared sorted, so the subset is too.
+        CORE_COLLECTION_TYPES
+            .iter()
+            .filter(|core| !self.seen.contains_key(**core))
+            .map(|core| (*core).to_string())
+            .collect()
+    }
+
+    fn duplicates(&self) -> Vec<String> {
+        let mut out: Vec<String> = self
+            .seen
+            .iter()
+            .filter(|(_, members)| **members > 1)
+            .map(|(meta_type, _)| meta_type.clone())
+            .collect();
+        out.sort();
+        out
+    }
 }
 
 fn rows(types: indexmap::IndexMap<(String, String, String), u64>) -> Vec<CollectionTypeRow> {
@@ -1609,6 +1753,59 @@ contextual verification failed: m.json data[0].x identity-not-transformed abcd"
             flate2::write::DeflateEncoder::new(Vec::new(), flate2::Compression::default());
         enc.write_all(data).unwrap();
         enc.finish().unwrap()
+    }
+
+    /// Invariant 2: a member's position in the archive must not change its
+    /// bytes. Each entry is deflated by its own encoder with no shared
+    /// dictionary, so the same member compresses to the same image wherever it
+    /// lands.
+    #[test]
+    fn a_members_bytes_do_not_depend_on_its_position() {
+        let members: Vec<Vec<u8>> = (0..8usize)
+            .map(|i| {
+                format!("{{\"member\":{i},\"pad\":\"{}\"}}", "ab".repeat(1 + i * 37)).into_bytes()
+            })
+            .collect();
+        let named = |order: &[usize]| -> Vec<(String, Vec<u8>)> {
+            order
+                .iter()
+                .enumerate()
+                .map(|(slot, &i)| (format!("member-{:05}.json", slot + 1), members[i].clone()))
+                .collect()
+        };
+
+        let forward = named(&[0, 1, 2, 3, 4, 5, 6, 7]);
+        let reversed = named(&[7, 6, 5, 4, 3, 2, 1, 0]);
+        let image = |entries: &[(String, Vec<u8>)], slot: usize| -> Vec<u8> {
+            let raw = build_zip(entries);
+            let parsed = parse_zip_central(&raw).unwrap();
+            read_zip_entry(&raw, &parsed[slot]).unwrap()
+        };
+
+        for slot in 0..8 {
+            assert_eq!(
+                image(&forward, slot),
+                members[slot],
+                "member at slot {slot} round-trips"
+            );
+            assert_eq!(
+                image(&reversed, slot),
+                members[7 - slot],
+                "reversed member at slot {slot} round-trips"
+            );
+        }
+    }
+
+    /// The single-document sniff must never divert an archive: a zip is
+    /// PK-shaped, and the JSON path is only reachable for bytes that are not.
+    #[test]
+    fn zip_shaped_input_is_never_read_as_a_document() {
+        assert!(looks_like_zip(b"PK\x03\x04rest of an archive"));
+        assert!(looks_like_zip(b"PK\x05\x06"));
+        assert!(!looks_like_zip(
+            b"{\"meta\": {\"type\": \"users\"}, \"data\": []}"
+        ));
+        assert!(!looks_like_zip(b""));
     }
 
     #[test]
