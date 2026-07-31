@@ -277,6 +277,130 @@ fn a_collection_that_would_abort_reports_instead_of_failing() {
     assert!(!abort.contains("S-1-5-21-1-2-3-1104"), "got {abort}");
 }
 
+/// A bare collection file, handed over without being zipped or foldered first,
+/// inspects as a one-member collection.
+#[test]
+fn a_single_json_file_inspects_as_one_member() {
+    let scratch = Scratch::new("bare-json");
+    let input = scratch.write("users.json", &ce_users());
+    let report = report(&input);
+
+    assert_eq!(report.members_read, 1);
+    assert_eq!(report.members_accepted, 1);
+    assert!(report.members_skipped.is_empty());
+    assert_eq!(report.objects, 1);
+    assert!(report.would_publish());
+}
+
+// ---------------------------------------------------------------------------
+// Preflight signals
+//
+// All three are advisory: they describe the collection an operator is about to
+// hand over, and none of them may change whether it publishes.
+// ---------------------------------------------------------------------------
+
+/// An accepted member with a declared type and an empty `data` array.
+fn empty_collection(meta_type: &str) -> Value {
+    json!({"data": [], "meta": {"methods": 0, "type": meta_type, "count": 0, "version": 6}})
+}
+
+/// A `meta.count` that disagrees with the member's `data` length is the usual
+/// fingerprint of a truncated or hand-edited collection.
+#[test]
+fn a_declared_count_that_disagrees_with_the_data_is_reported() {
+    let scratch = Scratch::new("count-mismatch");
+    let mut doc = ce_users();
+    doc["meta"]["count"] = json!(7);
+    scratch.write("collection/users.json", &doc);
+    let report = report(&scratch.path("collection"));
+
+    assert_eq!(report.meta_count_mismatches.len(), 1);
+    let mismatch = &report.meta_count_mismatches[0];
+    assert_eq!(mismatch.declared, 7);
+    assert_eq!(mismatch.actual, 1);
+    // Synthetic label only — a real filename must never reach a report.
+    assert!(
+        mismatch.member.starts_with("member-"),
+        "got {}",
+        mismatch.member
+    );
+
+    // The signal is advisory, but this particular shape is *also* refused by
+    // the existing `source-invalid-meta-count` leak gate, which is what
+    // decides publication. The advisory field neither raised that finding nor
+    // added one of its own.
+    assert_eq!(report.findings.len(), 1, "got {:?}", report.findings);
+    assert_eq!(report.findings[0].policy_code, "source-invalid-meta-count");
+    assert!(report.abort.is_none());
+}
+
+/// A count that agrees, or is absent, is silent.
+#[test]
+fn an_agreeing_or_absent_count_is_not_reported() {
+    let scratch = Scratch::new("count-ok");
+    scratch.write("collection/users.json", &ce_users());
+    let mut countless = ce_users();
+    countless["meta"].as_object_mut().unwrap().remove("count");
+    countless["meta"]["type"] = json!("groups");
+    scratch.write("collection/groups.json", &countless);
+
+    assert!(report(&scratch.path("collection"))
+        .meta_count_mismatches
+        .is_empty());
+}
+
+/// The core types a complete run produces, minus what the input declares.
+#[test]
+fn absent_core_collection_types_are_listed() {
+    let scratch = Scratch::new("missing-core");
+    scratch.write("collection/users.json", &ce_users());
+    scratch.write("collection/domains.json", &empty_collection("domains"));
+    let report = report(&scratch.path("collection"));
+
+    assert_eq!(report.missing_core_types, vec!["computers", "groups"]);
+    assert!(report.would_publish());
+}
+
+/// A complete collection reports nothing missing, and the comparison is by case
+/// folding rather than by byte (invariant 4).
+#[test]
+fn a_complete_collection_reports_no_missing_core_types() {
+    let scratch = Scratch::new("complete-core");
+    scratch.write("collection/users.json", &ce_users());
+    for (file, meta_type) in [
+        ("computers.json", "Computers"),
+        ("domains.json", "DOMAINS"),
+        ("groups.json", "groups"),
+    ] {
+        scratch.write(&format!("collection/{file}"), &empty_collection(meta_type));
+    }
+    let report = report(&scratch.path("collection"));
+
+    assert!(
+        report.missing_core_types.is_empty(),
+        "got {:?}",
+        report.missing_core_types
+    );
+}
+
+/// Two members declaring the same collection type is the filename-free signal
+/// that several collection runs were merged into one input.
+#[test]
+fn a_collection_type_declared_twice_is_reported() {
+    let scratch = Scratch::new("duplicate-types");
+    scratch.write("collection/run-a/users.json", &ce_users());
+    scratch.write("collection/run-b/users.json", &empty_collection("USERS"));
+    scratch.write(
+        "collection/run-a/domains.json",
+        &empty_collection("domains"),
+    );
+    let report = report(&scratch.path("collection"));
+
+    // Casefolded, so the two spellings count as one type seen twice.
+    assert_eq!(report.duplicate_collection_types, vec!["users"]);
+    assert!(report.would_publish(), "a merged input still publishes");
+}
+
 /// A member with no usable `meta` is skipped, and a collection of nothing but
 /// such members is a refusal rather than a silent empty success.
 ///

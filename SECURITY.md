@@ -31,8 +31,19 @@ what that boundary covers, what it does not, and how to report a leak.
   any other string.
 - **Contextual preservation.** Only catalog-proven core constants are preserved,
   and only at explicitly permitted object types and field paths. Microsoft
-  feature defaults, operating-system/product values, third-party defaults, and
-  custom identifiers are transformed by default.
+  feature defaults, third-party defaults, and custom identifiers are transformed
+  by default.
+
+  One product value is preserved: `Properties.operatingsystem`, when it matches
+  a listed Windows product string exactly. That is a deliberate widening. It
+  publishes the OS mix of the environment, which is structure, and structure is
+  the residual risk below. It buys the reasoning the tool exists for, because a
+  model cannot flag an unsupported domain controller it cannot see. The match is
+  exact against a closed table, so an org-branded image name, an appliance
+  banner, and a case variant are all redacted as before, and
+  `--redact-os-strings` turns the preservation off entirely.
+  `Properties.operatingsystemversion` is not preserved: build numbers are a long
+  tail that no table closes.
 - **Fail-closed.** After complete discovery, shanon freezes the typed registry,
   policy, and catalog evidence. An independent verifier re-resolves every
   string-bearing source leaf and recomputes its exact expected output; non-string

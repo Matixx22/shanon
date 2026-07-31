@@ -17862,11 +17862,11 @@
       "privacy": "custom",
       "reference_node_type": null,
       "decision": {
-        "rule_id": "opaque.path-url.properties.operatingsystem",
+        "rule_id": "schema.operating-system",
         "operation": "replace_opaque",
         "namespace": "opaque",
         "privacy": "custom",
-        "audit_code": null
+        "audit_code": "invalid-schema-string"
       }
     },
     {

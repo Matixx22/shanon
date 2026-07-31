@@ -21,10 +21,52 @@ What shanon does *not* protect against is documented in
 
 ### Compatibility
 
-- Output: unchanged
-- Mapping files: unchanged
-- CLI surface: unchanged
+- Output: **changed** at `Properties.operatingsystem`. A catalog-listed Windows
+  product string is now published verbatim where it used to be redacted. Every
+  other field is byte-identical, and `--redact-os-strings` restores the old
+  output exactly.
+- Mapping files: unchanged. Preserving a value writes no registry entry, so a
+  map minted before this release still resolves everything it did.
+- CLI surface: **added** `--redact-os-strings` (`anonymize`, `inspect`),
+  `--format text|json` (`inspect`), `--summary` / `--no-summary` (`anonymize`).
+  Existing invocations behave as before.
 - MSRV: 1.97
+
+### Added
+
+- [policy] `Properties.operatingsystem` keeps its value when it exactly matches
+  one of 130 catalog-listed Windows product strings. An unsupported OS is an
+  attack path, and redacting the field removed the model's ability to see one.
+- [policy] Anything else at that path is still redacted, including a branded
+  variant such as `Windows Server 2019 Datacenter - CONTOSO GOLD IMAGE` and any
+  appliance banner. Matching is exact, so a case variant is not preserved
+  either.
+- [cli] `--redact-os-strings` restores the previous behavior on both
+  `anonymize` and `inspect`.
+- [cli] `shanon inspect --format json` prints the report as a single sorted
+  JSON document for CI gates and ticket attachments. It carries the same
+  sanitized content as the text report and the same exit codes.
+- [cli] `anonymize` prints a run summary to stderr: object count,
+  classifications, unknown field paths, numeric passthrough, and the published
+  collection and map paths. Drawn only when stderr is a terminal, like the
+  progress bar, so redirected stderr is unchanged. `--summary` and
+  `--no-summary` force either way.
+- [inspect] Three advisory preflight signals: core collection types missing
+  from the input, a `meta.count` that disagrees with its own `data` array, and
+  a collection type declared by more than one member. The last one is what a
+  directory holding several collection runs looks like from inside, where
+  filenames are deliberately not visible.
+- [pipeline] A single `.json` file is accepted as input, not only a ZIP or a
+  directory. Useful for triaging one member of a collection that will not
+  anonymize.
+
+### Security
+
+- Preserving a Windows product string publishes one more fact about the
+  environment. It is a global Microsoft constant rather than anything
+  organization-bound, but OS mix is structure, and structure is the residual
+  risk SECURITY.md already describes. `--redact-os-strings` is there for a
+  collection where even that is too much.
 
 ## [0.5.1] - 2026-07-31
 

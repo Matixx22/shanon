@@ -396,3 +396,71 @@ fn malformed_archives_are_rejected_without_panicking() {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// Bare JSON input
+// ---------------------------------------------------------------------------
+
+/// A collector's single `users.json`, handed over without being zipped first.
+/// It reads as a one-member collection and publishes the same archive shape a
+/// zip input does.
+#[test]
+fn a_single_json_file_is_read_as_a_one_member_collection() {
+    let scratch = Scratch::new("bare-json");
+    let input = scratch.path("users.json");
+    fs::write(&input, users()).unwrap();
+    let out = scratch.path("out");
+    let map = scratch.path("run.map.json");
+
+    run(&input, &out, Some(&map)).expect("a bare JSON collection should anonymize");
+
+    let dest = out.join("collection_anon.zip");
+    assert!(dest.is_file(), "a non-directory input publishes a zip");
+
+    let members = read_zip(&fs::read(&dest).unwrap());
+    assert_eq!(members.len(), 1);
+    assert_eq!(members[0].0, "member-00001.json", "member label");
+    let doc: Value = serde_json::from_slice(&members[0].1).expect("published member is JSON");
+    assert_eq!(doc["meta"]["type"], "users");
+    let published = String::from_utf8(members[0].1.clone()).unwrap();
+    for secret in ["SOUTHRIDGE", "JDOE", "jdoe", DOMAIN_SID] {
+        assert!(
+            !published.contains(secret),
+            "published archive still contains {secret}"
+        );
+    }
+
+    // The mapping still records an input hash, taken over the file's bytes the
+    // way a zip input's is taken over the archive's.
+    let saved: Value = serde_json::from_slice(&fs::read(&map).unwrap()).unwrap();
+    let hash = saved["input_hash"].as_str().expect("input hash recorded");
+    assert_eq!(hash.len(), 64, "input hash is a sha-256 hex digest");
+    assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
+}
+
+/// The sniff only diverts input that parses whole as a SharpHound document.
+/// Everything else keeps the archive path's frozen error text.
+#[test]
+fn a_file_that_is_neither_an_archive_nor_a_document_keeps_the_zip_error() {
+    let scratch = Scratch::new("bare-other");
+    let cases: Vec<(&str, Vec<u8>)> = vec![
+        // Valid JSON, but not a collection document.
+        ("not-a-collection", br#"{"hello": "world"}"#.to_vec()),
+        // A JSON array, which `parse_collection_member` refuses.
+        ("array", b"[]".to_vec()),
+        ("prose", b"not a collection at all".to_vec()),
+    ];
+
+    for (name, bytes) in cases {
+        let path = scratch.path(&format!("{name}.json"));
+        fs::write(&path, &bytes).unwrap();
+        let out = scratch.path(&format!("out-{name}"));
+        match run(&path, &out, None) {
+            Err(ShanonError::Io(message)) => {
+                assert_eq!(message, "File is not a zip file", "case {name:?}");
+            }
+            other => panic!("case {name:?} expected the frozen zip error, got {other:?}"),
+        }
+        assert!(!out.join("collection_anon.zip").exists());
+    }
+}

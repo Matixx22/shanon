@@ -81,6 +81,21 @@ pub struct PolicyConfig {
     /// Turning it off restores verbatim passthrough and is a deliberate
     /// widening of what leaves the machine.
     pub redact_undeclared_numbers: bool,
+    /// Preserve stock Microsoft product strings at `Properties.operatingsystem`
+    /// (see `OPERATING_SYSTEMS`). On by default: an unsupported or legacy OS is
+    /// half of an attack path, and every preserved value is a Microsoft product
+    /// name that is identical in every domain.
+    ///
+    /// Turning it off restores the opaque rule verbatim — same rule id, same
+    /// audit code, same bytes — for an operator who wants the field gone
+    /// regardless.
+    ///
+    /// Deliberately not recorded in the map's policy block: preserving a value
+    /// writes no registry entry, so this setting changes the collection and
+    /// nothing about the reversal keys, exactly like
+    /// `--keep-undeclared-numbers`. Adding a field there would move a frozen
+    /// surface for a setting the map does not need.
+    pub preserve_os_strings: bool,
 }
 
 impl Default for PolicyConfig {
@@ -92,6 +107,7 @@ impl Default for PolicyConfig {
             unknown_fields: "anonymize_and_warn".to_string(),
             strict: true,
             redact_undeclared_numbers: true,
+            preserve_os_strings: true,
         }
     }
 }
@@ -517,7 +533,7 @@ impl FieldPolicy {
 
     /// The default policy with a caller-supplied config (`FieldPolicy.default`).
     pub fn defaults_with(config: PolicyConfig) -> Self {
-        FieldPolicy::new(default_rules(), config).expect("default rules are valid")
+        FieldPolicy::new(default_rules_with(&config), config).expect("default rules are valid")
     }
 
     pub fn config(&self) -> &PolicyConfig {
@@ -1252,6 +1268,160 @@ const GROUP_TYPES: &[&str] = &["Global", "DomainLocal", "Universal"];
 const USER_RIGHT_PRIVILEGES: &[&str] = &["SeRemoteInteractiveLogonRight"];
 const ENROLLMENT_ACCESS_TYPES: &[&str] = &["AccessAllowedCallback", "AccessDeniedCallback"];
 
+/// Microsoft operating-system product strings preserved at
+/// `Properties.operatingsystem`.
+///
+/// The value is a first-class attack signal — an unsupported or legacy OS is
+/// half of an attack path — and every entry here is a stock Microsoft product
+/// name that is identical in every domain, so it carries no organization
+/// identity. Anything else is redacted: `resolve_schema` falls through to
+/// `ReplaceOpaque` with the `invalid-schema-string` audit code, which is what
+/// catches an appliance banner (`Linux appliance FINANCE-APP-01`) or a value an
+/// organization branded itself (`Windows Server 2019 Datacenter - CONTOSO GOLD
+/// IMAGE`). Matching is exact and case-sensitive, like every other schema rule.
+///
+/// The server rows are the full cross product of the shipped versions and
+/// editions. Not every member is a real SKU; a combination that never occurs
+/// simply never matches, and enumerating the product is what keeps the table
+/// auditable.
+///
+/// `Properties.operatingsystemversion` is deliberately *not* given the same
+/// treatment and stays in `OPAQUE_PATH_URL_PATHS`: build-number strings are a
+/// long tail that cannot be enumerated, so no table over them could stay
+/// fail-closed.
+const OPERATING_SYSTEMS: &[&str] = &[
+    "Windows 10 Education",
+    "Windows 10 Enterprise",
+    "Windows 10 Enterprise 2015 LTSB",
+    "Windows 10 Enterprise 2016 LTSB",
+    "Windows 10 Enterprise LTSC 2019",
+    "Windows 10 Enterprise LTSC 2021",
+    "Windows 10 Home",
+    "Windows 10 IoT Enterprise",
+    "Windows 10 Pro",
+    "Windows 10 Pro Education",
+    "Windows 10 Pro for Workstations",
+    "Windows 11 Education",
+    "Windows 11 Enterprise",
+    "Windows 11 Home",
+    "Windows 11 IoT Enterprise",
+    "Windows 11 Pro",
+    "Windows 11 Pro Education",
+    "Windows 11 Pro for Workstations",
+    "Windows 2000 Advanced Server",
+    "Windows 2000 Professional",
+    "Windows 2000 Server",
+    "Windows 7 Enterprise",
+    "Windows 7 Home Basic",
+    "Windows 7 Home Premium",
+    "Windows 7 Professional",
+    "Windows 7 Ultimate",
+    "Windows 8",
+    "Windows 8 Enterprise",
+    "Windows 8 Pro",
+    "Windows 8.1",
+    "Windows 8.1 Enterprise",
+    "Windows 8.1 Pro",
+    "Windows Server",
+    "Windows Server 2003",
+    "Windows Server 2003 Datacenter",
+    "Windows Server 2003 Datacenter Evaluation",
+    "Windows Server 2003 Enterprise",
+    "Windows Server 2003 Essentials",
+    "Windows Server 2003 Foundation",
+    "Windows Server 2003 R2",
+    "Windows Server 2003 R2 Datacenter",
+    "Windows Server 2003 R2 Datacenter Evaluation",
+    "Windows Server 2003 R2 Enterprise",
+    "Windows Server 2003 R2 Essentials",
+    "Windows Server 2003 R2 Foundation",
+    "Windows Server 2003 R2 Standard",
+    "Windows Server 2003 R2 Standard Evaluation",
+    "Windows Server 2003 R2 Web",
+    "Windows Server 2003 Standard",
+    "Windows Server 2003 Standard Evaluation",
+    "Windows Server 2003 Web",
+    "Windows Server 2008",
+    "Windows Server 2008 Datacenter",
+    "Windows Server 2008 Datacenter Evaluation",
+    "Windows Server 2008 Enterprise",
+    "Windows Server 2008 Essentials",
+    "Windows Server 2008 Foundation",
+    "Windows Server 2008 R2",
+    "Windows Server 2008 R2 Datacenter",
+    "Windows Server 2008 R2 Datacenter Evaluation",
+    "Windows Server 2008 R2 Enterprise",
+    "Windows Server 2008 R2 Essentials",
+    "Windows Server 2008 R2 Foundation",
+    "Windows Server 2008 R2 Standard",
+    "Windows Server 2008 R2 Standard Evaluation",
+    "Windows Server 2008 R2 Web",
+    "Windows Server 2008 Standard",
+    "Windows Server 2008 Standard Evaluation",
+    "Windows Server 2008 Web",
+    "Windows Server 2012",
+    "Windows Server 2012 Datacenter",
+    "Windows Server 2012 Datacenter Evaluation",
+    "Windows Server 2012 Enterprise",
+    "Windows Server 2012 Essentials",
+    "Windows Server 2012 Foundation",
+    "Windows Server 2012 R2",
+    "Windows Server 2012 R2 Datacenter",
+    "Windows Server 2012 R2 Datacenter Evaluation",
+    "Windows Server 2012 R2 Enterprise",
+    "Windows Server 2012 R2 Essentials",
+    "Windows Server 2012 R2 Foundation",
+    "Windows Server 2012 R2 Standard",
+    "Windows Server 2012 R2 Standard Evaluation",
+    "Windows Server 2012 R2 Web",
+    "Windows Server 2012 Standard",
+    "Windows Server 2012 Standard Evaluation",
+    "Windows Server 2012 Web",
+    "Windows Server 2016",
+    "Windows Server 2016 Datacenter",
+    "Windows Server 2016 Datacenter Evaluation",
+    "Windows Server 2016 Enterprise",
+    "Windows Server 2016 Essentials",
+    "Windows Server 2016 Foundation",
+    "Windows Server 2016 Standard",
+    "Windows Server 2016 Standard Evaluation",
+    "Windows Server 2016 Web",
+    "Windows Server 2019",
+    "Windows Server 2019 Datacenter",
+    "Windows Server 2019 Datacenter Evaluation",
+    "Windows Server 2019 Enterprise",
+    "Windows Server 2019 Essentials",
+    "Windows Server 2019 Foundation",
+    "Windows Server 2019 Standard",
+    "Windows Server 2019 Standard Evaluation",
+    "Windows Server 2019 Web",
+    "Windows Server 2022",
+    "Windows Server 2022 Datacenter",
+    "Windows Server 2022 Datacenter Evaluation",
+    "Windows Server 2022 Enterprise",
+    "Windows Server 2022 Essentials",
+    "Windows Server 2022 Foundation",
+    "Windows Server 2022 Standard",
+    "Windows Server 2022 Standard Evaluation",
+    "Windows Server 2022 Web",
+    "Windows Server 2025",
+    "Windows Server 2025 Datacenter",
+    "Windows Server 2025 Datacenter Evaluation",
+    "Windows Server 2025 Enterprise",
+    "Windows Server 2025 Essentials",
+    "Windows Server 2025 Foundation",
+    "Windows Server 2025 Standard",
+    "Windows Server 2025 Standard Evaluation",
+    "Windows Server 2025 Web",
+    "Windows Vista Business",
+    "Windows Vista Enterprise",
+    "Windows Vista Home Basic",
+    "Windows Vista Home Premium",
+    "Windows Vista Ultimate",
+    "Windows XP Professional",
+    "Windows XP Professional x64 Edition",
+];
+
 const META_TYPES: &[&str] = &[
     "adlocalgroups",
     "aiacas",
@@ -1324,6 +1494,14 @@ const IDENTIFIER_REFERENCE_PATHS: &[&str] = &[
     "UserRights[].LocalNames[].ObjectId",
 ];
 
+/// The one entry of `OPAQUE_PATH_URL_PATHS` that a config toggle can withdraw.
+///
+/// It stays listed there so that `preserve_os_strings: false` rebuilds today's
+/// rule byte for byte — same `opaque.path-url.*` rule id, same position in the
+/// table, same `null` audit code — instead of approximating it from a second
+/// declaration site.
+const OPERATING_SYSTEM_PATH: &str = "Properties.operatingsystem";
+
 const OPAQUE_PATH_URL_PATHS: &[&str] = &[
     "Properties.profilepath",
     "Properties.homedirectory",
@@ -1335,7 +1513,7 @@ const OPAQUE_PATH_URL_PATHS: &[&str] = &[
     "Properties.uri",
     "Properties.certchain[]",
     "Properties.certchain",
-    "Properties.operatingsystem",
+    OPERATING_SYSTEM_PATH,
     "Properties.operatingsystemversion",
     "Properties.description",
     "Properties.displayname",
@@ -1501,6 +1679,16 @@ fn rule(
 
 /// Build the default field rules (`_default_rules`).
 pub fn default_rules() -> Vec<FieldRule> {
+    default_rules_with(&PolicyConfig::default())
+}
+
+/// Build the default field rules for `config`.
+///
+/// Only one rule depends on the config: `Properties.operatingsystem` is either
+/// the `schema.operating-system` rule or the `opaque.path-url.*` one it
+/// replaced, never both — a second declaration of the same path would be a
+/// [`PolicyError::DuplicateRule`].
+pub fn default_rules_with(config: &PolicyConfig) -> Vec<FieldRule> {
     use FieldOperation::*;
     let star: &[&str] = &["*"];
     let mut rules: Vec<FieldRule> = vec![
@@ -1663,6 +1851,9 @@ pub fn default_rules() -> Vec<FieldRule> {
         ));
     }
     for path in OPAQUE_PATH_URL_PATHS {
+        if config.preserve_os_strings && *path == OPERATING_SYSTEM_PATH {
+            continue;
+        }
         rules.push(rule(
             &format!("opaque.path-url.{}", canonical_path(path)),
             path,
@@ -1857,6 +2048,22 @@ pub fn default_rules() -> Vec<FieldRule> {
             star,
         ),
     ]);
+
+    if config.preserve_os_strings {
+        // `Computer` is the node type that carries this in practice, but the
+        // rule is declared for every type: `known_prefixes` is per node type,
+        // so scoping it would leave `operatingsystem` an unknown *key* on any
+        // other type that emits it and the key itself would come back renamed.
+        // The value gate is the same table either way.
+        rules.push(rule(
+            "schema.operating-system",
+            OPERATING_SYSTEM_PATH,
+            PreserveSchemaValue,
+            None,
+            Some(OPERATING_SYSTEMS),
+            star,
+        ));
+    }
 
     for path in OBJECT_TYPE_PATHS {
         rules.push(rule(

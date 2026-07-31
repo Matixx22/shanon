@@ -187,21 +187,38 @@ client-sensitive: keep it local, never ship it.
 ### `anonymize`
 
 ```
-shanon anonymize --input <zip|dir> --out <dir> [--map PATH] [--reuse-map PATH]
+shanon anonymize --input <zip|dir|json> --out <dir> [--map PATH] [--reuse-map PATH]
                  [--verbose-failures] [--keep-undeclared-numbers]
-                 [--progress | --no-progress]
+                 [--redact-os-strings] [--progress | --no-progress]
+                 [--summary | --no-summary]
 ```
 
 | flag | required | meaning |
 | --- | --- | --- |
-| `--input` | yes | SharpHound collection: a `.zip` or a directory of `*.json` |
+| `--input` | yes | SharpHound collection: a `.zip`, a directory of `*.json`, or a single `.json` member |
 | `--out` | yes | output directory (must not already contain the target) |
 | `--map` | no | where to write the reversal map (default `<out>/collection.map.json`) |
 | `--reuse-map` | no | reuse salt + prior mappings so pseudonyms stay stable across collections |
 | `--verbose-failures` | no | on an abort, print sanitized detail: every leak-gate finding, or the class, member, path and offender fingerprint of a mapping failure |
 | `--keep-undeclared-numbers` | no | publish numbers at undeclared paths verbatim instead of replacing them. Widens what leaves the machine; read the `inspect` report first |
+| `--redact-os-strings` | no | redact `Properties.operatingsystem` instead of preserving a known Windows product string |
 | `--progress` | no | draw the progress bar even when stderr is not a terminal |
 | `--no-progress` | no | never draw the progress bar |
+| `--summary` | no | print the run summary even when stderr is not a terminal |
+| `--no-summary` | no | never print the run summary |
+
+On success it writes a summary to stderr, drawn under the same rule as the
+progress bar, so a redirected or piped stderr is byte-identical to a run
+without it:
+
+```
+summary: 5752 objects
+  classifications: core_global_default 118, custom 5634
+  unknown field paths: 21 distinct
+  numeric values passed through: 0 distinct path(s)
+  collection: ./anon/collection_anon.zip
+  map: ./anon/collection.map.json
+```
 
 A run over a real collection takes minutes, so `anonymize` draws a progress bar
 on stderr showing each phase (discovery, transform+verify, publish) with a
@@ -227,7 +244,8 @@ themselves organization-bound, so they do not survive either.
 ### `inspect`
 
 ```
-shanon inspect --input <zip|dir> [--keep-undeclared-numbers]
+shanon inspect --input <zip|dir|json> [--keep-undeclared-numbers]
+               [--redact-os-strings] [--format text|json]
                [--progress | --no-progress]
 ```
 
@@ -257,7 +275,24 @@ audit codes:
 unknown field paths (21 distinct):
        800  data[].localgroups[]["[redacted:wx5fedc6e5w56]"]
 
+preflight:
+  missing core collection types: domains
+  collection type declared by more than one member: users
+
 verdict: this collection would anonymize cleanly
+```
+
+The `preflight:` block appears only when it has something to say. It is
+advisory and never changes the verdict or the exit code. A collection type
+declared by more than one member is what a directory holding several collection
+runs looks like from the inside, where the collector's filenames are
+deliberately not visible.
+
+`--format json` prints the same report as one sorted JSON document, for a CI
+gate or a ticket attachment:
+
+```sh
+shanon inspect --input engagement.zip --format json | jq .would_publish
 ```
 
 Every line is a count, a synthetic `member-NNNNN.json` label, a canonical field
@@ -313,7 +348,8 @@ substitutes every component it recognizes.
 - Names (user/group/computer/OU/GPO/container), UPNs, SPNs, DNS hostnames, emails
 - Organization-specific SID authority values and custom GUIDs
 - Domain FQDNs and organization-specific DN components
-- Role, product, OS, and vendor fingerprints
+- Role, product and vendor fingerprints, and any OS string that is not a
+  catalog-listed Windows product (see below)
 - Custom certificate templates, enterprise OIDs, CA names, and certificate material
 - Free text and opaque values → deterministic `[REDACTED:…]` mappings
 - The *names* of fields no rule models, not only their values. A custom AD
@@ -337,6 +373,14 @@ specific object type and field path listed in the catalog. Examples:
   authority and domain name are still mapped.
 - Fixed default-GPO GUIDs, standard protocol/EKU OIDs, and built-in
   certificate-template names, at catalog-permitted paths only.
+- `Properties.operatingsystem`, when the value is exactly one of the listed
+  Windows product strings (`Windows Server 2019 Standard`, `Windows 10
+  Enterprise`, and so on). An unsupported OS is an attack path, and it is a
+  Microsoft constant rather than anything about your client. A branded variant
+  such as `Windows Server 2019 Datacenter - CONTOSO GOLD IMAGE`, an appliance
+  banner, or a case variant matches nothing and is redacted.
+  `Properties.operatingsystemversion` stays redacted: build numbers are a long
+  tail no table can close. `--redact-os-strings` turns the whole thing off.
 - Feature/vendor defaults (`Hyper-V Administrators`, `Vault Administrators`) and
   anything custom are mapped, not preserved.
 

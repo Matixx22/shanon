@@ -9,20 +9,24 @@
 //! * `--progress/--no-progress` on `anonymize`, adding two lines to that
 //!   subcommand's help. A run takes minutes on a real collection, and used to
 //!   give no sign it was alive.
+//! * `--summary/--no-summary` on `anonymize`, on the same terms.
+//! * `--format text|json` on `inspect`. `text` is the byte-identical default;
+//!   `json` prints one canonical document and nothing else.
 //!
 //! The progress bar itself changes no captured bytes: it draws only when stderr
 //! is a terminal (see [`progress::should_render`]), so redirected stderr — every
-//! parity fixture and every CLI test — is unchanged. All other stderr, and every
-//! exit code, are as before.
+//! parity fixture and every CLI test — is unchanged. The run summary is drawn on
+//! the same condition, for the same reason. All other stderr, and every exit
+//! code, are as before.
 
 mod progress;
 
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
-use clap::{Parser, Subcommand};
-use serde_json::json;
+use clap::{Parser, Subcommand, ValueEnum};
+use serde_json::{json, Value};
 
 use shanon_core::catalog::CATALOG_VERSION;
 use shanon_core::pipeline::{
@@ -67,12 +71,21 @@ enum Command {
         /// publish numbers at undeclared paths verbatim instead of redacting
         #[arg(long = "keep-undeclared-numbers")]
         keep_undeclared_numbers: bool,
+        /// redact known Windows product strings instead of preserving them
+        #[arg(long = "redact-os-strings")]
+        redact_os_strings: bool,
         /// draw a progress bar even when stderr is not a terminal
         #[arg(long, conflicts_with = "no_progress")]
         progress: bool,
         /// never draw a progress bar
         #[arg(long = "no-progress")]
         no_progress: bool,
+        /// print a run summary even when stderr is not a terminal
+        #[arg(long, conflicts_with = "no_summary")]
+        summary: bool,
+        /// never print a run summary
+        #[arg(long = "no-summary")]
+        no_summary: bool,
     },
     /// Dry-run a collection and report what a real run would do. Writes nothing.
     Inspect {
@@ -82,6 +95,12 @@ enum Command {
         /// publish numbers at undeclared paths verbatim instead of redacting
         #[arg(long = "keep-undeclared-numbers")]
         keep_undeclared_numbers: bool,
+        /// redact known Windows product strings instead of preserving them
+        #[arg(long = "redact-os-strings")]
+        redact_os_strings: bool,
+        /// report format
+        #[arg(long, value_enum, default_value_t = InspectFormat::Text)]
+        format: InspectFormat,
         /// draw a progress bar even when stderr is not a terminal
         #[arg(long, conflicts_with = "no_progress")]
         progress: bool,
@@ -106,6 +125,31 @@ enum Command {
     },
 }
 
+/// How `inspect` renders its report.
+///
+/// `Text` is the operator-facing rendering and is frozen byte-for-byte; `Json`
+/// is the machine-readable one, serialized by the crate's own canonical sorted
+/// writer so the same input always produces the same bytes (invariants 2, 5).
+#[derive(Copy, Clone, PartialEq, Eq, ValueEnum)]
+enum InspectFormat {
+    Text,
+    Json,
+}
+
+/// Version of the `inspect --format json` document. Bumped when a key changes
+/// meaning or disappears; adding a key does not bump it.
+const INSPECT_SCHEMA_VERSION: u64 = 1;
+
+/// What a run draws on stderr for a human watching it.
+///
+/// Both are off whenever stderr is not a terminal, so neither can move a
+/// captured byte (invariant 2).
+#[derive(Copy, Clone)]
+struct Rendering {
+    progress: bool,
+    summary: bool,
+}
+
 fn main() {
     let cli = Cli::parse();
     match cli.command {
@@ -116,26 +160,35 @@ fn main() {
             reuse_map,
             verbose_failures,
             keep_undeclared_numbers,
+            redact_os_strings,
             progress,
             no_progress,
+            summary,
+            no_summary,
         } => anonymize(
             input,
             out,
             map,
             reuse_map,
             verbose_failures,
-            policy_config(keep_undeclared_numbers),
-            progress::should_render(progress, no_progress),
+            policy_config(keep_undeclared_numbers, redact_os_strings),
+            Rendering {
+                progress: progress::should_render(progress, no_progress),
+                summary: progress::should_render(summary, no_summary),
+            },
         ),
         Command::Inspect {
             input,
             keep_undeclared_numbers,
+            redact_os_strings,
+            format,
             progress,
             no_progress,
         } => inspect(
             input,
-            policy_config(keep_undeclared_numbers),
+            policy_config(keep_undeclared_numbers, redact_os_strings),
             progress::should_render(progress, no_progress),
+            format,
         ),
         Command::Restore {
             map,
@@ -146,14 +199,19 @@ fn main() {
     }
 }
 
-/// The run's policy, which differs from the default in exactly one place.
+/// The run's policy, which differs from the default only where a flag says so.
 ///
-/// `--keep-undeclared-numbers` widens what leaves the machine, so it is spelled
-/// as an opt-out rather than a mode: the safe value is what you get by saying
-/// nothing.
-fn policy_config(keep_undeclared_numbers: bool) -> PolicyConfig {
+/// Both flags are spelled as opt-outs rather than modes, for opposite reasons.
+/// `--keep-undeclared-numbers` widens what leaves the machine, so the safe value
+/// is what you get by saying nothing. `--redact-os-strings` narrows it: a
+/// catalog-listed Windows product string is a global constant rather than
+/// anything about the client, and preserving it is what lets the model reason
+/// about an unsupported OS at all, so the useful value is the default and the
+/// flag is there for an operator who wants the field gone regardless.
+fn policy_config(keep_undeclared_numbers: bool, redact_os_strings: bool) -> PolicyConfig {
     PolicyConfig {
         redact_undeclared_numbers: !keep_undeclared_numbers,
+        preserve_os_strings: !redact_os_strings,
         ..PolicyConfig::default()
     }
 }
@@ -162,7 +220,7 @@ fn policy_config(keep_undeclared_numbers: bool) -> PolicyConfig {
 /// run, then stop. Nothing is written, and every line printed is a count, a
 /// synthetic member label, a canonical path or a fingerprint — so a report can
 /// be shared for a collection that cannot be.
-fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool) {
+fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool, format: InspectFormat) {
     let reporter = render_progress.then(progress::Reporter::new);
     let sink = reporter.as_ref().map(|(_, sink)| sink.clone());
 
@@ -184,6 +242,22 @@ fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool) {
         }
     };
 
+    match format {
+        InspectFormat::Text => inspect_text(&report),
+        InspectFormat::Json => inspect_json(&report),
+    }
+
+    // The verdict is the exit code in both formats: the report decides, the
+    // rendering only describes it.
+    if !report.would_publish() {
+        exit(1);
+    }
+}
+
+/// The operator-facing rendering. Frozen byte-for-byte for a given report, with
+/// the sole addition of the `preflight:` block, which is drawn only when the
+/// dry run actually has an advisory signal to report.
+fn inspect_text(report: &shanon_core::pipeline::InspectReport) {
     println!(
         "members: {} read, {} accepted, {} skipped",
         report.members_read,
@@ -270,6 +344,34 @@ fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool) {
         }
     }
 
+    // Advisory shape checks. None of these change the verdict; a mismatched
+    // `meta.count` is already a leak-gate finding of its own, and this line
+    // only says in operator terms what the abort below says in gate terms.
+    if !report.missing_core_types.is_empty()
+        || !report.meta_count_mismatches.is_empty()
+        || !report.duplicate_collection_types.is_empty()
+    {
+        println!("\npreflight:");
+        if !report.missing_core_types.is_empty() {
+            println!(
+                "  missing core collection types: {}",
+                report.missing_core_types.join(", ")
+            );
+        }
+        for m in &report.meta_count_mismatches {
+            println!(
+                "  meta.count disagrees with data length: {} declared {}, actual {}",
+                m.member, m.declared, m.actual
+            );
+        }
+        if !report.duplicate_collection_types.is_empty() {
+            println!(
+                "  collection type declared by more than one member: {}",
+                report.duplicate_collection_types.join(", ")
+            );
+        }
+    }
+
     if let Some(abort) = &report.abort {
         println!("\nwould abort:");
         for line in abort.lines() {
@@ -296,8 +398,60 @@ fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool) {
         println!("\nverdict: this collection would anonymize cleanly");
     } else {
         println!("\nverdict: this collection would abort with no output written");
-        exit(1);
     }
+}
+
+/// The machine-readable rendering: one document on stdout and nothing else.
+///
+/// Every value here is a count, a synthetic member label, a canonical field
+/// path or a keyed fingerprint — the same sanitized material the text rendering
+/// prints (invariant 7). Serialization goes through the crate's own sorted
+/// canonical writer rather than `serde_json`'s pretty printer, so key order,
+/// escaping and number tokens are the ones the rest of shanon emits
+/// (invariants 3, 5).
+fn inspect_json(report: &shanon_core::pipeline::InspectReport) {
+    let doc = json!({
+        "schema_version": INSPECT_SCHEMA_VERSION,
+        "members_read": report.members_read,
+        "members_accepted": report.members_accepted,
+        "members_skipped": report.members_skipped,
+        "objects": report.objects,
+        "collection_types": report
+            .collection_types
+            .iter()
+            .map(|row| json!({
+                "meta_type": row.meta_type,
+                "node_type": row.node_type,
+                "version": row.version,
+                "objects": row.objects,
+            }))
+            .collect::<Vec<Value>>(),
+        "audit": report.audit,
+        "findings": report
+            .findings
+            .iter()
+            .map(|f| json!({
+                "member": f.member,
+                "path": f.path,
+                "policy_code": f.policy_code,
+                "offender": f.offender,
+            }))
+            .collect::<Vec<Value>>(),
+        "abort": report.abort,
+        "meta_count_mismatches": report
+            .meta_count_mismatches
+            .iter()
+            .map(|m| json!({
+                "member": m.member,
+                "declared": m.declared,
+                "actual": m.actual,
+            }))
+            .collect::<Vec<Value>>(),
+        "missing_core_types": report.missing_core_types,
+        "duplicate_collection_types": report.duplicate_collection_types,
+        "would_publish": report.would_publish(),
+    });
+    println!("{}", shanon_core::canonical_json_sorted(&doc));
 }
 
 /// Load an untrusted restoration map without propagating sensitive details,
@@ -316,7 +470,7 @@ fn anonymize(
     reuse_map: Option<PathBuf>,
     verbose_failures: bool,
     policy: PolicyConfig,
-    render_progress: bool,
+    rendering: Rendering,
 ) {
     let out = resolve(&out);
     let map_path = resolve(&map.unwrap_or_else(|| out.join("collection.map.json")));
@@ -375,7 +529,7 @@ fn anonymize(
 
     // Held across the call so the bar can be torn down before anything else
     // writes to stderr — an aborted run never emits a closing phase event.
-    let reporter = render_progress.then(progress::Reporter::new);
+    let reporter = rendering.progress.then(progress::Reporter::new);
     let sink = reporter.as_ref().map(|(_, sink)| sink.clone());
 
     let result = anonymize_collection(
@@ -430,6 +584,67 @@ fn anonymize(
         get("unknown"),
     );
     println!("unknown string paths: {unknown_total}");
+
+    if rendering.summary {
+        run_summary(&summary, &outcome.dest, &map_path);
+    }
+}
+
+/// Draw a compact run summary on stderr.
+///
+/// Same rule as the progress bar: this is written to stderr and only when
+/// stderr is a terminal, so a redirected or captured stderr — every parity
+/// fixture, every CLI test — is byte-identical to before (invariant 2). Every
+/// figure comes from the audit the run actually kept; nothing here is derived
+/// from a source value, and the two paths are the destinations the caller named.
+fn run_summary(summary: &Value, dest: &Path, map_path: &Path) {
+    /// `key`'s `{name: count}` map as pairs, in the audit's own sorted order.
+    fn counts<'a>(summary: &'a Value, key: &str) -> Vec<(&'a String, u64)> {
+        summary
+            .get(key)
+            .and_then(|v| v.as_object())
+            .map(|m| {
+                m.iter()
+                    .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+    fn joined(pairs: &[(&String, u64)]) -> String {
+        pairs
+            .iter()
+            .map(|(k, v)| format!("{k} {v}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+
+    let classifications = counts(summary, "object_classifications");
+    let objects: u64 = classifications.iter().map(|(_, v)| *v).sum();
+    let audit_codes = counts(summary, "audit_codes");
+
+    let mut err = std::io::stderr();
+    let _ = writeln!(err, "summary: {objects} objects");
+    if !classifications.is_empty() {
+        let _ = writeln!(err, "  classifications: {}", joined(&classifications));
+    }
+    if !audit_codes.is_empty() {
+        let _ = writeln!(err, "  audit codes: {}", joined(&audit_codes));
+    }
+    let _ = writeln!(
+        err,
+        "  unknown field paths: {} distinct",
+        counts(summary, "unknown_paths").len()
+    );
+    // Always printed, including the zero: a numeric leaf at an undeclared path
+    // leaves the machine unchanged, so "none happened" is the load-bearing case.
+    let _ = writeln!(
+        err,
+        "  numeric values passed through: {} distinct path(s)",
+        counts(summary, "numeric_passthrough_paths").len()
+    );
+    let _ = writeln!(err, "  collection: {}", dest.display());
+    let _ = writeln!(err, "  map: {}", map_path.display());
+    let _ = err.flush();
 }
 
 fn restore(
