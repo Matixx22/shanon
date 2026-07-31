@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# Refuse a commit that would put a real collection into history.
+#
+# Only check-fixtures runs here, not the full gate set, and that asymmetry is
+# the point. Every other gate reports a defect, and a defect costs a fixup
+# commit. This one reports a real collection entering history, which costs a
+# rewrite. It also takes ~0.04s, so it can afford to run on every commit while
+# the 4s of fmt/clippy/test wait for pre-push.
+#
+# It scans the index rather than the working tree, so a newly staged file is
+# covered.
+#
+# Activate once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# `git commit --no-verify` skips this hook, as with any other.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+exec ./scripts/check-fixtures.sh

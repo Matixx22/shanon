@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Refuse a push whose tree cannot pass the gates CI enforces.
+#
+# Activate once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# `.git/hooks/` is not versioned, so a hook installed there is lost the next
+# time the repository is cloned. This directory is tracked, which is why
+# activation is one config line rather than a reinstall.
+#
+# `git push --no-verify` skips this hook. That is deliberate: it is a
+# convenience that shortens the feedback loop, not an enforcement boundary. CI
+# remains the thing that decides whether main is green.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+exec ./scripts/gates.sh

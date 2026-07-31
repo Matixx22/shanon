@@ -667,7 +667,7 @@ dependencies = [
 
 [[package]]
 name = "shanon-cli"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "clap",
  "serde_json",
@@ -676,7 +676,7 @@ dependencies = [
 
 [[package]]
 name = "shanon-core"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "blake2",
  "caseless",

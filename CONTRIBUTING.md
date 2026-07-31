@@ -38,6 +38,14 @@ cargo test --workspace
 
 Run them before you push. Warnings are errors here.
 
+`./scripts/gates.sh` runs all three plus `./scripts/check-fixtures.sh` in one
+command, and takes a few seconds on a warm build cache. To have it run on every
+push, point git at the tracked hooks directory once per clone:
+
+```sh
+git config core.hooksPath .githooks
+```
+
 ## Making a change
 
 1. Fork and branch from `main` (`git switch -c fix/short-description`).
@@ -45,7 +53,13 @@ Run them before you push. Warnings are errors here.
    messages (`fix:`, `feat:`, `docs:`, `test:`, `refactor:`, `chore:`).
 3. Add or update tests. New anonymization or verification behavior needs a
    committed, synthetic fixture that pins it field-by-field.
-4. Update [CHANGELOG.md](CHANGELOG.md) under `## [Unreleased]`.
+4. If the change is visible to someone *running* shanon, add an entry under
+   `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md). One line, tagged with the
+   area it touches: `- [policy] Redact numeric leaves at undeclared paths (#28)`.
+   Update that section's `Compatibility` block if output bytes, pseudonym
+   stability, the map format, the CLI surface or the MSRV moved. `### Security`
+   entries may run longer, because there the reasoning is the value. Internal
+   refactors with no user-visible effect get no entry.
 5. Open a PR against `main` and fill out the template.
 
 ## What gets reviewed hardest
