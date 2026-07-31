@@ -26,6 +26,26 @@ What shanon does *not* protect against is documented in
 - CLI surface: unchanged
 - MSRV: 1.97
 
+## [0.5.1] - 2026-07-31
+
+Documentation only. The binary behaves exactly as 0.5.0 does; if you are already
+running 0.5.0 there is nothing here that changes a run.
+
+### Compatibility
+
+- Output: unchanged
+- Mapping files: unchanged
+- CLI surface: unchanged
+- MSRV: 1.97
+
+### Changed
+
+- [docs] SECURITY.md records two limitations it did not state before: secret
+  material is matched by attribute name, so a credential under an attribute the
+  list does not name is pseudonymized and its cleartext lands in the mapping
+  file; and undeclared numeric recognition is path-based, so an
+  organization-bound number at a path the policy declares would still publish.
+
 ## [0.5.0] - 2026-07-29
 
 Closes the numeric passthrough gap, which was the last one that leaked a real
@@ -396,7 +416,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/Matixx22/shanon/releases/tag/v0.5.1
 [0.5.0]: https://github.com/Matixx22/shanon/releases/tag/v0.5.0
 [0.4.1]: https://github.com/Matixx22/shanon/releases/tag/v0.4.1
 [0.4.0]: https://github.com/Matixx22/shanon/releases/tag/v0.4.0
