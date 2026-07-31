@@ -66,6 +66,13 @@ what that boundary covers, what it does not, and how to report a leak.
   default; do not remove those rules. Version-1 maps remain loadable; newly
   saved version-2 maps add typed namespaces and policy metadata but are no less
   sensitive.
+
+  Secret material is recognized by attribute name. shanon destroys the value of
+  a credential attribute it knows, so nothing about it reaches the output *or*
+  the map. A credential under an attribute the list does not name is
+  pseudonymized like any other string, which puts its cleartext in the map. The
+  output is safe either way; the map is what inherits the difference, and this
+  is one more reason to treat it as the most sensitive artifact of a run.
 - **Correlation through a reused map.** `--reuse-map` keeps pseudonyms stable
   across collections, and that stability *is* linkage: any real value present in
   two collections receives the same pseudonym in both. Reusing one map across
@@ -125,6 +132,13 @@ what that boundary covers, what it does not, and how to report a leak.
   and the pseudonyms for that account's name, UPN, DN and every edge it sits on
   fall with it. Nothing in BloodHound's own analysis reads those attributes, so
   destroying them costs no reasoning.
+
+  Recognition is path-based, not value-based. A number at a path the policy
+  *does* declare is published verbatim, so a collector that emitted an
+  organization-bound number at one of those paths would still disclose it. The
+  declared set is kept tracking what SharpHound emits as configuration; widening
+  the redaction to cover declared paths instead would destroy the counts, flags
+  and timestamps BloodHound needs to reason.
 
   `shanon inspect` still counts every occurrence as `undeclared-numeric-value`
   and lists the canonical paths, whether or not the redaction is on, so the

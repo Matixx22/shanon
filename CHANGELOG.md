@@ -4,51 +4,27 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Entries are written for the people who run shanon, not for its developers.
+
+Every release opens with **Compatibility**, because output bytes, pseudonym
+stability and the mapping-file format are interop surfaces rather than
+implementation details. That block answers the first question an operator has:
+re-running this version on an unchanged collection, do I get the same output,
+and do my existing maps still resolve? It is always present, including when the
+answer is "nothing changed". Every other section appears only when it has
+entries.
+
+What shanon does *not* protect against is documented in
+[SECURITY.md](SECURITY.md), not here.
+
 ## [Unreleased]
 
-### Known gaps
+### Compatibility
 
-Recorded here so that closing any of them is a deliberate act, not a discovery.
-Every one of these is open as of 0.5.0.
-
-- **Windows directory input is not descriptor-anchored.** There is no `openat`,
-  so the check for a reparse point and the open of the member are two
-  operations. A symlink or junction escape is still refused, but an attacker who
-  can write into the input directory mid-run has a race that Linux and macOS do
-  not give them. Closing it means dropping to `NtCreateFile` with a relative
-  root handle. ZIP input and the publish path are unaffected.
-- **Windows mapping files inherit the parent directory ACL.** Windows has no
-  `umask`, so the `0o600`-from-creation guarantee has no equivalent.
-  `create_new` still refuses to clobber. SECURITY.md tells Windows users to keep
-  the map under their user profile; closing this properly means building a DACL
-  and calling `SetSecurityInfo`.
-- **Undeclared numeric recognition is path-based, not value-based.** 0.5.0
-  redacts numbers at paths no rule declares, which covers `ParseAllProperties`
-  spill. A collector that emits an organization-bound number at a path shanon
-  *does* declare would still publish it, and the fix is to keep `NUMERIC_PATHS`
-  tracking the collector rather than to widen the redaction.
-- **Booleans at undeclared paths are still published.** One bit cannot identify
-  anyone, and a real collection has enough undeclared booleans to bury the
-  numeric signal `inspect` exists to surface. Recorded so the asymmetry with
-  numbers is a decision rather than an oversight.
-- **Secret material is recognized by attribute name.** 0.4.1 widened the list,
-  but it is still a list. A credential under an attribute it does not know is
-  pseudonymized like any other string, so a collector that renames one, or a
-  custom attribute holding a password, still puts the cleartext in the mapping
-  file. Closing this properly means recognizing secrets by shape or entropy
-  rather than by name.
-- **Three high-entropy domain SID authorities of unverified provenance remain**
-  in `tests/parity/` and `tests/truth/`, frozen into vectors the Python
-  reference produced. They are allowlisted explicitly rather than silently
-  tolerated, and the allowlist says to replace each one the next time its
-  fixture is regenerated.
-- **The removed `spike/sample.json` remains in git history.** Rewriting that
-  history is a separate decision, which no release so far has made.
-
-The SPN, DN and catalog fixes diverge deliberately from the Python reference,
-which carries all three defects. Their new cases live in the Rust test files, so
-`tests/truth/` stays what it claims to be: a record of what the reference
-produces.
+- Output: unchanged
+- Mapping files: unchanged
+- CLI surface: unchanged
+- MSRV: 1.97
 
 ## [0.5.0] - 2026-07-29
 
