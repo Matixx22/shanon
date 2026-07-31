@@ -21,6 +21,22 @@ What shanon does *not* protect against is documented in
 
 ### Compatibility
 
+- Output: unchanged
+- Mapping files: unchanged
+- CLI surface: unchanged
+- MSRV: 1.97
+
+## [0.6.0] - 2026-07-31
+
+Gives the model back the operating system. A collection anonymized under 0.5.1
+and the same one under 0.6.0 differ at exactly one field:
+`Properties.operatingsystem` now survives when it is a known Windows product
+string, because an unsupported OS is an attack path and redacting it removed
+the first thing an analyst looks for. Everything else about the run, including
+every pseudonym, is byte-identical.
+
+### Compatibility
+
 - Output: **changed** at `Properties.operatingsystem`. A catalog-listed Windows
   product string is now published verbatim where it used to be redacted. Every
   other field is byte-identical, and `--redact-os-strings` restores the old
@@ -458,7 +474,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/Matixx22/shanon/releases/tag/v0.6.0
 [0.5.1]: https://github.com/Matixx22/shanon/releases/tag/v0.5.1
 [0.5.0]: https://github.com/Matixx22/shanon/releases/tag/v0.5.0
 [0.4.1]: https://github.com/Matixx22/shanon/releases/tag/v0.4.1
