@@ -33,6 +33,9 @@ cargo check --workspace --all-targets --locked         # what the MSRV job runs
 
 cargo test -p shanon-core --test verify                # one integration test file
 cargo test -p shanon-core --test verify verify_name    # one test by name substring
+
+./scripts/gates.sh                                     # all three gates + fixtures
+./scripts/gates.sh --deny                              # ...and cargo deny check
 ```
 
 Run the three gates before pushing. MSRV is **1.97** and a dedicated CI job
@@ -186,7 +189,15 @@ exception for a "small" sample.
 ## Conventions
 
 - Conventional Commits: `fix:`, `feat:`, `docs:`, `test:`, `refactor:`, `chore:`.
-- Add an entry under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
+- The changelog is written for operators, not developers. If a change is visible
+  to someone running shanon, add a one-line entry under `## [Unreleased]` in
+  [CHANGELOG.md](CHANGELOG.md), tagged with the area it touches
+  (`- [policy] ... (#28)`), and update that section's `Compatibility` block if
+  output bytes, pseudonym stability, the map format, the CLI surface or the MSRV
+  moved. `### Security` entries may run longer; there the reasoning is the value.
+  Internal-only changes get no entry.
+- Limitations and residual risk belong in [SECURITY.md](SECURITY.md) under "What
+  shanon does NOT protect against", never in the changelog.
 - Hardest-reviewed areas, where changes should be small and well-argued: the
   verification pass, `policy` / `catalog`, the publish path, and any new
   dependency.
