@@ -1248,6 +1248,25 @@ impl Registry {
         out
     }
 
+    /// `scrub_sources`: category/source/pseudonym triples, the forward mirror of
+    /// [`Registry::restoration_owners`].
+    ///
+    /// Source spellings are returned as stored, not normalized, because the
+    /// scrubber matches against text a human wrote and resolves every hit
+    /// through [`Registry::forward`] rather than trusting the literal it
+    /// matched. Legacy reverse aliases have no forward direction and are
+    /// deliberately absent: an alias records a pseudonym a prior map minted, not
+    /// a real value anyone can type.
+    pub fn scrub_sources(&self) -> Vec<(String, String, String)> {
+        let mut out = Vec::new();
+        for category in CATEGORIES {
+            for (real, pseudonym) in &self.categories[category] {
+                out.push((category.to_string(), real.clone(), pseudonym.clone()));
+            }
+        }
+        out
+    }
+
     /// `forward`: every pseudonym `real` maps to across categories.
     pub fn forward(&self, real: &str) -> Vec<(String, String)> {
         let mut result = Vec::new();

@@ -25,6 +25,7 @@ pub mod policy;
 pub mod progress;
 pub mod registry;
 pub mod restore;
+pub mod scrub;
 pub mod textutil;
 pub mod verify;
 pub mod wellknown;

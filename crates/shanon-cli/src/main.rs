@@ -1,7 +1,7 @@
 //! shanon CLI (module 12): the `clap`-derived command surface.
 //!
 //! Subcommands, help text, stdout/stderr and exit codes are stable byte-for-byte
-//! (§3.4), with two deliberate additions:
+//! (§3.4), with these deliberate additions:
 //!
 //! * `-V/--version` reports the crate version so a downloaded binary can be
 //!   identified. That adds a line to the top-level help and re-pads the adjacent
@@ -12,6 +12,9 @@
 //! * `--summary/--no-summary` on `anonymize`, on the same terms.
 //! * `--format text|json` on `inspect`. `text` is the byte-identical default;
 //!   `json` prints one canonical document and nothing else.
+//! * the `scrub` verb, which adds a line to the top-level subcommand list. Its
+//!   arrival is also the one *reworded* line here: `anonymize` used to describe
+//!   itself as scrubbing a collection, which now names a different verb.
 //!
 //! The progress bar itself changes no captured bytes: it draws only when stderr
 //! is a terminal (see [`progress::should_render`]), so redirected stderr — every
@@ -35,6 +38,7 @@ use shanon_core::pipeline::{
 use shanon_core::policy::{PolicyAudit, PolicyConfig};
 use shanon_core::registry::Registry;
 use shanon_core::restore::{bulk_restore, forward as forward_lookup, lookup};
+use shanon_core::scrub::bulk_scrub;
 
 #[derive(Parser)]
 #[command(
@@ -51,7 +55,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Scrub a SharpHound collection; write anonymized output + mapping file.
+    /// Anonymize a SharpHound collection; write output + mapping file.
     Anonymize {
         /// SharpHound zip or dir
         #[arg(long)]
@@ -122,6 +126,21 @@ enum Command {
         /// bulk file
         #[arg(long)]
         input: Option<PathBuf>,
+    },
+    /// Rewrite real identifiers in your own text to the pseudonyms a map minted.
+    Scrub {
+        /// mapping file
+        #[arg(long)]
+        map: PathBuf,
+        /// text to scrub (omit to read stdin)
+        #[arg(long)]
+        input: Option<PathBuf>,
+        /// print the scrub report even when stderr is not a terminal
+        #[arg(long, conflicts_with = "no_summary")]
+        summary: bool,
+        /// never print the scrub report
+        #[arg(long = "no-summary")]
+        no_summary: bool,
     },
 }
 
@@ -196,6 +215,12 @@ fn main() {
             forward_value,
             input,
         } => restore(map, lookup_value, forward_value, input),
+        Command::Scrub {
+            map,
+            input,
+            summary,
+            no_summary,
+        } => scrub(map, input, progress::should_render(summary, no_summary)),
     }
 }
 
@@ -647,6 +672,42 @@ fn run_summary(summary: &Value, dest: &Path, map_path: &Path) {
     let _ = err.flush();
 }
 
+/// Load a mapping file, or abort on the frozen stderr line for bad map data.
+///
+/// Shared by `restore` and `scrub`: both take an untrusted map from the
+/// operator, and neither may say anything about why it failed to parse, since
+/// the reason would describe its contents (invariant 7).
+fn load_map_or_exit(map: &Path) -> Registry {
+    match Registry::load(map) {
+        Ok(registry) => registry,
+        Err(_) => {
+            eprintln!("ABORTED - invalid or conflicting mapping data; no output written");
+            exit(1);
+        }
+    }
+}
+
+/// Read the bulk-text argument, from a file or from stdin when absent.
+fn read_text_or_exit(input: &Option<PathBuf>) -> String {
+    match input {
+        Some(p) => match std::fs::read_to_string(p) {
+            Ok(t) => t,
+            Err(e) => {
+                eprintln!("cannot read --input file '{}': {e}", p.display());
+                exit(1);
+            }
+        },
+        None => {
+            let mut s = String::new();
+            if let Err(e) = std::io::stdin().read_to_string(&mut s) {
+                eprintln!("cannot read from stdin: {e}");
+                exit(1);
+            }
+            s
+        }
+    }
+}
+
 fn restore(
     map: PathBuf,
     lookup_value: Option<String>,
@@ -666,13 +727,7 @@ fn restore(
         exit(2);
     }
 
-    let reg = match Registry::load(&map) {
-        Ok(r) => r,
-        Err(_) => {
-            eprintln!("ABORTED - invalid or conflicting mapping data; no output written");
-            exit(1);
-        }
-    };
+    let reg = load_map_or_exit(&map);
 
     if let Some(value) = lookup_value {
         let matches = lookup(&reg, &value);
@@ -698,22 +753,49 @@ fn restore(
         return;
     }
 
-    let text = match &input {
-        Some(p) => match std::fs::read_to_string(p) {
-            Ok(t) => t,
-            Err(e) => {
-                eprintln!("cannot read --input file '{}': {e}", p.display());
-                exit(1);
-            }
-        },
-        None => {
-            let mut s = String::new();
-            if let Err(e) = std::io::stdin().read_to_string(&mut s) {
-                eprintln!("cannot read from stdin: {e}");
-                exit(1);
-            }
-            s
-        }
-    };
+    let text = read_text_or_exit(&input);
     print!("{}", bulk_restore(&reg, &text));
+}
+
+/// Rewrite the operator's own text into the pseudonyms a prior run minted.
+///
+/// The scrubbed text goes to stdout and the report to stderr, so the useful
+/// output pipes cleanly into a file or a clipboard command while the counts stay
+/// on the terminal. The report is drawn under the same rule as the `anonymize`
+/// summary, which keeps redirected stderr byte-identical to a run without it
+/// (invariant 2).
+fn scrub(map: PathBuf, input: Option<PathBuf>, render_summary: bool) {
+    let reg = load_map_or_exit(&map);
+    let text = read_text_or_exit(&input);
+    let (scrubbed, report) = bulk_scrub(&reg, &text);
+    print!("{scrubbed}");
+
+    if !render_summary {
+        return;
+    }
+    let mut err = std::io::stderr();
+    let _ = writeln!(err, "scrubbed: {} replacements", report.replacements);
+    if !report.per_category.is_empty() {
+        let joined = report
+            .per_category
+            .iter()
+            .map(|(category, count)| format!("{category} {count}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let _ = writeln!(err, "  categories: {joined}");
+    }
+    if report.unresolved > 0 {
+        let _ = writeln!(
+            err,
+            "  matched but unmapped, left in the clear: {}",
+            report.unresolved
+        );
+    }
+    // Always printed, including after a full-looking scrub: the number shows
+    // what was replaced and can say nothing about what was not in the map.
+    let _ = writeln!(
+        err,
+        "  this replaces only what the map knows; check the rest by hand"
+    );
+    let _ = err.flush();
 }

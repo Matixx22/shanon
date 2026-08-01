@@ -90,8 +90,19 @@ what that boundary covers, what it does not, and how to report a leak.
   separate engagements therefore lets anything downstream, including the LLM's
   context window, tie those engagements together. Use one map per engagement
   unless you specifically want the collections linked.
-- **Your prompt.** shanon scrubs the collection, not the sentences you type
+- **Your prompt.** shanon anonymizes the collection, not the sentences you type
   around it. Do not paste real names into the chat yourself.
+
+  `shanon scrub` narrows this, and does not close it. It rewrites every value in
+  a piece of your own text that the map already holds, which covers the case
+  that actually bites: quoting an account, host or domain out of the collection
+  back at the model in clear. What it cannot do is judge the rest of the
+  sentence. A value that was never in the collection has no mapping, so a
+  client name, a project codename, an office location or a colleague's name
+  passes through untouched, and the report cannot tell you that it did, because
+  it has no way to know those words were sensitive. Treat the replacement count
+  as evidence that scrubbing ran, never as a clean bill of health for the
+  paragraph.
 - **Two filesystem guarantees on Windows.** The anonymization itself is
   identical on all three platforms: same classification, same pseudonyms, same
   independent verification, same byte output. Two things around it are weaker on
@@ -166,6 +177,8 @@ what that boundary covers, what it does not, and how to report a leak.
 2. Confirm the run completed without a contextual verification abort.
 3. Verify your engagement contract permits third-party LLM processing of
    pseudonymized data at all.
+4. Run the question you are about to ask through `shanon scrub`, and then read
+   it once more yourself for the names no map could know about.
 
 ## Dependencies
 

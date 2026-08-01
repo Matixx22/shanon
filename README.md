@@ -146,7 +146,10 @@ shanon anonymize --input engagement.zip --out ./anon
 #   ->  ./anon/collection_anon.zip      this is the one you share
 #   ->  ./anon/collection.map.json      reversal keys, keep local, never ship
 
-# 3. fold the answer back to real identities
+# 3. rewrite the real names in your own question to the same pseudonyms
+shanon scrub --map ./anon/collection.map.json --input question.md > question_safe.md
+
+# 4. fold the answer back to real identities
 shanon restore --map ./anon/collection.map.json --input llm_findings.md
 ```
 
@@ -172,6 +175,10 @@ the same environment.
 Send only the emitted `collection_anon.zip`, never its parent output directory,
 which also holds the mapping file. That file contains the real mappings in the
 clear and is as sensitive as the raw collection.
+
+The collection is not the only thing that leaves your machine. Run the question
+you are about to ask through [`shanon scrub`](#scrub) as well, and then read it
+once more for the names no map could know about.
 
 **No network. No LLM calls. Never mutates your input.**
 
@@ -317,6 +324,46 @@ same field each time.
 Reach for it when a run aborts, when a new collector version is in play, or
 before spending minutes on a collection that will not finish.
 
+### `scrub`
+
+```
+shanon scrub --map <map.json> [--input FILE] [--summary | --no-summary]
+```
+
+| flag | meaning |
+| --- | --- |
+| `--map` | the `collection.map.json` produced by `anonymize` (required) |
+| `--input` | the text to scrub (omit to read stdin) |
+| `--summary` | print the report even when stderr is not a terminal |
+| `--no-summary` | never print the report |
+
+shanon anonymizes the collection, not the sentences you write around it. Ask
+"can SVC_SQL reach DC01?" and you have just handed over two names the collection
+no longer contains. `scrub` runs your own text through the same map first, so
+those names arrive as the pseudonyms the model already saw:
+
+```sh
+shanon scrub --map ./anon/collection.map.json --input question.md
+#   Can kjeffersg46lvu6zae6m in fabrikam-cmw5tqv5maqpm.LOCAL reach anything?
+#   scrubbed: 2 replacements
+#     categories: domains 1, accounts 1
+#     this replaces only what the map knows; check the rest by hand
+```
+
+The scrubbed text goes to stdout and the report to stderr, so you can pipe one
+without losing the other. The report is drawn under the same rule as the
+`anonymize` summary: only when stderr is a terminal.
+
+Matching is case-insensitive for names, SIDs, hostnames and GUIDs, because you
+type `CONTOSO` and the collection stored `contoso`. Whole words only, so a
+mapped `alice` does not rewrite `alicent`. Text that already reads in pseudonyms
+is left alone, which makes a second pass a no-op and makes it safe to scrub a
+draft you have already scrubbed once.
+
+**It replaces what the map knows, and cannot certify the rest.** A hostname you
+typed that was never in the collection has no mapping, cannot be substituted,
+and passes through in the clear. Read the count, and read your own sentence.
+
 ### `restore`
 
 ```
@@ -352,7 +399,7 @@ substitutes every component it recognizes.
 | `1` | leak-gate abort, invalid mapping data, or I/O error, no output written; for `inspect`, the collection would abort |
 | `2` | pre-flight refusal (e.g. `--out` already holds a map, or conflicting flags) |
 
-## What gets scrubbed
+## What gets anonymized
 
 - Names (user/group/computer/OU/GPO/container), UPNs, SPNs, DNS hostnames, emails
 - Organization-specific SID authority values and custom GUIDs
