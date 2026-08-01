@@ -22,9 +22,36 @@ What shanon does *not* protect against is documented in
 ### Compatibility
 
 - Output: unchanged
-- Mapping files: unchanged
-- CLI surface: unchanged
+- Mapping files: unchanged. `scrub` reads a map and never writes one, so a map
+  minted by any earlier release works with it.
+- CLI surface: **added** the `scrub` verb, with `--map`, `--input` and
+  `--summary` / `--no-summary`. One line is **reworded**: `anonymize` used to
+  describe itself in help as scrubbing a collection, which now names a different
+  verb. Existing invocations behave as before.
 - MSRV: 1.97
+
+### Added
+
+- [cli] `shanon scrub` rewrites the real names in your own text to the
+  pseudonyms a map already minted. The collection was never the only thing that
+  left the machine: asking "can SVC_SQL reach DC01?" hands over two identifiers
+  the anonymized collection no longer contains.
+- [cli] Scrubbed text goes to stdout and the report to stderr, so the result
+  pipes into a file or a clipboard command while the counts stay on screen. The
+  report is drawn only when stderr is a terminal, like the `anonymize` summary.
+- [cli] The report gives replacement counts per category and nothing else. It
+  names no value, because it is printed next to text you are about to hand to a
+  model.
+- [cli] Matching is case-insensitive for names, SIDs, hostnames and GUIDs, since
+  an operator types `CONTOSO` where the collection stored `contoso`. Whole words
+  only: a mapped `alice` does not rewrite `alicent`.
+- [cli] Text that already reads in pseudonyms is left alone, so scrubbing a
+  draft twice changes nothing the second time.
+- [docs] SECURITY.md states what `scrub` does not do: it replaces what the map
+  holds, and a name that was never in the collection passes through in the
+  clear.
+- [docs] The README section "What gets scrubbed" is now "What gets anonymized",
+  since `scrub` names a different operation.
 
 ### Changed
 

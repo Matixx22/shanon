@@ -2,6 +2,7 @@
 //! corpus-independent CLI surface behavior (verb wiring, flag handling).
 
 use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -34,6 +35,7 @@ fn help_lists_every_verb() {
     assert!(text.contains("anonymize"), "{text}");
     assert!(text.contains("inspect"), "{text}");
     assert!(text.contains("restore"), "{text}");
+    assert!(text.contains("scrub"), "{text}");
 }
 
 /// `inspect` takes an input and nothing that could name an output — the verb is
@@ -400,4 +402,141 @@ fn restore_mutually_exclusive_flags_rejected() {
         .output()
         .unwrap();
     assert_ne!(out.status.code(), Some(0));
+}
+
+/// Feed `text` to `shanon scrub` on stdin and return the finished process.
+fn scrub_stdin(map: &std::path::Path, text: &str, extra: &[&str]) -> std::process::Output {
+    let mut child = Command::new(bin())
+        .args(["scrub", "--map"])
+        .arg(map)
+        .args(extra)
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(text.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
+}
+
+/// The point of the verb: the pseudonym it puts in your prompt has to be the one
+/// the model was actually given, so the assertion is against the published
+/// collection rather than against the scrubber's own idea of the mapping.
+#[test]
+fn scrub_rewrites_a_real_value_into_the_published_pseudonym() {
+    let dir = scratch("scrub-roundtrip");
+    let out_dir = dir.join("out");
+    let map = dir.join("collection.map.json");
+    let anonymize = Command::new(bin())
+        .args(["anonymize", "--input"])
+        .arg(demo_collection())
+        .arg("--out")
+        .arg(&out_dir)
+        .arg("--map")
+        .arg(&map)
+        .output()
+        .unwrap();
+    assert_eq!(anonymize.status.code(), Some(0));
+
+    // Mixed spellings on purpose: an operator types the domain however they
+    // remember it, and the collection stores exactly one of those spellings.
+    let scrub = scrub_stdin(&map, "can SVC_SQL in CONTOSO.LOCAL reach anything?", &[]);
+    assert_eq!(scrub.status.code(), Some(0));
+    let scrubbed = String::from_utf8_lossy(&scrub.stdout).into_owned();
+    assert!(!scrubbed.to_lowercase().contains("svc_sql"), "{scrubbed}");
+    assert!(!scrubbed.to_lowercase().contains("contoso"), "{scrubbed}");
+
+    // Every token the scrub produced must appear in the collection the model
+    // would receive; a pseudonym that is merely internally consistent is worth
+    // nothing to the person pasting it into a chat window.
+    let published = fs::read_to_string(out_dir.join("collection_anon").join("member-00004.json"))
+        .or_else(|_| {
+            let mut joined = String::new();
+            for entry in fs::read_dir(out_dir.join("collection_anon")).unwrap() {
+                joined.push_str(&fs::read_to_string(entry.unwrap().path()).unwrap());
+            }
+            Ok::<String, std::io::Error>(joined)
+        })
+        .unwrap();
+    let minted: Vec<&str> = scrubbed
+        .split(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+        .filter(|token| token.len() > 12)
+        .collect();
+    assert!(!minted.is_empty(), "nothing was replaced: {scrubbed}");
+    for token in minted {
+        assert!(
+            published.contains(token),
+            "scrub minted '{token}', absent from the published collection"
+        );
+    }
+
+    let _ = fs::remove_dir_all(&dir);
+}
+
+/// The report follows the `anonymize` summary rule: stderr that is not a
+/// terminal stays byte-identical to a run without it (invariant 2).
+#[test]
+fn scrub_reports_nothing_to_a_captured_stderr() {
+    let dir = scratch("scrub-quiet");
+    let map = dir.join("collection.map.json");
+    let anonymize = Command::new(bin())
+        .args(["anonymize", "--input"])
+        .arg(demo_collection())
+        .arg("--out")
+        .arg(dir.join("out"))
+        .arg("--map")
+        .arg(&map)
+        .output()
+        .unwrap();
+    assert_eq!(anonymize.status.code(), Some(0));
+
+    let quiet = scrub_stdin(&map, "svc_sql", &[]);
+    assert!(quiet.stderr.is_empty(), "{:?}", quiet.stderr);
+    // ...and `--summary` is how you ask for it anyway.
+    let forced = scrub_stdin(&map, "svc_sql", &["--summary"]);
+    let stderr = String::from_utf8_lossy(&forced.stderr);
+    assert!(stderr.contains("scrubbed: 1 replacements"), "{stderr}");
+    assert!(stderr.contains("categories: accounts 1"), "{stderr}");
+    // The limit is stated every time, not only when little was replaced.
+    assert!(stderr.contains("only what the map knows"), "{stderr}");
+
+    let _ = fs::remove_dir_all(&dir);
+}
+
+/// An unreadable map aborts on the same frozen line `restore` uses, and prints
+/// no scrubbed text: a partial scrub is worse than none.
+#[test]
+fn scrub_refuses_an_unusable_map() {
+    let out = scrub_stdin(
+        std::path::Path::new("/nonexistent.map.json"),
+        "svc_sql",
+        &[],
+    );
+    assert_eq!(out.status.code(), Some(1));
+    assert!(out.stdout.is_empty(), "{:?}", out.stdout);
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        stderr.contains("invalid or conflicting mapping data"),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn scrub_conflicting_summary_flags_rejected() {
+    let out = Command::new(bin())
+        .args([
+            "scrub",
+            "--map",
+            "/nonexistent.map.json",
+            "--summary",
+            "--no-summary",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
 }
