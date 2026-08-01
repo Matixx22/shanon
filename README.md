@@ -9,32 +9,43 @@
   <a href="#install"><img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg" alt="Linux | macOS | Windows"></a>
 </p>
 
-You want to ask an LLM about the attack paths in a SharpHound collection. You
-cannot, because that file is your client's entire directory: every account,
-every hostname, every group name, in clear.
+A SharpHound collection is your client's entire directory in clear: every
+account, every hostname, every group name. That is why it cannot leave the
+engagement, and why you cannot paste it into a chat window.
 
-**shanon** remaps the organization-bound identifiers in the collection (every
-string one, which is where identity actually lives) and leaves the structure
+**shanon** remaps the organization-bound identifiers and leaves the structure
 alone. The output is still SharpHound JSON, still loads in BloodHound, and every
-graph cross-reference still points where it pointed. The edges are what you are
-asking the model about, and they all survive. A local mapping file turns its
-answer back into real names when it comes back.
+graph cross-reference still points where it pointed. The edges are the thing you
+are actually reasoning about, and they all survive. A local mapping file turns
+any answer back into real names.
 
-Booleans and nulls are passed through as they are, and so are numbers at the
-paths shanon models (a flag or a timestamp carries no identity). A number at a
-path no rule declares is a different animal: SharpHound turns any attribute
-whose value parses as an integer into a JSON number, so under
-`--collectallproperties` a custom `employeeNumber` arrives as one, and a numeric
-employee ID matched against an HR roster re-identifies the account and every
-edge it sits on. Those are replaced with a type-stable sentinel. `shanon
-inspect` reports exactly which paths were affected; see
-[SECURITY.md](SECURITY.md#what-shanon-does-not-protect-against).
+```sh
+shanon anonymize --input engagement.zip --out ./anon
+```
 
-## What it actually does
+## Why you would use it
 
-An excerpt from a real run over the synthetic collection in [`demo/`](demo/).
-Every run picks a fresh random salt, so your pseudonyms will read differently.
-Pass `--map` once and `--reuse-map` after it to pin them.
+Anywhere a collection has to leave the engagement it came from:
+
+- **Ask an LLM about attack paths** without handing over the directory.
+- **Get a second opinion.** Share a collection with a colleague or a vendor who
+  is not on the engagement.
+- **Write it up.** Talks, blog posts and screenshots, without a manual redaction
+  pass over every image.
+- **Teach with it.** Real graph shape and real edge density, no client in it, so
+  a lab or a workshop can run on a live collection instead of a toy one.
+- **File a bug.** Attach a reproducer against BloodHound or a collector without
+  an NDA conversation first.
+- **Keep the graph, drop the client.** Retain the structure for later work when
+  the raw collection has to be destroyed.
+
+Because the mapping file stays local, every one of these stays reversible for
+you and for nobody else.
+
+## What it looks like
+
+An excerpt from a run over the synthetic collection in [`demo/`](demo/). Every
+run picks a fresh random salt, so your pseudonyms will read differently.
 
 **Before**
 
@@ -65,16 +76,14 @@ Pass `--map` once and `--reuse-map` after it to pin them.
 Read what survived, because that is the point:
 
 - `hasspn` is still `true`, the SPN is still an `MSSQLSvc/…:1433`, the DN is
-  still a DN. **The account is still visibly kerberoastable**, which is what you
-  wanted the model to notice.
-- The account appears in four places across three collection members (its UPN,
-  its email, its DN, the SPN's host), and every one of them got the *same*
-  pseudonym, so the graph edges survive.
-- Free text becomes an opaque `[REDACTED:…]` handle rather than a guess at what
+  still a DN. **The account is still visibly kerberoastable.**
+- That account appears in four places across three collection members, and every
+  one of them got the *same* pseudonym, so the graph edges survive.
+- Free text becomes an opaque `[REDACTED:…]` handle rather than a guess at which
   part of the sentence was sensitive.
-- One line down, `Domain Admins` keeps RID 512 and its canonical name, because
-  that is a global constant rather than something about your client, while its
-  SID authority and domain are still remapped.
+- `Domain Admins` keeps RID 512 and its canonical name, because that is a global
+  constant rather than something about your client, while its SID authority and
+  domain are still remapped.
 
 ## Install
 
@@ -134,15 +143,12 @@ shanon inspect --input engagement.zip
 
 # 2. the real thing
 shanon anonymize --input engagement.zip --out ./anon
-#   ->  ./anon/collection_anon.zip      send this one to the model
+#   ->  ./anon/collection_anon.zip      this is the one you share
 #   ->  ./anon/collection.map.json      reversal keys, keep local, never ship
 
-# 3. fold the model's answer back to real identities
+# 3. fold the answer back to real identities
 shanon restore --map ./anon/collection.map.json --input llm_findings.md
 ```
-
-Send only the emitted `collection_anon.zip`, never its parent output directory;
-that also holds the mapping file. Same input + same salt → byte-identical output.
 
 Try it against the committed synthetic collection first:
 
@@ -150,28 +156,12 @@ Try it against the committed synthetic collection first:
 shanon inspect --input demo/collection
 ```
 
-## Why not just find-and-replace?
+Input can be a `.zip`, a directory of `*.json`, or a single `.json` member. Same
+input plus same salt gives byte-identical output. Pass `--map` once and
+`--reuse-map` after it to keep pseudonyms stable across several collections of
+the same environment.
 
-Because a directory is a graph, not a word list.
-
-- **Identifiers are composite.** `MSSQLSvc/sql01.contoso.local:1433` is a service
-  class, a host, a domain and a port. `S-1-5-21-…-1105` is an authority plus a
-  RID that may or may not be a global constant. Each piece has to be decomposed
-  and mapped on its own terms, and reassembled in the original shape, or the
-  model stops recognizing what it is looking at.
-- **The same thing appears under many spellings.** A user is a UPN here, a
-  `samaccountname` there, a DN component, an email local part, a `PrincipalSID`
-  in someone else's ACE. Miss the correspondence and the attack path
-  disintegrates; the anonymized graph is then worse than useless, it is
-  misleading.
-- **A missed replacement is silent.** That is the failure that matters, and no
-  regex tells you it happened. shanon independently re-derives the expected
-  output for every string leaf and compares before anything is published; a
-  single divergence aborts the run with no output written at all.
-- **You need it back.** A one-way scrub leaves you translating the model's
-  findings by hand, at which point you have re-created the mapping file, worse.
-
-## Scope and honesty
+## Before you share anything
 
 > shanon **pseudonymizes**. It substantially lowers re-identification risk, but a
 > collection is not legally anonymous afterward, and structure itself carries
@@ -179,8 +169,29 @@ Because a directory is a graph, not a word list.
 > 40,000-user domain with two DCs. [SECURITY.md](SECURITY.md) states the exact
 > threat model and residual risks. Read it before you send anything anywhere.
 
-**No network. No LLM calls. Never mutates your input.** The mapping file is
-client-sensitive: keep it local, never ship it.
+Send only the emitted `collection_anon.zip`, never its parent output directory,
+which also holds the mapping file. That file contains the real mappings in the
+clear and is as sensitive as the raw collection.
+
+**No network. No LLM calls. Never mutates your input.**
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the build,
+test, and PR workflow, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). A real
+identifier that survives a run is a **security bug**: report it privately per
+[SECURITY.md](SECURITY.md), never as a public issue.
+
+## License
+
+MIT © Mateusz Suchocki. See [LICENSE](LICENSE).
+
+---
+
+# Reference
+
+Everything below is detail: the full flag surface, what is transformed and what
+is kept, and how the safety model works.
 
 ## Usage
 
@@ -207,9 +218,7 @@ shanon anonymize --input <zip|dir|json> --out <dir> [--map PATH] [--reuse-map PA
 | `--summary` | no | print the run summary even when stderr is not a terminal |
 | `--no-summary` | no | never print the run summary |
 
-On success it writes a summary to stderr, drawn under the same rule as the
-progress bar, so a redirected or piped stderr is byte-identical to a run
-without it:
+On success it writes a summary to stderr:
 
 ```
 summary: 5752 objects
@@ -220,17 +229,17 @@ summary: 5752 objects
   map: ./anon/collection.map.json
 ```
 
-A run over a real collection takes minutes, so `anonymize` draws a progress bar
-on stderr showing each phase (discovery, transform+verify, publish) with a
-count and an ETA:
+A run over a real collection takes minutes, so `anonymize` also draws a progress
+bar showing each phase (discovery, transform+verify, publish) with a count and
+an ETA:
 
 ```
 discovery        \  48,213 objects  0:41
 transform+verify [##########--------------]  43%  41,902/96,426  1:12  eta 1:33
 ```
 
-It is drawn only when stderr is a terminal, so redirected or piped stderr is
-byte-identical to a run without it. Use the flags above to force either way.
+Both are drawn only when stderr is a terminal, so a redirected or piped stderr is
+byte-identical to a run without them. Use the flags above to force either way.
 
 ```sh
 # stable pseudonyms across two collections of the same environment
@@ -326,7 +335,7 @@ shanon restore --map <map.json> [--lookup FAKE | --forward REAL | --input FILE]
 shanon restore --map ./anon/collection.map.json --lookup kjeffersg46lvu6zae6m
 #   accounts: svc_sql
 
-# bulk: de-anonymize an LLM answer that quotes pseudonyms back at you
+# bulk: de-anonymize an answer that quotes pseudonyms back at you
 shanon restore --map ./anon/collection.map.json --input llm_findings.md
 ```
 
@@ -354,8 +363,7 @@ substitutes every component it recognizes.
 - Free text and opaque values → deterministic `[REDACTED:…]` mappings
 - The *names* of fields no rule models, not only their values. A custom AD
   attribute is organization-bound in its key as much as its contents
-- Numeric values at those same unmodeled paths → a type-stable sentinel, because
-  a custom `employeeNumber` or `uidNumber` is a re-identification key
+- Numeric values at those same unmodeled paths → a type-stable sentinel
 
 That last one currently catches a few standard SharpHound fields the rule table
 does not model yet, including `IsDeleted`, `IsACLProtected`,
@@ -363,6 +371,19 @@ does not model yet, including `IsDeleted`, `IsACLProtected`,
 dropped. No graph edge depends on them, so the collection still loads and still
 reasons correctly, but it is not a byte-for-byte SharpHound document. `inspect`
 lists exactly which paths a given collection hit.
+
+### Booleans, nulls and numbers
+
+Booleans and nulls are passed through as they are, and so are numbers at the
+paths shanon models, where a flag, a count or a timestamp carries no identity.
+
+A number at a path no rule declares is a different animal. SharpHound turns any
+attribute whose value parses as an integer into a JSON number, so under
+`--collectallproperties` a custom `employeeNumber` arrives as one, and a numeric
+employee ID matched against an HR roster re-identifies the account and every
+edge it sits on. Those are replaced with a type-stable sentinel, and `shanon
+inspect` reports exactly which paths were affected. See
+[SECURITY.md](SECURITY.md#what-shanon-does-not-protect-against).
 
 ## What is preserved
 
@@ -383,6 +404,27 @@ specific object type and field path listed in the catalog. Examples:
   tail no table can close. `--redact-os-strings` turns the whole thing off.
 - Feature/vendor defaults (`Hyper-V Administrators`, `Vault Administrators`) and
   anything custom are mapped, not preserved.
+
+## Why not just find-and-replace?
+
+Because a directory is a graph, not a word list.
+
+- **Identifiers are composite.** `MSSQLSvc/sql01.contoso.local:1433` is a service
+  class, a host, a domain and a port. `S-1-5-21-…-1105` is an authority plus a
+  RID that may or may not be a global constant. Each piece has to be decomposed
+  and mapped on its own terms, and reassembled in the original shape, or the
+  reader stops recognizing what it is looking at.
+- **The same thing appears under many spellings.** A user is a UPN here, a
+  `samaccountname` there, a DN component, an email local part, a `PrincipalSID`
+  in someone else's ACE. Miss the correspondence and the attack path
+  disintegrates; the anonymized graph is then worse than useless, it is
+  misleading.
+- **A missed replacement is silent.** That is the failure that matters, and no
+  regex tells you it happened. shanon independently re-derives the expected
+  output for every string leaf and compares before anything is published; a
+  single divergence aborts the run with no output written at all.
+- **You need it back.** A one-way scrub leaves you translating findings by hand,
+  at which point you have re-created the mapping file, worse.
 
 ## Safety model
 
@@ -420,14 +462,3 @@ cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
-
-## Contributing
-
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the build,
-test, and PR workflow, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). A real
-identifier that survives a run is a **security bug**: report it privately per
-[SECURITY.md](SECURITY.md), never as a public issue.
-
-## License
-
-MIT © Mateusz Suchocki. See [LICENSE](LICENSE).
