@@ -26,6 +26,15 @@ What shanon does *not* protect against is documented in
 - CLI surface: unchanged
 - MSRV: 1.97
 
+### Changed
+
+- [docs] The README leads with what shanon is for and who shares a collection
+  with whom; the flag tables, scrubbing rules and safety model move below a
+  `Reference` divider.
+- [docs] The README lists the uses beyond LLM prompting: peer review, talks and
+  screenshots, training data, collector bug reports, and keeping the graph after
+  the raw collection is destroyed.
+
 ## [0.6.0] - 2026-07-31
 
 Gives the model back the operating system. A collection anonymized under 0.5.1
