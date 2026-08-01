@@ -22,6 +22,22 @@ What shanon does *not* protect against is documented in
 ### Compatibility
 
 - Output: unchanged
+- Mapping files: unchanged
+- CLI surface: unchanged
+- MSRV: 1.97
+
+## [0.7.0] - 2026-08-01
+
+Protects the other half of what you send. Every earlier release anonymized the
+collection and left the sentences you type around it alone, so an operator
+asking "can SVC_SQL reach DC01?" handed over two identifiers the output no
+longer contained. `shanon scrub` runs your own text through the same map first.
+Nothing about anonymizing a collection changed: same classification, same
+pseudonyms, same bytes.
+
+### Compatibility
+
+- Output: unchanged
 - Mapping files: unchanged. `scrub` reads a map and never writes one, so a map
   minted by any earlier release works with it.
 - CLI surface: **added** the `scrub` verb, with `--map`, `--input` and
@@ -510,7 +526,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/Matixx22/shanon/releases/tag/v0.7.0
 [0.6.0]: https://github.com/Matixx22/shanon/releases/tag/v0.6.0
 [0.5.1]: https://github.com/Matixx22/shanon/releases/tag/v0.5.1
 [0.5.0]: https://github.com/Matixx22/shanon/releases/tag/v0.5.0
