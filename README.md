@@ -91,7 +91,7 @@ Read what survived, because that is the point:
 current tag from [Releases](https://github.com/Matixx22/shanon/releases):
 
 ```sh
-VERSION=v0.6.0
+VERSION=v0.7.0
 TARGET=x86_64-unknown-linux-gnu        # or aarch64-apple-darwin
 BASE="https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
@@ -106,7 +106,7 @@ tar xzf "shanon-$VERSION-$TARGET.tar.gz"
 Windows ships a `.zip` instead, with the same `<hash>  <file>` checksum line:
 
 ```powershell
-$VERSION = "v0.6.0"
+$VERSION = "v0.7.0"
 $TARGET  = "x86_64-pc-windows-msvc"
 $BASE    = "https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
