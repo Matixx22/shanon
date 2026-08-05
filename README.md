@@ -44,8 +44,20 @@ you and for nobody else.
 
 ## What it looks like
 
-An excerpt from a run over the synthetic collection in [`demo/`](demo/). Every
-run picks a fresh random salt, so your pseudonyms will read differently.
+A run reports what it replaced, what it left alone, and where it put the two
+files:
+
+<p align="center">
+  <img src="assets/demo.png" alt="shanon anonymize output: 676 identifiers replaced across 190 objects, a breakdown by category, what was not anonymized, and the paths to the shareable collection and the local mapping file" width="788">
+</p>
+
+The `Not anonymized` block is the one to read first. It is the honest part: it
+tells you what shanon passed through untouched, and `shanon inspect` will list
+every instance.
+
+Below is an excerpt from a run over the synthetic collection in
+[`demo/`](demo/). Every run picks a fresh random salt, so your pseudonyms will
+read differently.
 
 **Before**
 
