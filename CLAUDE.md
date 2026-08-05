@@ -76,8 +76,7 @@ offender, never the real value) that aborts the run with no output written.
   everywhere), `ignorecase`, `textutil`.
 - **Transforms**: `patterns`, `fields` (token matching), `components`
   (decompose composite identifiers: SIDs, GUIDs, UPNs, SPNs, DNs, emails; then
-  dispatch each piece to a registry category). `wellknown` is the deprecated
-  pre-catalog predicate module. Do not build on it.
+  dispatch each piece to a registry category).
 - **`catalog`**: the authoritative AD-defaults table. Data-driven (flat
   `CatalogEntry` rows), never a typed struct per SharpHound kind. A match
   requires exact node type + identifier kind + normalized value, and only permits

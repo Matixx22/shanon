@@ -7,9 +7,9 @@
 //! value only at an explicitly declared path (and, where present, for an exact
 //! canonical value).
 //!
-//! The module owns a process-global [`catalog`] table and implements
-//! [`WellKnownCatalog`] via the zero-sized [`Catalog`] handle, closing the P0
-//! abstraction.
+//! The module owns a process-global [`catalog`] table, and the derived
+//! predicates ([`is_wellknown_sid`], [`is_builtin_name`], [`is_builtin_rid`],
+//! [`is_wellknown_guid`]) query it directly.
 //!
 //! ## Determinism notes (§3.2)
 //! * `preserve_paths` and `exact_values` derive from sets whose natural
@@ -28,7 +28,6 @@ use std::sync::OnceLock;
 use indexmap::IndexMap;
 
 use crate::casefold::casefold;
-use crate::wellknown::WellKnownCatalog;
 
 /// Catalog schema version; stamped into the collection map, so its value and
 /// integer semantics are part of the output contract.
@@ -234,42 +233,45 @@ fn core_canonical_names() -> &'static BTreeSet<String> {
     })
 }
 
-/// Zero-sized handle over the global [`catalog`] that satisfies the P0
-/// [`WellKnownCatalog`] abstraction.
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Catalog;
+// ---------------------------------------------------------------------------
+// Derived predicates.
+//
+// These are not restatements of a catalog row: each one is a derivation over
+// the table, and the derivation is what `tests/truth/wellknown.json` pins. They
+// take the caller's raw spelling and normalize it here, so no caller has to
+// remember which of casefold / lowercase / uppercase a given kind wants.
+// ---------------------------------------------------------------------------
 
-impl Catalog {
-    pub fn new() -> Self {
-        Catalog
-    }
+/// Whether `sid` is a baseline-safe full SID (`is_wellknown_sid`).
+pub fn is_wellknown_sid(sid: &str) -> bool {
+    classify_sid(sid) == PrivacyClass::CoreGlobalDefault
 }
 
-impl WellKnownCatalog for Catalog {
-    fn sid_is_core_global_default(&self, sid: &str) -> bool {
-        classify_sid(sid) == PrivacyClass::CoreGlobalDefault
-    }
+/// Whether `name` is an exact canonical core catalog name (`is_builtin_name`).
+pub fn is_builtin_name(name: &str) -> bool {
+    core_canonical_names().contains(&casefold(name.trim()))
+}
 
-    fn is_core_canonical_name(&self, folded_name: &str) -> bool {
-        core_canonical_names().contains(folded_name)
-    }
+/// Whether `rid` is an explicitly cataloged core domain RID (`is_builtin_rid`).
+pub fn is_builtin_rid(rid: i64) -> bool {
+    let rid = rid.to_string();
+    catalog().iter().any(|e| {
+        e.kind == IdentifierKind::Rid
+            && e.value == rid
+            && e.privacy == PrivacyClass::CoreGlobalDefault
+    })
+}
 
-    fn is_core_rid(&self, rid: &str) -> bool {
-        catalog().iter().any(|e| {
-            e.kind == IdentifierKind::Rid
-                && e.value == rid
-                && e.privacy == PrivacyClass::CoreGlobalDefault
-        })
-    }
-
-    fn is_wellknown_guid(&self, normalized_guid: &str) -> bool {
-        catalog().iter().any(|e| {
-            e.kind == IdentifierKind::Guid
-                && e.value == normalized_guid
-                && (e.rule_id == "guid.null" || e.rule_id.starts_with("gpo."))
-                && e.privacy == PrivacyClass::CoreGlobalDefault
-        })
-    }
+/// Whether `guid` is a baseline-safe fixed GPO or null GUID
+/// (`is_wellknown_guid`).
+pub fn is_wellknown_guid(guid: &str) -> bool {
+    let normalized = guid.trim().to_lowercase();
+    catalog().iter().any(|e| {
+        e.kind == IdentifierKind::Guid
+            && e.value == normalized
+            && (e.rule_id == "guid.null" || e.rule_id.starts_with("gpo."))
+            && e.privacy == PrivacyClass::CoreGlobalDefault
+    })
 }
 
 // ---------------------------------------------------------------------------

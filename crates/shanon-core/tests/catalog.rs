@@ -250,19 +250,23 @@ fn identifier_match_does_not_permit_a_different_identifier() {
     assert!(!m.permits("ObjectIdentifier", "S-1-5-32-545"));
 }
 
-// --- the real Catalog satisfies the P0 WellKnownCatalog abstraction --------
+// --- derived predicates against ground truth -------------------------------
 
+// The derivations, not the rows: which SIDs count as baseline-safe, which names
+// are canonical, which RIDs are core, which GUIDs are fixed. The row-for-row
+// comparison above cannot catch a derivation that drifts, and each predicate
+// normalizes its own argument, so the spellings in the fixture exercise that
+// too.
 #[test]
-fn real_catalog_drives_wellknown_predicates() {
-    use shanon_core::wellknown::{
+fn derived_predicates_match_reference() {
+    use shanon_core::catalog::{
         is_builtin_name, is_builtin_rid, is_wellknown_guid, is_wellknown_sid,
     };
-    let cat = shanon_core::catalog::Catalog::new();
     let t = truth("wellknown.json");
 
     for p in t["sids"].as_array().unwrap() {
         assert_eq!(
-            is_wellknown_sid(&cat, p[0].as_str().unwrap()),
+            is_wellknown_sid(p[0].as_str().unwrap()),
             p[1].as_bool().unwrap(),
             "sid {}",
             p[0]
@@ -270,7 +274,7 @@ fn real_catalog_drives_wellknown_predicates() {
     }
     for p in t["names"].as_array().unwrap() {
         assert_eq!(
-            is_builtin_name(&cat, p[0].as_str().unwrap()),
+            is_builtin_name(p[0].as_str().unwrap()),
             p[1].as_bool().unwrap(),
             "name {}",
             p[0]
@@ -278,7 +282,7 @@ fn real_catalog_drives_wellknown_predicates() {
     }
     for p in t["rids"].as_array().unwrap() {
         assert_eq!(
-            is_builtin_rid(&cat, p[0].as_i64().unwrap()),
+            is_builtin_rid(p[0].as_i64().unwrap()),
             p[1].as_bool().unwrap(),
             "rid {}",
             p[0]
@@ -286,7 +290,7 @@ fn real_catalog_drives_wellknown_predicates() {
     }
     for p in t["guids"].as_array().unwrap() {
         assert_eq!(
-            is_wellknown_guid(&cat, p[0].as_str().unwrap()),
+            is_wellknown_guid(p[0].as_str().unwrap()),
             p[1].as_bool().unwrap(),
             "guid {}",
             p[0]

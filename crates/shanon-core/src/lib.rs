@@ -3,7 +3,6 @@
 //! Core primitives from the S1 spike ([`canonical_json`], [`seed_int`]) plus the
 //! P0 leaf modules (bottom-up per plan §2):
 //!
-//! * [`wellknown`] — deprecated catalog predicates (catalog abstracted; P1).
 //! * [`patterns`] — ordered trie regex source (`factor_literals`).
 //! * [`fields`] — ignore-case signatures + v1 token matcher (registry abstracted).
 //! * [`components`] — structure-aware composite-identifier transforms (registry
@@ -28,7 +27,6 @@ pub mod restore;
 pub mod scrub;
 pub mod textutil;
 pub mod verify;
-pub mod wellknown;
 
 use blake2::digest::consts::U16;
 use blake2::{Blake2b, Digest};
