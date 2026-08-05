@@ -415,12 +415,18 @@ fn scrub_stdin(map: &std::path::Path, text: &str, extra: &[&str]) -> std::proces
         .stderr(std::process::Stdio::piped())
         .spawn()
         .unwrap();
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(text.as_bytes())
-        .unwrap();
+    // A run that refuses its map exits before it reads stdin, so this write can
+    // lose the race and hit EPIPE. That is the child answering, not a failure:
+    // what the caller asserts on is the exit code and the output. Unwrapping
+    // here made the outcome depend on scheduling, which is how it passed on
+    // x86_64 and failed on arm64.
+    let mut stdin = child.stdin.take().unwrap();
+    match stdin.write_all(text.as_bytes()) {
+        Ok(()) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {}
+        Err(e) => panic!("writing to scrub stdin: {e}"),
+    }
+    drop(stdin);
     child.wait_with_output().unwrap()
 }
 
