@@ -26,6 +26,66 @@ What shanon does *not* protect against is documented in
 - CLI surface: unchanged
 - MSRV: 1.97
 
+## [0.8.1] - 2026-08-05
+
+Answers the question a run used to leave hanging: what did that actually do to
+my collection? `anonymize` and `inspect` now both end with a report that says
+how many of your identifiers were replaced and of what kind, how the objects
+were classified, what was left alone, and what to do next. The two read alike,
+so a dry run previews the real thing in the same words. The anonymized bytes and
+the mapping file are untouched; only the reading of them changed.
+
+**Read the Compatibility block before upgrading.** Despite the patch version,
+this release changes what `anonymize` prints on stdout. If you parse that
+output, add `--no-summary` and nothing else about your pipeline changes.
+
+### Compatibility
+
+- Output: unchanged
+- Mapping files: unchanged
+- CLI surface: **changed**. `anonymize` prints a new report on stdout in place
+  of its previous five lines. Pass `--no-summary` for those five lines, byte for
+  byte, if you parse them. `inspect --format text` is likewise reworded; its
+  `--format json` document is unchanged except for one added key, so a CI gate
+  reading JSON needs no edit. Exit codes are unchanged for every verb.
+- MSRV: 1.97
+
+### Changed
+
+- [cli] `anonymize` ends with a report of what it did to the input: identifiers
+  replaced and of which kind, objects by origin, what was left alone, where the
+  two files landed, and which verb to reach for next.
+- [cli] The report names things in the reader's terms. `core_global_default`
+  reads as "built-in Active Directory defaults", `hosts` as "hostnames".
+- [cli] The report says how many distinct identifiers were replaced, broken down
+  by kind. A run could not previously tell you this at all.
+- [cli] The report goes to stdout and is no longer drawn only for a terminal, so
+  a piped or redirected run records the same account of itself that an operator
+  watching it saw.
+- [cli] Skipped members are counted in the report, not only warned about.
+- [cli] A run that left field paths unmodelled or numbers passed through now
+  points at `shanon inspect` and SECURITY.md, rather than printing the counts
+  and leaving the reader to know what they meant.
+- [cli] `--summary` and `--no-summary` now select which report is printed rather
+  than whether one is. `--summary` is the default.
+- [inspect] The text report is reworded to match `anonymize`, so a dry run
+  previews a real run in the same words rather than in the catalog's.
+- [inspect] It opens with "Dry run. Nothing was written." A report that had to
+  be read to the end to learn it wrote nothing was the wrong way round.
+- [inspect] It reports how many identifiers a real run would replace, by kind.
+  The dry run uses a throwaway salt, so the pseudonyms differ from a real run's
+  while these counts do not.
+- [inspect] A clean verdict now points back at the advisory counts above it. The
+  verdict covers the leak gate alone, and "would anonymize cleanly" read like it
+  covered unmodelled paths and passed-through numbers too.
+- [inspect] The unknown-path and numeric-passthrough lists say what they are and
+  why they matter, rather than heading a bare list of paths.
+- [inspect] The preflight block explains each signal: a missing core type means
+  a graph with holes, a duplicate collection type means two collections may have
+  been merged into one directory.
+- [inspect] `--format json` gains a `mapped_per_category` key with the same
+  counts. No existing key changed, so `schema_version` stays at 1.
+
 ## [0.8.0] - 2026-08-05
 
 Reaches the machine the collection is actually on. A triage box is often an
@@ -574,7 +634,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/Matixx22/shanon/releases/tag/v0.8.1
 [0.8.0]: https://github.com/Matixx22/shanon/releases/tag/v0.8.0
 [0.7.0]: https://github.com/Matixx22/shanon/releases/tag/v0.7.0
 [0.6.0]: https://github.com/Matixx22/shanon/releases/tag/v0.6.0
