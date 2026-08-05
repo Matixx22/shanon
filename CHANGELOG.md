@@ -26,6 +26,23 @@ What shanon does *not* protect against is documented in
 - CLI surface: unchanged
 - MSRV: 1.97
 
+## [0.8.0] - 2026-08-05
+
+Reaches the machine the collection is actually on. A triage box is often an
+Alpine container or an arm64 host, and until now the only Linux download was
+glibc x86_64: right tool, wrong binary. Three more targets ship, and the ones
+that can run their own tests now do, on the exact configuration they are built
+as. shanon itself is unchanged, byte for byte.
+
+### Compatibility
+
+- Output: unchanged
+- Mapping files: unchanged
+- CLI surface: unchanged
+- MSRV: 1.97
+- Downloads: three new archives per release. Existing filenames are untouched,
+  so an install script that pins a target keeps working.
+
 ### Added
 
 - [release] Static `x86_64-unknown-linux-musl` binary. It runs in an Alpine or
@@ -557,7 +574,8 @@ First tagged release.
   `cargo audit` job, adding license enforcement so an MIT-licensed binary cannot
   silently redistribute a conflicting dependency.
 
-[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/Matixx22/shanon/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/Matixx22/shanon/releases/tag/v0.8.0
 [0.7.0]: https://github.com/Matixx22/shanon/releases/tag/v0.7.0
 [0.6.0]: https://github.com/Matixx22/shanon/releases/tag/v0.6.0
 [0.5.1]: https://github.com/Matixx22/shanon/releases/tag/v0.5.1
