@@ -105,7 +105,7 @@ on a version mismatch: an Alpine or distroless container, or a jump box older
 than the runner that built it.
 
 ```sh
-VERSION=v0.8.0
+VERSION=v0.8.1
 TARGET=x86_64-unknown-linux-gnu        # from the table above
 BASE="https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
@@ -120,7 +120,7 @@ tar xzf "shanon-$VERSION-$TARGET.tar.gz"
 Windows ships a `.zip` instead, with the same `<hash>  <file>` checksum line:
 
 ```powershell
-$VERSION = "v0.8.0"
+$VERSION = "v0.8.1"
 $TARGET  = "x86_64-pc-windows-msvc"
 $BASE    = "https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
@@ -236,31 +236,72 @@ shanon anonymize --input <zip|dir|json> --out <dir> [--map PATH] [--reuse-map PA
 | `--redact-os-strings` | no | redact `Properties.operatingsystem` instead of preserving a known Windows product string |
 | `--progress` | no | draw the progress bar even when stderr is not a terminal |
 | `--no-progress` | no | never draw the progress bar |
-| `--summary` | no | print the run summary even when stderr is not a terminal |
-| `--no-summary` | no | never print the run summary |
+| `--summary` | no | print the full run report (the default) |
+| `--no-summary` | no | print the terse machine-readable report instead |
 
-On success it writes a summary to stderr:
+On success it writes a report to stdout saying what it did to your collection:
 
 ```
-summary: 5752 objects
-  classifications: core_global_default 118, custom 5634
-  unknown field paths: 21 distinct
-  numeric values passed through: 0 distinct path(s)
-  collection: ./anon/collection_anon.zip
-  map: ./anon/collection.map.json
+Done. 5752 objects anonymized across 9 files.
+
+Replaced 4118 identifiers, each with a stable pseudonym:
+  domains                                 3
+  SIDs                                  912
+  accounts                             2264
+  hostnames                             806
+  certificate templates                  14
+  other identifiers                     119
+
+Objects by origin:
+  built-in Active Directory defaults    118
+  specific to your organization        5634
+
+Not anonymized:
+  field paths shanon does not model      21 distinct
+  numeric values passed through           0 distinct
+  Run `shanon inspect` to list them; see SECURITY.md for what they can reveal.
+
+Wrote:
+  collection  ./anon/collection_anon.zip
+              safe to share; policy core-global-defaults
+  mapping     ./anon/collection.map.json
+              KEEP LOCAL. Reverses every pseudonym above.
+
+Next: `shanon scrub --map <map>` rewrites your own questions into these
+pseudonyms, and `shanon restore --map <map>` turns the model's answer back.
+```
+
+Read the two counts under **Not anonymized** before you share anything. They are
+what shanon left alone: field paths it does not model (anonymized opaquely, but
+not understood) and numeric values at undeclared paths (published verbatim).
+`shanon inspect` lists both, path by path.
+
+Every figure is a count. No value from your collection appears in the report, so
+it is safe to paste into a ticket even when the collection is not.
+
+`--no-summary` prints the terse five-line form instead, unchanged from earlier
+releases, for scripts that parse it:
+
+```
+anonymized -> ./anon/collection_anon.zip
+mapping (client-sensitive, keep local) -> ./anon/collection.map.json
+policy: core-global-defaults
+classified: core=118 feature=0 third_party=0 custom=5634 unknown=0
+unknown string paths: 21
 ```
 
 A run over a real collection takes minutes, so `anonymize` also draws a progress
-bar showing each phase (discovery, transform+verify, publish) with a count and
-an ETA:
+bar on stderr showing each phase (discovery, transform+verify, publish) with a
+count and an ETA:
 
 ```
 discovery        \  48,213 objects  0:41
 transform+verify [##########--------------]  43%  41,902/96,426  1:12  eta 1:33
 ```
 
-Both are drawn only when stderr is a terminal, so a redirected or piped stderr is
-byte-identical to a run without them. Use the flags above to force either way.
+The bar is drawn only when stderr is a terminal, so a redirected or piped stderr
+is byte-identical to a run without it. The report is not gated that way: it is
+the run's own output and does not change with who is watching.
 
 ```sh
 # stable pseudonyms across two collections of the same environment
@@ -290,33 +331,64 @@ shanon inspect --input engagement.zip
 ```
 
 ```
-members: 7 read, 7 accepted, 0 skipped
-objects: 5752
+Dry run. Nothing was written.
 
-collections:
-  users                    type=User           version=6          objects=4000
-  computers                type=Computer       version=6          objects=800
-  azbase                   type=Unknown        version=6          objects=12  <- unrecognized, contents anonymized opaquely
+Read 7 files, all usable.
+Found 5752 objects.
 
-audit codes:
-  malformed-source-value: 600
-  unknown-key-path: 33106
+Collections:
+  users                 User            version 6   4000 objects
+  computers             Computer        version 6    800 objects
+  azbase                Unknown         version 6     12 objects   <- unrecognized; contents anonymized opaquely
 
-unknown field paths (21 distinct):
-       800  data[].localgroups[]["[redacted:wx5fedc6e5w56]"]
+Would replace 4118 identifiers, each with a stable pseudonym:
+  domains                                 3
+  SIDs                                  912
+  accounts                             2264
+  hostnames                             806
+  other identifiers                     133
 
-preflight:
-  missing core collection types: domains
-  collection type declared by more than one member: users
+Objects by origin:
+  built-in Active Directory defaults    118
+  specific to your organization        5634
 
-verdict: this collection would anonymize cleanly
+Would not anonymize:
+  field paths shanon does not model      21 distinct
+  numeric values passed through           0 distinct
+
+  Field paths no rule models. Contents are still anonymized, but
+  shanon does not know what they hold:
+         800  data[].localgroups[]["[redacted:wx5fedc6e5w56]"]
+
+Audit codes:
+  malformed-source-value                600
+  unknown-key-path                    33106
+
+Worth checking before you run this:
+  Missing core collection types: domains.
+    The graph built from this will have holes.
+  Declared by more than one file: users.
+    This may be two collections merged into one directory.
+
+Verdict: this collection would anonymize cleanly.
+  Read "would not anonymize" above first: that part is advisory,
+  and the verdict does not cover it.
+
+Next: `shanon anonymize --input <same input> --out <dir>` to write it.
 ```
 
-The `preflight:` block appears only when it has something to say. It is
-advisory and never changes the verdict or the exit code. A collection type
-declared by more than one member is what a directory holding several collection
-runs looks like from the inside, where the collector's filenames are
-deliberately not visible.
+It reports the same things `anonymize` does, in the conditional, so the dry run
+and the real run read alike. The identifier counts are what a real run would
+mint: `inspect` uses a throwaway salt, so the pseudonyms differ but the counts
+do not.
+
+The **Worth checking** block appears only when it has something to say. It is
+advisory and never changes the verdict or the exit code, and neither does
+**Would not anonymize**. The verdict is about the leak gate alone, which is why
+a clean one still points back at those counts. A collection type declared by
+more than one file is what a directory holding several collection runs looks
+like from the inside, where the collector's filenames are deliberately not
+visible.
 
 `--format json` prints the same report as one sorted JSON document, for a CI
 gate or a ticket attachment:
@@ -365,8 +437,10 @@ shanon scrub --map ./anon/collection.map.json --input question.md
 ```
 
 The scrubbed text goes to stdout and the report to stderr, so you can pipe one
-without losing the other. The report is drawn under the same rule as the
-`anonymize` summary: only when stderr is a terminal.
+without losing the other. The report is drawn only when stderr is a terminal;
+use `--summary` to force it, `--no-summary` to suppress it. (`anonymize` prints
+its report to stdout and is not gated that way, because there the report is the
+output rather than a decoration on it.)
 
 Matching is case-insensitive for names, SIDs, hostnames and GUIDs, because you
 type `CONTOSO` and the collection stored `contoso`. Whole words only, so a

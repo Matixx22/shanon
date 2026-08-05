@@ -658,6 +658,22 @@ impl Registry {
         reals
     }
 
+    /// How many distinct real values this registry has mapped, per category, in
+    /// [`CATEGORIES`] order. Categories that mapped nothing are omitted.
+    ///
+    /// Counts only. A count is not a value, so this is safe to render for an
+    /// operator (invariant 7), unlike [`Registry::category_reals_sorted`], which
+    /// hands back the real source keys and exists for the engine's own indexing.
+    pub fn category_counts(&self) -> Vec<(String, usize)> {
+        CATEGORIES
+            .iter()
+            .filter_map(|category| {
+                let len = self.categories.get(*category).map_or(0, |b| b.len());
+                (len > 0).then(|| ((*category).to_string(), len))
+            })
+            .collect()
+    }
+
     /// Take the first error recorded through the infallible trait bridge.
     pub fn take_trait_error(&mut self) -> Option<RegistryError> {
         self.trait_error.take()

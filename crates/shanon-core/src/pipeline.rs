@@ -864,6 +864,15 @@ fn dir_input_hash(
 pub struct AnonymizeOutcome {
     pub dest: PathBuf,
     pub audit: PolicyAudit,
+    /// Members that parsed as SharpHound documents and were published.
+    pub members_anonymized: usize,
+    /// Members that did not parse and were excluded from the output.
+    pub members_skipped: usize,
+    /// Total top-level `data` objects across the published members.
+    pub objects: u64,
+    /// Distinct real values that were given a pseudonym, per registry category,
+    /// in [`Registry::category_counts`] order. Counts only, never values.
+    pub mapped_per_category: Vec<(String, usize)>,
 }
 
 struct Accepted {
@@ -983,6 +992,11 @@ pub struct InspectReport {
     pub collection_types: Vec<CollectionTypeRow>,
     /// [`PolicyAudit::summary`] over the transform pass.
     pub audit: Value,
+    /// Distinct real values a real run would give a pseudonym, per registry
+    /// category, in [`Registry::category_counts`] order. Counts only, never
+    /// values. The dry run mints against a throwaway random salt, so the
+    /// pseudonyms differ from a real run's while the counts do not.
+    pub mapped_per_category: Vec<(String, usize)>,
     /// Leak-gate findings, sanitized. Non-empty means the run would abort.
     pub findings: Vec<VerificationFinding>,
     /// A mapping-class abort, rendered as `stderr_verbose` would render it.
@@ -1108,6 +1122,7 @@ pub fn inspect_collection(
                 objects,
                 collection_types: rows(types),
                 audit: engine.audit.summary(),
+                mapped_per_category: engine.registry.category_counts(),
                 findings: Vec::new(),
                 abort: Some(e.stderr_verbose()),
                 meta_count_mismatches: preflight.mismatches(),
@@ -1140,6 +1155,7 @@ pub fn inspect_collection(
                 objects,
                 collection_types: rows(types),
                 audit: engine.audit.summary(),
+                mapped_per_category: engine.registry.category_counts(),
                 findings: Vec::new(),
                 abort: Some(e.stderr_verbose()),
                 meta_count_mismatches: preflight.mismatches(),
@@ -1186,6 +1202,7 @@ pub fn inspect_collection(
         objects,
         collection_types: rows(types),
         audit: engine.audit.summary(),
+        mapped_per_category: engine.registry.category_counts(),
         findings,
         abort,
         meta_count_mismatches: preflight.mismatches(),
@@ -1507,9 +1524,17 @@ pub fn anonymize_collection(
     }
     progress::emit(progress, ProgressEvent::PhaseFinished);
 
+    // Read after publication, so the counts describe the registry exactly as it
+    // was written to the map rather than a mid-run state.
+    let mapped_per_category = engine.registry.category_counts();
+
     Ok(AnonymizeOutcome {
         dest,
         audit: engine.audit,
+        members_anonymized: accepted.len(),
+        members_skipped: skipped.len(),
+        objects: total_objects,
+        mapped_per_category,
     })
 }
 

@@ -193,6 +193,243 @@ fn both_subcommands_document_the_os_opt_out() {
     }
 }
 
+/// Run `anonymize` over the demo collection into a fresh scratch directory.
+fn anonymize_demo(tag: &str, extra: &[&str]) -> std::process::Output {
+    let dir = scratch(tag);
+    Command::new(bin())
+        .args(["anonymize", "--input"])
+        .arg(demo_collection())
+        .arg("--out")
+        .arg(dir.join("out"))
+        .args(extra)
+        .output()
+        .unwrap()
+}
+
+/// The default report answers "what did this do to my collection?" in the
+/// operator's terms: how much was replaced, how the objects were classified,
+/// what was left alone, and where the two artifacts landed.
+#[test]
+fn anonymize_report_says_what_happened_to_the_input() {
+    let out = anonymize_demo("report", &[]);
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+
+    assert!(
+        text.contains("8 objects anonymized across 4 files"),
+        "{text}"
+    );
+    assert!(text.contains("each with a stable pseudonym"), "{text}");
+    // Registry categories are reported in the reader's spelling, not the map's.
+    for label in ["domains", "SIDs", "accounts", "hostnames"] {
+        assert!(text.contains(label), "missing category {label}: {text}");
+    }
+    // Privacy classes likewise: no `core_global_default` reaches the operator.
+    assert!(
+        text.contains("built-in Active Directory defaults"),
+        "{text}"
+    );
+    assert!(text.contains("specific to your organization"), "{text}");
+    assert!(!text.contains("core_global_default"), "{text}");
+
+    // The half of the report that carries risk, printed even when both are zero.
+    assert!(text.contains("field paths shanon does not model"), "{text}");
+    assert!(text.contains("numeric values passed through"), "{text}");
+
+    // The mapping file is the one artifact that must not be shared, and the
+    // report has to say so wherever it names it.
+    assert!(text.contains("KEEP LOCAL"), "{text}");
+    assert!(text.contains("safe to share"), "{text}");
+}
+
+/// Invariant 7 applies to the friendly rendering exactly as it does to every
+/// other diagnostic: a report is only shareable if it is made of counts. No
+/// identifier the demo collection contains may appear in it.
+#[test]
+fn anonymize_report_leaks_no_source_value() {
+    let out = anonymize_demo("report-leak", &[]);
+    let text = String::from_utf8_lossy(&out.stdout);
+    let lower = text.to_lowercase();
+    for secret in [
+        "contoso",
+        "svc_sql",
+        "sql01",
+        "sql server service account",
+        "s-1-5-21-1111111111",
+        "helpdesk",
+    ] {
+        assert!(!lower.contains(secret), "leaked {secret}: {text}");
+    }
+}
+
+/// The report is the run's own output, so it must not depend on whether a
+/// terminal is attached or whether the default was named explicitly. Captured
+/// stdout is what both tests here see, and `--summary` must not change it.
+#[test]
+fn anonymize_report_is_the_default_and_does_not_vary() {
+    let default = anonymize_demo("report-default", &[]);
+    let explicit = anonymize_demo("report-explicit", &["--summary"]);
+    let normalize = |out: &std::process::Output| {
+        String::from_utf8_lossy(&out.stdout)
+            .lines()
+            .filter(|l| !l.contains("shanon-cli-report-"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+    assert_eq!(normalize(&default), normalize(&explicit));
+}
+
+/// The compatibility promise for the stdout break: `--no-summary` still prints
+/// the five previous lines, in order, and prints nothing else. A script that
+/// matched them keeps working by adding one flag, so this pins the escape hatch
+/// rather than the report.
+#[test]
+fn anonymize_no_summary_prints_the_previous_lines_verbatim() {
+    let out = anonymize_demo("terse", &["--no-summary"]);
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+    let lines: Vec<&str> = text.lines().collect();
+
+    assert_eq!(lines.len(), 5, "{text}");
+    assert!(lines[0].starts_with("anonymized -> "), "{text}");
+    assert!(
+        lines[1].starts_with("mapping (client-sensitive, keep local) -> "),
+        "{text}"
+    );
+    assert_eq!(lines[2], "policy: core-global-defaults");
+    assert_eq!(
+        lines[3],
+        "classified: core=2 feature=0 third_party=0 custom=6 unknown=0"
+    );
+    assert_eq!(lines[4], "unknown string paths: 0");
+}
+
+/// `inspect` is a dry run of `anonymize`, so its report answers the same
+/// questions in the same vocabulary, and says up front that it wrote nothing.
+#[test]
+fn inspect_report_reads_like_the_anonymize_report() {
+    let out = Command::new(bin())
+        .args(["inspect", "--input"])
+        .arg(demo_collection())
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let text = String::from_utf8_lossy(&out.stdout);
+
+    // The one claim a skimmed dry run must not get wrong.
+    assert!(text.starts_with("Dry run. Nothing was written."), "{text}");
+
+    assert!(text.contains("Read 4 files, all usable."), "{text}");
+    assert!(text.contains("Found 8 objects."), "{text}");
+    // Same blocks as the anonymize report, in the conditional tense.
+    assert!(
+        text.contains("Would replace 37 identifiers, each with a stable pseudonym:"),
+        "{text}"
+    );
+    assert!(
+        text.contains("built-in Active Directory defaults"),
+        "{text}"
+    );
+    assert!(text.contains("Would not anonymize:"), "{text}");
+    assert!(text.contains("Verdict:"), "{text}");
+    // No catalog or registry enum name reaches the operator.
+    assert!(!text.contains("core_global_default"), "{text}");
+    assert!(!text.contains("type=Computer"), "{text}");
+}
+
+/// The dry run mints pseudonyms against a throwaway salt, so its counts must
+/// match a real run's even though the values it invents do not.
+#[test]
+fn inspect_would_replace_count_matches_a_real_run() {
+    let inspected = Command::new(bin())
+        .args(["inspect", "--input"])
+        .arg(demo_collection())
+        .args(["--format", "json"])
+        .output()
+        .unwrap();
+    let doc: serde_json::Value = serde_json::from_slice(&inspected.stdout).unwrap();
+    let dry: u64 = doc["mapped_per_category"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|row| row["count"].as_u64().unwrap())
+        .sum();
+
+    let real = anonymize_demo("inspect-parity", &[]);
+    let text = String::from_utf8_lossy(&real.stdout);
+    assert!(
+        text.contains(&format!("Replaced {dry} identifiers")),
+        "dry run counted {dry}, real run said: {text}"
+    );
+}
+
+/// A dry run over a collection that would abort has to say so unambiguously,
+/// and has to lead with the reason rather than the verdict.
+#[test]
+fn inspect_report_names_the_reason_it_would_abort() {
+    let dir = scratch("abort-report");
+    fs::write(
+        dir.join("a.json"),
+        br#"{"data":[],"meta":{"methods":0,"type":"users","count":4,"version":6}}"#,
+    )
+    .unwrap();
+
+    let out = Command::new(bin())
+        .args(["inspect", "--input"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(text.contains("each one enough to abort the run"), "{text}");
+    assert!(
+        text.contains("Verdict: this collection would abort. No output would be written."),
+        "{text}"
+    );
+    // A run that would abort must not also offer the next step.
+    assert!(!text.contains("Next: `shanon anonymize"), "{text}");
+    let _ = fs::remove_dir_all(&dir);
+}
+
+/// A clean verdict covers the leak gate and nothing else. When the dry run
+/// found advisory signals, the verdict line must not be the last word.
+#[test]
+fn inspect_clean_verdict_still_points_at_the_advisory_counts() {
+    let dir = scratch("advisory");
+    // A field no rule models, and a number at an undeclared path.
+    fs::write(
+        dir.join("users.json"),
+        br#"{"data":[{"Properties":{"name":"A@B.LOCAL","vendorfield":"x","vendorscore":7}}],
+             "meta":{"methods":0,"type":"users","count":1,"version":6}}"#,
+    )
+    .unwrap();
+
+    let out = Command::new(bin())
+        .args(["inspect", "--input"])
+        .arg(&dir)
+        .arg("--keep-undeclared-numbers")
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        text.contains("Verdict: this collection would anonymize cleanly."),
+        "{text}"
+    );
+    assert!(
+        text.contains("the verdict does not cover it"),
+        "advisory caveat missing: {text}"
+    );
+
+    // Invariant 7 reaches the drift listing too. An unmodeled field is named
+    // only by fingerprint: the path says where the drift is, never what the
+    // collector called it, and never the value underneath.
+    let lower = text.to_lowercase();
+    for secret in ["vendorfield", "vendorscore", "a@b.local"] {
+        assert!(!lower.contains(secret), "leaked {secret}: {text}");
+    }
+    let _ = fs::remove_dir_all(&dir);
+}
+
 #[test]
 fn anonymize_conflicting_summary_flags_rejected() {
     let out = Command::new(bin())
@@ -286,11 +523,12 @@ fn inspect_defaults_to_text() {
     assert_eq!(default.stdout, explicit.stdout);
     let text = String::from_utf8_lossy(&default.stdout);
     assert!(
-        text.starts_with("members: 4 read, 4 accepted, 0 skipped\n"),
+        text.starts_with("Dry run. Nothing was written.\n"),
         "{text}"
     );
+    assert!(text.contains("Read 4 files, all usable."), "{text}");
     assert!(
-        text.contains("verdict: this collection would anonymize cleanly"),
+        text.contains("Verdict: this collection would anonymize cleanly."),
         "{text}"
     );
 }
@@ -318,7 +556,10 @@ fn inspect_omits_preflight_for_a_clean_collection() {
         .output()
         .unwrap();
     let text = String::from_utf8_lossy(&out.stdout);
-    assert!(!text.contains("preflight:"), "{text}");
+    assert!(
+        !text.contains("Worth checking before you run this:"),
+        "{text}"
+    );
 
     let json_run = Command::new(bin())
         .args(["inspect", "--input"])
@@ -354,19 +595,20 @@ fn inspect_reports_the_preflight_signals() {
         .output()
         .unwrap();
     let text = String::from_utf8_lossy(&out.stdout);
-    assert!(text.contains("\npreflight:\n"), "{text}");
     assert!(
-        text.contains("  missing core collection types: computers, domains, groups\n"),
+        text.contains("\nWorth checking before you run this:\n"),
         "{text}"
     );
     assert!(
-        text.contains(
-            "  meta.count disagrees with data length: member-00001.json declared 4, actual 0\n"
-        ),
+        text.contains("  Missing core collection types: computers, domains, groups.\n"),
         "{text}"
     );
     assert!(
-        text.contains("  collection type declared by more than one member: users\n"),
+        text.contains("  member-00001.json says it holds 4 objects but carries 0.\n"),
+        "{text}"
+    );
+    assert!(
+        text.contains("  Declared by more than one file: users.\n"),
         "{text}"
     );
 

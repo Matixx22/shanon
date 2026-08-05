@@ -9,18 +9,24 @@
 //! * `--progress/--no-progress` on `anonymize`, adding two lines to that
 //!   subcommand's help. A run takes minutes on a real collection, and used to
 //!   give no sign it was alive.
-//! * `--summary/--no-summary` on `anonymize`, on the same terms.
 //! * `--format text|json` on `inspect`. `text` is the byte-identical default;
 //!   `json` prints one canonical document and nothing else.
 //! * the `scrub` verb, which adds a line to the top-level subcommand list. Its
 //!   arrival is also the one *reworded* line here: `anonymize` used to describe
 //!   itself as scrubbing a collection, which now names a different verb.
 //!
-//! The progress bar itself changes no captured bytes: it draws only when stderr
-//! is a terminal (see [`progress::should_render`]), so redirected stderr — every
-//! parity fixture and every CLI test — is unchanged. The run summary is drawn on
-//! the same condition, for the same reason. All other stderr, and every exit
-//! code, are as before.
+//! and this one deliberate **break**:
+//!
+//! * `anonymize` prints a run report on stdout in place of the five lines that
+//!   had been frozen since §3.4. Those five are still reachable, byte for byte,
+//!   as `--no-summary` (see [`terse_report`]), so a script that matched them
+//!   keeps working by adding one flag. `--summary` names the new default.
+//!
+//! The progress bar changes no captured bytes: it draws only when stderr is a
+//! terminal (see [`progress::should_render`]), so redirected stderr is
+//! unchanged. The report does *not* inherit that rule — it is the run's own
+//! output, and must not vary with who is watching. All other stderr, and every
+//! exit code, are as before.
 
 mod progress;
 
@@ -33,7 +39,7 @@ use serde_json::{json, Value};
 
 use shanon_core::catalog::CATALOG_VERSION;
 use shanon_core::pipeline::{
-    anonymize_collection, ensure_reuse_map_compatible, resolve, ShanonError,
+    anonymize_collection, ensure_reuse_map_compatible, resolve, AnonymizeOutcome, ShanonError,
 };
 use shanon_core::policy::{PolicyAudit, PolicyConfig};
 use shanon_core::registry::Registry;
@@ -84,10 +90,10 @@ enum Command {
         /// never draw a progress bar
         #[arg(long = "no-progress")]
         no_progress: bool,
-        /// print a run summary even when stderr is not a terminal
+        /// print the full run report (the default)
         #[arg(long, conflicts_with = "no_summary")]
         summary: bool,
-        /// never print a run summary
+        /// print the terse machine-readable report instead of the full one
         #[arg(long = "no-summary")]
         no_summary: bool,
     },
@@ -159,10 +165,13 @@ enum InspectFormat {
 /// meaning or disappears; adding a key does not bump it.
 const INSPECT_SCHEMA_VERSION: u64 = 1;
 
-/// What a run draws on stderr for a human watching it.
+/// What a run draws for the person watching it.
 ///
-/// Both are off whenever stderr is not a terminal, so neither can move a
-/// captured byte (invariant 2).
+/// `progress` is stderr decoration and stays terminal-gated, so it can never
+/// move a captured byte. `summary` selects between the two stdout reports and is
+/// deliberately *not* terminal-gated: a report that changed shape depending on
+/// whether stdout was a pipe would make the run's own output nondeterministic,
+/// which is the opposite of what invariant 2 asks for.
 #[derive(Copy, Clone)]
 struct Rendering {
     progress: bool,
@@ -193,7 +202,8 @@ fn main() {
             policy_config(keep_undeclared_numbers, redact_os_strings),
             Rendering {
                 progress: progress::should_render(progress, no_progress),
-                summary: progress::should_render(summary, no_summary),
+                // `--summary` is the default; only the explicit opt-out moves it.
+                summary: !no_summary || summary,
             },
         ),
         Command::Inspect {
@@ -279,151 +289,186 @@ fn inspect(input: PathBuf, policy: PolicyConfig, render_progress: bool, format: 
     }
 }
 
-/// The operator-facing rendering. Frozen byte-for-byte for a given report, with
-/// the sole addition of the `preflight:` block, which is drawn only when the
-/// dry run actually has an advisory signal to report.
+/// The operator-facing rendering: what a real run would do to this collection,
+/// in the same shape and vocabulary the `anonymize` report uses.
+///
+/// Every line is a count, a synthetic member label, a canonical path or a
+/// fingerprint, so the report stays pasteable into a ticket for a collection
+/// that cannot be shared (invariant 7). `--format json` is the machine-readable
+/// surface and is unaffected by anything reworded here.
 fn inspect_text(report: &shanon_core::pipeline::InspectReport) {
-    println!(
-        "members: {} read, {} accepted, {} skipped",
-        report.members_read,
-        report.members_accepted,
-        report.members_skipped.len()
-    );
-    println!("objects: {}", report.objects);
+    let out = std::io::stdout();
+    let mut out = out.lock();
 
-    println!("\ncollections:");
+    // Said first and unconditionally. Everything below describes a run that did
+    // not happen, and a reader who skims must not mistake it for one that did.
+    let _ = writeln!(out, "Dry run. Nothing was written.\n");
+
+    if report.members_skipped.is_empty() {
+        let _ = writeln!(
+            out,
+            "Read {}, all usable.",
+            plural(report.members_read as u64, "file")
+        );
+    } else {
+        let _ = writeln!(
+            out,
+            "Read {}: {} usable, {} skipped (did not parse as SharpHound data).",
+            plural(report.members_read as u64, "file"),
+            report.members_accepted,
+            report.members_skipped.len(),
+        );
+    }
+    let _ = writeln!(out, "Found {}.", plural(report.objects, "object"));
+
+    let _ = writeln!(out, "\nCollections:");
     for row in &report.collection_types {
+        // An unrecognized type still anonymizes, opaquely. Saying so on the row
+        // keeps the caveat next to the thing it applies to.
         let flag = if row.node_type == "Unknown" {
-            "  <- unrecognized, contents anonymized opaquely"
+            "   <- unrecognized; contents anonymized opaquely"
         } else {
             ""
         };
-        println!(
-            "  {:<24} type={:<14} version={:<10} objects={}{}",
-            row.meta_type, row.node_type, row.version, row.objects, flag
+        let _ = writeln!(
+            out,
+            "  {:<22}{:<16}version {:<6}{:>7}{}",
+            row.meta_type,
+            row.node_type,
+            row.version,
+            plural(row.objects, "object"),
+            flag
         );
     }
 
-    for (label, section) in [
-        ("object classifications", "object_classifications"),
-        ("audit codes", "audit_codes"),
-    ] {
-        if let Some(map) = report.audit.get(section).and_then(|v| v.as_object()) {
-            if !map.is_empty() {
-                println!("\n{label}:");
-                for (key, value) in map {
-                    println!("  {key}: {value}");
-                }
-            }
-        }
-    }
+    replaced_block(&mut out, "Would replace", &report.mapped_per_category);
+    origin_block(&mut out, &report.audit);
+
+    // The half of the report that carries risk, in the same two rows the
+    // `anonymize` report prints, then the paths behind each. Both counts are
+    // printed even at zero: "none happened" is the load-bearing case.
+    let unknown = counts(&report.audit, "unknown_paths");
+    let numeric = counts(&report.audit, "numeric_passthrough_paths");
+    let _ = writeln!(out, "\nWould not anonymize:");
+    let _ = writeln!(
+        out,
+        "  {:<LABEL$}{:>COUNT$} distinct",
+        "field paths shanon does not model",
+        unknown.len()
+    );
+    let _ = writeln!(
+        out,
+        "  {:<LABEL$}{:>COUNT$} distinct",
+        "numeric values passed through",
+        numeric.len()
+    );
 
     // Unknown paths are the ingestor-drift signal: fields no rule covers. They
     // are anonymized, not leaked, but each one is a field shanon does not model.
-    if let Some(map) = report
-        .audit
-        .get("unknown_paths")
-        .and_then(|v| v.as_object())
-    {
-        if !map.is_empty() {
-            let mut paths: Vec<(&String, u64)> = map
-                .iter()
-                .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
-                .collect();
-            paths.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
-            println!("\nunknown field paths ({} distinct):", paths.len());
-            for (path, count) in paths.iter().take(20) {
-                println!("  {count:>8}  {path}");
-            }
-            if paths.len() > 20 {
-                println!("  ... {} more", paths.len() - 20);
-            }
-        }
+    if !unknown.is_empty() {
+        let _ = writeln!(
+            out,
+            "\n  Field paths no rule models. Contents are still anonymized, but\n  \
+             shanon does not know what they hold:"
+        );
+        path_block(&mut out, &unknown, 20);
     }
 
     // Numeric leaves never reach the policy, so one at an undeclared path is
     // passed through unchanged rather than anonymized. Unlike the unknown paths
     // above, these are not modelled imperfectly — they are not modelled at all,
-    // and the value went out exactly as it came in. See SECURITY.md.
-    if let Some(map) = report
-        .audit
-        .get("numeric_passthrough_paths")
-        .and_then(|v| v.as_object())
-    {
-        if !map.is_empty() {
-            let mut paths: Vec<(&String, u64)> = map
-                .iter()
-                .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
-                .collect();
-            paths.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
-            println!(
-                "\nnumeric values passed through unchanged ({} distinct path(s)):",
-                paths.len()
-            );
-            for (path, count) in paths.iter().take(20) {
-                println!("  {count:>8}  {path}");
-            }
-            if paths.len() > 20 {
-                println!("  ... {} more", paths.len() - 20);
-            }
-        }
+    // and the value would go out exactly as it came in. See SECURITY.md.
+    if !numeric.is_empty() {
+        let _ = writeln!(
+            out,
+            "\n  Numbers that would be published verbatim. These would leave your\n  \
+             machine unchanged; see SECURITY.md:"
+        );
+        path_block(&mut out, &numeric, 20);
     }
 
+    audit_code_block(&mut out, &report.audit);
+
     // Advisory shape checks. None of these change the verdict; a mismatched
-    // `meta.count` is already a leak-gate finding of its own, and this line
+    // `meta.count` is already a leak-gate finding of its own, and this block
     // only says in operator terms what the abort below says in gate terms.
     if !report.missing_core_types.is_empty()
         || !report.meta_count_mismatches.is_empty()
         || !report.duplicate_collection_types.is_empty()
     {
-        println!("\npreflight:");
+        let _ = writeln!(out, "\nWorth checking before you run this:");
         if !report.missing_core_types.is_empty() {
-            println!(
-                "  missing core collection types: {}",
+            let _ = writeln!(
+                out,
+                "  Missing core collection types: {}.\n    \
+                 The graph built from this will have holes.",
                 report.missing_core_types.join(", ")
             );
         }
         for m in &report.meta_count_mismatches {
-            println!(
-                "  meta.count disagrees with data length: {} declared {}, actual {}",
+            let _ = writeln!(
+                out,
+                "  {} says it holds {} objects but carries {}.\n    \
+                 The collection may be truncated or hand-edited.",
                 m.member, m.declared, m.actual
             );
         }
         if !report.duplicate_collection_types.is_empty() {
-            println!(
-                "  collection type declared by more than one member: {}",
+            let _ = writeln!(
+                out,
+                "  Declared by more than one file: {}.\n    \
+                 This may be two collections merged into one directory.",
                 report.duplicate_collection_types.join(", ")
             );
         }
     }
 
     if let Some(abort) = &report.abort {
-        println!("\nwould abort:");
+        let _ = writeln!(out, "\nWhy it would abort:");
         for line in abort.lines() {
-            println!("  {line}");
+            let _ = writeln!(out, "  {line}");
         }
     }
     if !report.findings.is_empty() {
-        println!(
-            "\nwould abort - {} leak-gate finding(s):",
+        let _ = writeln!(
+            out,
+            "\nLeak-gate findings ({}), each one enough to abort the run:",
             report.findings.len()
         );
         for f in report.findings.iter().take(50) {
-            println!(
+            let _ = writeln!(
+                out,
                 "  {} {}: {} {}",
                 f.member, f.path, f.policy_code, f.offender
             );
         }
         if report.findings.len() > 50 {
-            println!("  ... {} more", report.findings.len() - 50);
+            let _ = writeln!(out, "  ... {} more", report.findings.len() - 50);
         }
     }
 
+    // The verdict is about the leak gate and nothing else, so a clean one has to
+    // avoid reading as "nothing above needs your attention".
     if report.would_publish() {
-        println!("\nverdict: this collection would anonymize cleanly");
+        let _ = writeln!(out, "\nVerdict: this collection would anonymize cleanly.");
+        if !unknown.is_empty() || !numeric.is_empty() {
+            let _ = writeln!(
+                out,
+                "  Read \"would not anonymize\" above first: that part is advisory,\n  \
+                 and the verdict does not cover it."
+            );
+        }
+        let _ = writeln!(
+            out,
+            "\nNext: `shanon anonymize --input <same input> --out <dir>` to write it."
+        );
     } else {
-        println!("\nverdict: this collection would abort with no output written");
+        let _ = writeln!(
+            out,
+            "\nVerdict: this collection would abort. No output would be written."
+        );
     }
+    let _ = out.flush();
 }
 
 /// The machine-readable rendering: one document on stdout and nothing else.
@@ -452,6 +497,11 @@ fn inspect_json(report: &shanon_core::pipeline::InspectReport) {
             }))
             .collect::<Vec<Value>>(),
         "audit": report.audit,
+        "mapped_per_category": report
+            .mapped_per_category
+            .iter()
+            .map(|(category, count)| json!({"category": category, "count": count}))
+            .collect::<Vec<Value>>(),
         "findings": report
             .findings
             .iter()
@@ -587,6 +637,21 @@ fn anonymize(
     };
 
     let summary = outcome.audit.summary();
+    if rendering.summary {
+        run_report(&outcome, &summary, &map_path);
+    } else {
+        terse_report(&summary, &outcome.dest, &map_path);
+    }
+}
+
+/// The previous stdout rendering, byte-for-byte, behind `--no-summary`.
+///
+/// The default report replaced these five lines, which had been a frozen
+/// surface since §3.4. Anything that parsed them keeps working by adding one
+/// flag, so the break is opt-out rather than unavoidable. Do not reword
+/// anything here: this function exists precisely because these bytes are the
+/// ones somebody's script already matches.
+fn terse_report(summary: &Value, dest: &Path, map_path: &Path) {
     let classified = &summary["object_classifications"];
     let get = |k: &str| classified.get(k).and_then(|v| v.as_u64()).unwrap_or(0);
     let unknown_total: u64 = summary["unknown_paths"]
@@ -594,7 +659,7 @@ fn anonymize(
         .map(|m| m.values().filter_map(|v| v.as_u64()).sum())
         .unwrap_or(0);
 
-    println!("anonymized -> {}", outcome.dest.display());
+    println!("anonymized -> {}", dest.display());
     println!(
         "mapping (client-sensitive, keep local) -> {}",
         map_path.display()
@@ -609,67 +674,216 @@ fn anonymize(
         get("unknown"),
     );
     println!("unknown string paths: {unknown_total}");
+}
 
-    if rendering.summary {
-        run_summary(&summary, &outcome.dest, &map_path);
+/// Plain-English name for a registry category.
+///
+/// The registry's own keys are the map format's keys and cannot be reworded;
+/// this is the reader-facing spelling of the same thing. An unrecognized key
+/// falls through to itself rather than being dropped, so a category added to
+/// the registry still appears in the report.
+fn category_label(key: &str) -> &str {
+    match key {
+        "domains" => "domains",
+        "sids" => "SIDs",
+        "accounts" => "accounts",
+        "hosts" => "hostnames",
+        "guids" => "GUIDs",
+        "cert_templates" => "certificate templates",
+        "oids" => "OIDs",
+        "opaque" => "other identifiers",
+        other => other,
     }
 }
 
-/// Draw a compact run summary on stderr.
+/// Plain-English name for a privacy class.
 ///
-/// Same rule as the progress bar: this is written to stderr and only when
-/// stderr is a terminal, so a redirected or captured stderr — every parity
-/// fixture, every CLI test — is byte-identical to before (invariant 2). Every
-/// figure comes from the audit the run actually kept; nothing here is derived
-/// from a source value, and the two paths are the destinations the caller named.
-fn run_summary(summary: &Value, dest: &Path, map_path: &Path) {
-    /// `key`'s `{name: count}` map as pairs, in the audit's own sorted order.
-    fn counts<'a>(summary: &'a Value, key: &str) -> Vec<(&'a String, u64)> {
-        summary
-            .get(key)
-            .and_then(|v| v.as_object())
-            .map(|m| {
-                m.iter()
-                    .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
-                    .collect()
-            })
-            .unwrap_or_default()
+/// Same contract as [`category_label`]: the audit speaks in catalog enum names
+/// (`core_global_default`), an operator reading a finished run does not, and an
+/// unrecognized class prints as itself.
+fn class_label(key: &str) -> &str {
+    match key {
+        "core_global_default" => "built-in Active Directory defaults",
+        "microsoft_feature_default" => "Microsoft feature defaults",
+        "third_party_default" => "third-party product defaults",
+        "custom" => "specific to your organization",
+        "unknown" => "unrecognized",
+        other => other,
     }
-    fn joined(pairs: &[(&String, u64)]) -> String {
-        pairs
-            .iter()
-            .map(|(k, v)| format!("{k} {v}"))
-            .collect::<Vec<_>>()
-            .join(", ")
-    }
+}
 
+/// `"1 file"` / `"2 files"`, for the counts a sentence reads out loud.
+fn plural(n: u64, singular: &str) -> String {
+    if n == 1 {
+        format!("{n} {singular}")
+    } else {
+        format!("{n} {singular}s")
+    }
+}
+
+/// Width a label column indents to: two clear spaces past the longest label
+/// either report prints ("built-in Active Directory defaults"), so every count
+/// in every block of both reports lines up on one edge.
+const LABEL: usize = 36;
+/// Width counts are right-aligned in, so the digits line up too.
+const COUNT: usize = 5;
+
+/// An audit section's `{name: count}` map as pairs, in the audit's own sorted
+/// order. Shared by the two reports, which read the same audit.
+fn counts<'a>(summary: &'a Value, key: &str) -> Vec<(&'a String, u64)> {
+    summary
+        .get(key)
+        .and_then(|v| v.as_object())
+        .map(|m| {
+            m.iter()
+                .map(|(k, v)| (k, v.as_u64().unwrap_or(0)))
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Render one `{count} {path}` block, longest first, capped at `limit` rows.
+///
+/// Every path here is a canonical policy path with its value components already
+/// fingerprinted, which is what makes the list shareable (invariant 7). The cap
+/// is announced rather than silent: a truncated list that looked complete would
+/// read as "that is all of them".
+fn path_block(out: &mut impl Write, paths: &[(&String, u64)], limit: usize) {
+    let mut sorted: Vec<&(&String, u64)> = paths.iter().collect();
+    sorted.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
+    for (path, count) in sorted.iter().take(limit) {
+        let _ = writeln!(out, "    {count:>8}  {path}");
+    }
+    if sorted.len() > limit {
+        let _ = writeln!(out, "    ... {} more", sorted.len() - limit);
+    }
+}
+
+/// Print a `Replaced`/`Would replace` block from per-category counts.
+///
+/// `verb` differs between the two reports and nothing else does, so the two
+/// stay honest about being the same measurement of the same registry.
+fn replaced_block(out: &mut impl Write, verb: &str, per_category: &[(String, usize)]) {
+    let total: usize = per_category.iter().map(|(_, n)| n).sum();
+    // "Would replace 0 identifiers, each with a stable pseudonym" is not a
+    // sentence about anything, so the empty case gets its own.
+    if total == 0 {
+        let _ = writeln!(
+            out,
+            "\n{verb} no identifiers: nothing in this input needs a pseudonym."
+        );
+        return;
+    }
+    let _ = writeln!(
+        out,
+        "\n{verb} {}, each with a stable pseudonym:",
+        plural(total as u64, "identifier")
+    );
+    for (category, count) in per_category {
+        let _ = writeln!(out, "  {:<LABEL$}{count:>COUNT$}", category_label(category));
+    }
+}
+
+/// Print the `Objects by origin` block, or nothing when the audit saw none.
+fn origin_block(out: &mut impl Write, summary: &Value) {
     let classifications = counts(summary, "object_classifications");
-    let objects: u64 = classifications.iter().map(|(_, v)| *v).sum();
-    let audit_codes = counts(summary, "audit_codes");
+    if classifications.is_empty() {
+        return;
+    }
+    let _ = writeln!(out, "\nObjects by origin:");
+    for (class, count) in &classifications {
+        let _ = writeln!(out, "  {:<LABEL$}{count:>COUNT$}", class_label(class));
+    }
+}
 
-    let mut err = std::io::stderr();
-    let _ = writeln!(err, "summary: {objects} objects");
-    if !classifications.is_empty() {
-        let _ = writeln!(err, "  classifications: {}", joined(&classifications));
+/// Print the `Audit codes` block, or nothing when the audit raised none.
+fn audit_code_block(out: &mut impl Write, summary: &Value) {
+    let audit_codes = counts(summary, "audit_codes");
+    if audit_codes.is_empty() {
+        return;
     }
-    if !audit_codes.is_empty() {
-        let _ = writeln!(err, "  audit codes: {}", joined(&audit_codes));
+    let _ = writeln!(out, "\nAudit codes:");
+    for (code, count) in &audit_codes {
+        let _ = writeln!(out, "  {code:<LABEL$}{count:>COUNT$}");
     }
+}
+
+/// The default rendering: what the run did to the input, in the operator's
+/// terms rather than the catalog's.
+///
+/// Every figure comes from the audit the run kept or from counts the registry
+/// reports, and the two paths are the destinations the caller named. Nothing
+/// here is derived from a source value, so the report stays shareable for a
+/// collection that is not (invariant 7). It is written unconditionally and to
+/// stdout, so the bytes do not depend on whether anything is watching.
+fn run_report(outcome: &AnonymizeOutcome, summary: &Value, map_path: &Path) {
+    let out = std::io::stdout();
+    let mut out = out.lock();
+
     let _ = writeln!(
-        err,
-        "  unknown field paths: {} distinct",
-        counts(summary, "unknown_paths").len()
+        out,
+        "Done. {} anonymized across {}.",
+        plural(outcome.objects, "object"),
+        plural(outcome.members_anonymized as u64, "file"),
     );
-    // Always printed, including the zero: a numeric leaf at an undeclared path
-    // leaves the machine unchanged, so "none happened" is the load-bearing case.
+    if outcome.members_skipped > 0 {
+        // Worded to agree at any count: "1 file" and "3 files" both read into
+        // "did not parse as SharpHound data".
+        let _ = writeln!(
+            out,
+            "  {} skipped: did not parse as SharpHound data, excluded from the output.",
+            plural(outcome.members_skipped as u64, "file"),
+        );
+    }
+
+    // The headline: how much of the client's own vocabulary was replaced. This
+    // is the number an operator is actually asking about when they ask what
+    // shanon did to their collection.
+    replaced_block(&mut out, "Replaced", &outcome.mapped_per_category);
+    origin_block(&mut out, summary);
+
+    // Both of these are "what shanon did not change", which is the half of the
+    // report that carries risk. Printed even at zero, because "none happened"
+    // is the load-bearing case for the numeric one.
+    let unknown_paths = counts(summary, "unknown_paths").len();
+    let numeric_paths = counts(summary, "numeric_passthrough_paths").len();
+    let _ = writeln!(out, "\nNot anonymized:");
     let _ = writeln!(
-        err,
-        "  numeric values passed through: {} distinct path(s)",
-        counts(summary, "numeric_passthrough_paths").len()
+        out,
+        "  {:<LABEL$}{unknown_paths:>COUNT$} distinct",
+        "field paths shanon does not model"
     );
-    let _ = writeln!(err, "  collection: {}", dest.display());
-    let _ = writeln!(err, "  map: {}", map_path.display());
-    let _ = err.flush();
+    let _ = writeln!(
+        out,
+        "  {:<LABEL$}{numeric_paths:>COUNT$} distinct",
+        "numeric values passed through"
+    );
+    if unknown_paths > 0 || numeric_paths > 0 {
+        let _ = writeln!(
+            out,
+            "  Run `shanon inspect` to list them; see SECURITY.md for what they can reveal."
+        );
+    }
+
+    audit_code_block(&mut out, summary);
+
+    let _ = writeln!(out, "\nWrote:");
+    let _ = writeln!(
+        out,
+        "  collection  {}\n              safe to share; policy core-global-defaults",
+        outcome.dest.display()
+    );
+    let _ = writeln!(
+        out,
+        "  mapping     {}\n              KEEP LOCAL. Reverses every pseudonym above.",
+        map_path.display()
+    );
+    let _ = writeln!(
+        out,
+        "\nNext: `shanon scrub --map <map>` rewrites your own questions into these\n\
+         pseudonyms, and `shanon restore --map <map>` turns the model's answer back."
+    );
+    let _ = out.flush();
 }
 
 /// Load a mapping file, or abort on the frozen stderr line for bad map data.
