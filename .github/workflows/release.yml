@@ -17,12 +17,29 @@ jobs:
   build:
     strategy:
       fail-fast: false
+      # Kept in sync by hand with the `binaries` job in ci.yml, which builds the
+      # same list on every run so a target that stops compiling is caught on a
+      # pull request rather than at tag time, when the fix costs a new tag.
       matrix:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
+          # Statically linked, so it runs on a distro whose glibc is older than
+          # the runner's and inside a `scratch`/Alpine container. That is the
+          # common shape of the machine a collection is triaged on.
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            musl: true
+          # Native arm64 runner rather than a cross-linker: the C zlib flate2
+          # links is built by the same compiler that builds everything else.
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
           - os: macos-latest
             target: aarch64-apple-darwin
+          # Cross-built from the arm64 runner; the macOS SDK carries both
+          # architectures, so this needs no extra toolchain.
+          - os: macos-latest
+            target: x86_64-apple-darwin
           - os: windows-latest
             target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
@@ -44,6 +61,14 @@ jobs:
       RUSTUP_TOOLCHAIN: "1.97.1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # flate2 links the C zlib, so the musl target needs a C compiler that
+      # targets musl. The Rust side links itself self-contained and would not.
+      - name: Install musl toolchain
+        if: matrix.musl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
 
       - name: Install Rust toolchain
         run: |

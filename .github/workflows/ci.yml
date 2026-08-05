@@ -97,31 +97,65 @@ jobs:
       - name: Check advisories, licenses, bans, and sources
         run: cargo deny check
 
-  windows-binary:
-    name: windows binary (unsigned)
+  binaries:
+    name: binary (${{ matrix.target }})
     needs: test
-    runs-on: windows-latest
-    # A release build of the exe, attached to every CI run so a Windows machine
-    # can be handed a binary to try without cutting a tag first. Unsigned and not
-    # a release artifact: `release.yml` is what produces the downloads users are
-    # meant to verify against a published `.sha256`.
+    # A release build of every target release.yml ships, on every run. It serves
+    # two purposes: a target that stops compiling (a new C dependency without a
+    # musl story, a cross-build that needs a linker) fails a pull request rather
+    # than a tag, where the only fix is a new tag; and a machine that is not the
+    # one you develop on can be handed a binary to try. These are unsigned and
+    # not release artifacts: `release.yml` produces the downloads users are meant
+    # to verify against a published `.sha256`.
+    #
+    # Kept in sync by hand with the build matrix in release.yml.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            musl: true
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
     env:
       RUSTUP_TOOLCHAIN: stable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # flate2 links the C zlib, so the musl target needs a C compiler that
+      # targets musl. The Rust side links itself self-contained and would not.
+      - name: Install musl toolchain
+        if: matrix.musl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
       - name: Install Rust toolchain (stable)
         run: |
           rustup toolchain install stable --profile minimal
           rustup default stable
+          rustup target add ${{ matrix.target }}
+        shell: bash
 
       - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
 
       - name: Build release binary
-        run: cargo build --release --locked -p shanon-cli --target x86_64-pc-windows-msvc
+        run: cargo build --release --locked -p shanon-cli --target ${{ matrix.target }}
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: shanon-windows-x86_64
-          path: target/x86_64-pc-windows-msvc/release/shanon.exe
+          name: shanon-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/shanon
+            target/${{ matrix.target }}/release/shanon.exe
           if-no-files-found: error
