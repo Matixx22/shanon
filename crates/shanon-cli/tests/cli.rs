@@ -454,8 +454,28 @@ fn scrub_rewrites_a_real_value_into_the_published_pseudonym() {
     let scrub = scrub_stdin(&map, "can SVC_SQL in CONTOSO.LOCAL reach anything?", &[]);
     assert_eq!(scrub.status.code(), Some(0));
     let scrubbed = String::from_utf8_lossy(&scrub.stdout).into_owned();
-    assert!(!scrubbed.to_lowercase().contains("svc_sql"), "{scrubbed}");
-    assert!(!scrubbed.to_lowercase().contains("contoso"), "{scrubbed}");
+    let minted: Vec<&str> = scrubbed
+        .split(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+        .filter(|token| token.len() > 12)
+        .collect();
+    assert!(!minted.is_empty(), "nothing was replaced: {scrubbed}");
+
+    // Asserted against what is left once the minted tokens are removed, not
+    // against the whole line. A pseudonym is not required to be disjoint from
+    // its source: the registry forbids only a mapping that leaves the value
+    // unchanged, so a domain label can draw a company word equal to its own and
+    // `contoso` legitimately becomes `contoso-<fingerprint>` (see the
+    // `pseudonym_spans` note in `core::scrub`). The wordlist holds 20 names and
+    // this collection is CONTOSO, so about one run in twenty produced that, and
+    // a blanket search for the stem failed on those runs while nothing was
+    // wrong. What must hold on every run is this: no real value survives
+    // outside a token the scrub minted.
+    let residue = minted
+        .iter()
+        .fold(scrubbed.clone(), |text, token| text.replace(token, ""))
+        .to_lowercase();
+    assert!(!residue.contains("svc_sql"), "{scrubbed}");
+    assert!(!residue.contains("contoso"), "{scrubbed}");
 
     // Every token the scrub produced must appear in the collection the model
     // would receive; a pseudonym that is merely internally consistent is worth
@@ -469,11 +489,6 @@ fn scrub_rewrites_a_real_value_into_the_published_pseudonym() {
             Ok::<String, std::io::Error>(joined)
         })
         .unwrap();
-    let minted: Vec<&str> = scrubbed
-        .split(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
-        .filter(|token| token.len() > 12)
-        .collect();
-    assert!(!minted.is_empty(), "nothing was replaced: {scrubbed}");
     for token in minted {
         assert!(
             published.contains(token),
