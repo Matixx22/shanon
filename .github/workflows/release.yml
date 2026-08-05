@@ -17,9 +17,10 @@ jobs:
   build:
     strategy:
       fail-fast: false
-      # Kept in sync by hand with the `binaries` job in ci.yml, which builds the
-      # same list on every run so a target that stops compiling is caught on a
-      # pull request rather than at tag time, when the fix costs a new tag.
+      # Kept in sync by hand with the `test` job in ci.yml, which builds this
+      # same list on every run (and runs the suite on all but the Intel macOS
+      # one), so a target that stops compiling is caught on a pull request
+      # rather than at tag time, when the fix costs a new tag.
       matrix:
         include:
           - os: ubuntu-latest

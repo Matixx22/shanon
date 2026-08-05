@@ -33,8 +33,10 @@ What shanon does *not* protect against is documented in
   built it, which is where the existing Linux download fails.
 - [release] `aarch64-unknown-linux-gnu` binary, built on a native arm64 runner.
 - [release] `x86_64-apple-darwin` binary, for Intel Macs.
-- [ci] Every released target is now built on every CI run, so a target that
-  stops compiling fails a pull request instead of a tag.
+- [ci] Every released target is built on every CI run, and all but the Intel
+  macOS one run the full test suite on the exact configuration they ship as. A
+  target that stops compiling, or whose output bytes drift under a different
+  libc, now fails a pull request instead of a tag.
 
 ## [0.7.0] - 2026-08-01
 
