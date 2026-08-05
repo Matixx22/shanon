@@ -26,6 +26,18 @@ What shanon does *not* protect against is documented in
 - CLI surface: unchanged
 - MSRV: 1.97
 
+### Added
+
+- [release] Static `x86_64-unknown-linux-musl` binary. It runs in an Alpine or
+  distroless container and on a host whose glibc is older than the machine that
+  built it, which is where the existing Linux download fails.
+- [release] `aarch64-unknown-linux-gnu` binary, built on a native arm64 runner.
+- [release] `x86_64-apple-darwin` binary, for Intel Macs.
+- [ci] Every released target is built on every CI run, and all but the Intel
+  macOS one run the full test suite on the exact configuration they ship as. A
+  target that stops compiling, or whose output bytes drift under a different
+  libc, now fails a pull request instead of a tag.
+
 ## [0.7.0] - 2026-08-01
 
 Protects the other half of what you send. Every earlier release anonymized the

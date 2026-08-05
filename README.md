@@ -87,12 +87,26 @@ Read what survived, because that is the point:
 
 ## Install
 
-**Prebuilt binary** (Linux x86_64, macOS Apple Silicon, Windows x86_64). Pick the
-current tag from [Releases](https://github.com/Matixx22/shanon/releases):
+**Prebuilt binary.** Pick the current tag from
+[Releases](https://github.com/Matixx22/shanon/releases) and the target that
+matches the machine:
+
+| Machine | `TARGET` |
+| --- | --- |
+| Linux x86_64 | `x86_64-unknown-linux-gnu` |
+| Linux x86_64, static (containers, older glibc) | `x86_64-unknown-linux-musl` |
+| Linux arm64 | `aarch64-unknown-linux-gnu` |
+| macOS Apple Silicon | `aarch64-apple-darwin` |
+| macOS Intel | `x86_64-apple-darwin` |
+| Windows x86_64 | `x86_64-pc-windows-msvc` |
+
+The musl build links statically, so it runs where the glibc build would refuse
+on a version mismatch: an Alpine or distroless container, or a jump box older
+than the runner that built it.
 
 ```sh
 VERSION=v0.7.0
-TARGET=x86_64-unknown-linux-gnu        # or aarch64-apple-darwin
+TARGET=x86_64-unknown-linux-gnu        # from the table above
 BASE="https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
 curl -fsSLO "$BASE/shanon-$VERSION-$TARGET.tar.gz"

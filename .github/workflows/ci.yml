@@ -17,15 +17,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: test (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+  # Formatting and lints are platform-independent, so they run once rather than
+  # once per entry of the test matrix below.
+  lint:
+    name: fmt + clippy
+    runs-on: ubuntu-latest
     # rust-toolchain.toml pins the repository to the MSRV (1.97). This variable
-    # outranks that file, so this job keeps testing against current stable —
+    # outranks that file, so this job keeps checking against current stable —
     # without it, adding the pin would silently downgrade every check below to
     # 1.97 and lose stable coverage entirely.
     env:
@@ -49,8 +47,98 @@ jobs:
       - name: Clippy (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
 
+  # One entry per released target that can execute its own tests, so the suite
+  # runs on the exact configuration the binary ships as. That matters here
+  # beyond "does it compile": output bytes are a frozen interop surface
+  # (invariant 2), and musl swaps the libc under the C zlib that flate2 links,
+  # which is what the ZIP parity fixtures pin.
+  #
+  # Each entry then builds and uploads its own release binary. Step order gates
+  # that on its own tests, and keeping it in this job means one runner per
+  # target instead of two, with the artifact ready sooner.
+  #
+  # The build matrix in release.yml is the same list, kept in sync by hand. The
+  # one target missing here is x86_64-apple-darwin, which cannot run its tests
+  # on an arm64 runner and so is built as a second binary by the macOS entry.
+  test:
+    name: test (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            musl: true
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            extra_target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+    env:
+      RUSTUP_TOOLCHAIN: stable
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # flate2 links the C zlib, so the musl target needs a C compiler that
+      # targets musl. The Rust side links itself self-contained and would not.
+      - name: Install musl toolchain
+        if: matrix.musl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Install Rust toolchain (stable)
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup target add ${{ matrix.target }}
+        shell: bash
+
+      - name: Show active toolchain
+        run: rustc --version --verbose
+
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+
+      # `--target` is explicit even where it is the host triple, so that this
+      # runs the same command shape release.yml builds with.
       - name: Test
-        run: cargo test --workspace --locked
+        run: cargo test --workspace --locked --target ${{ matrix.target }}
+
+      # An unsigned convenience binary attached to every green run, so a machine
+      # that is not the one you develop on can be handed something to try
+      # without cutting a tag first. `release.yml` produces the downloads users
+      # are meant to verify against a published `.sha256`.
+      - name: Build release binary
+        run: cargo build --release --locked -p shanon-cli --target ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: shanon-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/shanon
+            target/${{ matrix.target }}/release/shanon.exe
+          if-no-files-found: error
+
+      # Intel macOS. No runner runs it, so nothing can execute its tests; this
+      # proves it still compiles, on the runner that already has the SDK for
+      # both architectures warm.
+      - name: Build release binary (${{ matrix.extra_target }})
+        if: matrix.extra_target
+        run: |
+          rustup target add ${{ matrix.extra_target }}
+          cargo build --release --locked -p shanon-cli --target ${{ matrix.extra_target }}
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: matrix.extra_target
+        with:
+          name: shanon-${{ matrix.extra_target }}
+          path: target/${{ matrix.extra_target }}/release/shanon
+          if-no-files-found: error
 
   msrv:
     name: msrv (1.97)
@@ -96,32 +184,3 @@ jobs:
       # Configured in deny.toml.
       - name: Check advisories, licenses, bans, and sources
         run: cargo deny check
-
-  windows-binary:
-    name: windows binary (unsigned)
-    needs: test
-    runs-on: windows-latest
-    # A release build of the exe, attached to every CI run so a Windows machine
-    # can be handed a binary to try without cutting a tag first. Unsigned and not
-    # a release artifact: `release.yml` is what produces the downloads users are
-    # meant to verify against a published `.sha256`.
-    env:
-      RUSTUP_TOOLCHAIN: stable
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install Rust toolchain (stable)
-        run: |
-          rustup toolchain install stable --profile minimal
-          rustup default stable
-
-      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
-
-      - name: Build release binary
-        run: cargo build --release --locked -p shanon-cli --target x86_64-pc-windows-msvc
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: shanon-windows-x86_64
-          path: target/x86_64-pc-windows-msvc/release/shanon.exe
-          if-no-files-found: error
