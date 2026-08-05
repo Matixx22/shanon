@@ -105,7 +105,7 @@ on a version mismatch: an Alpine or distroless container, or a jump box older
 than the runner that built it.
 
 ```sh
-VERSION=v0.7.0
+VERSION=v0.8.0
 TARGET=x86_64-unknown-linux-gnu        # from the table above
 BASE="https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
@@ -120,7 +120,7 @@ tar xzf "shanon-$VERSION-$TARGET.tar.gz"
 Windows ships a `.zip` instead, with the same `<hash>  <file>` checksum line:
 
 ```powershell
-$VERSION = "v0.7.0"
+$VERSION = "v0.8.0"
 $TARGET  = "x86_64-pc-windows-msvc"
 $BASE    = "https://github.com/Matixx22/shanon/releases/download/$VERSION"
 
