@@ -37,6 +37,25 @@ What shanon does *not* protect against is documented in
   macOS one run the full test suite on the exact configuration they ship as. A
   target that stops compiling, or whose output bytes drift under a different
   libc, now fails a pull request instead of a tag.
+- [release] A tag whose version disagrees with the version in the tree fails the
+  release before anything is built, rather than publishing archives named for a
+  version their `--version` denies.
+
+### Fixed
+
+- [release] A packaging failure now fails the release instead of publishing one
+  short a platform. Two defaults lined up to make that silent: an artifact
+  upload that found nothing only warned, and the publish step ignored a glob
+  that matched nothing.
+
+### Security
+
+- [release] The jobs that compile the published binaries no longer hold a token
+  that can write to the repository, and no longer inherit one from the checkout
+  they ran. Only the job that uploads the release does. Those builds run
+  third-party build scripts from crates.io on six runners, and a release
+  workflow is where a token like that is worth the most: it signs nothing, but
+  it can replace both a download and the `.sha256` published beside it.
 
 ## [0.7.0] - 2026-08-01
 
